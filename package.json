@@ -22,7 +22,7 @@
   "license": "ISC",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.11.2",
-    "commander": "^14.0.0",
+    "commander": "^13.1.0",
     "testplane": "latest",
     "zod": "^3.22.4"
   },
