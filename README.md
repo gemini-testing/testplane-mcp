@@ -15,7 +15,7 @@
 
 A [Model Context Protocol server](https://modelcontextprotocol.io/quickstart/user) for Testplane, which enables LLMs to "see" and interact with any web app.
 
-### What you can do with Testplane MCP?
+### What can you do with Testplane MCP?
 - Automate generation of integration/e2e tests with LLM-based agents
 - AI Agents no longer have to take guesses as to how your app works — they can truly see what's happening inside a browser and write quality tests for you
 - Let LLMs use text-based or visual-based snapshots, depending on what works better for your app
