@@ -20,7 +20,7 @@ jobs:
               with:
                   token: ${{ secrets.GH_ACCESS_TOKEN }}
                   release-type: node
-                  package-name: "@testplane/mcp"
+                  bump-minor-pre-major: Yes
 
     publish:
         needs: release-please
