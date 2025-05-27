@@ -59,14 +59,7 @@ export async function createBrowserStateResponse(
         sections.push(options.additionalInfo);
     }
 
-    return {
-        content: [
-            {
-                type: "text",
-                text: sections.join("\n\n"),
-            },
-        ],
-    };
+    return createSimpleResponse(sections.join("\n\n"));
 }
 
 export function createErrorResponse(message: string, error?: Error): ToolResponse {

@@ -8,19 +8,25 @@ export interface BrowserTab {
 
 export async function getBrowserTabs(browser: WdioBrowser): Promise<BrowserTab[]> {
     try {
-        const puppeteer = await browser.getPuppeteer();
-        const pages = await puppeteer.pages();
-        const tabs = await Promise.all(
-            pages.map(async page => {
-                const title = await page.title();
-                const url = page.url();
-                return {
-                    title: title || "Untitled",
-                    url: url || "about:blank",
-                    isActive: page === pages[0],
-                };
-            }),
-        );
+        const windowHandles = await browser.getWindowHandles();
+        const currentHandle = await browser.getWindowHandle();
+
+        const tabs: BrowserTab[] = [];
+
+        for (const handle of windowHandles) {
+            await browser.switchToWindow(handle);
+            const title = await browser.getTitle();
+            const url = await browser.getUrl();
+
+            tabs.push({
+                title: title || "Untitled",
+                url: url || "about:blank",
+                isActive: handle === currentHandle,
+            });
+        }
+
+        await browser.switchToWindow(currentHandle);
+
         return tabs;
     } catch (error) {
         console.error("Error getting browser tabs:", error);
@@ -28,17 +34,17 @@ export async function getBrowserTabs(browser: WdioBrowser): Promise<BrowserTab[]
     }
 }
 
-export async function getCurrentTabSnapshot(browser: WdioBrowser): Promise<string | undefined> {
+export async function getCurrentTabSnapshot(browser: WdioBrowser): Promise<string | null> {
     try {
         const pageSource = await browser.getPageSource();
 
         if (!pageSource || pageSource.trim().length === 0) {
-            return undefined;
+            return null;
         }
 
         return pageSource;
     } catch (error) {
         console.error("Error getting tab snapshot:", error);
-        return undefined;
+        return null;
     }
 }
