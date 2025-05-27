@@ -1,0 +1,1 @@
+export const INTEGRATION_TEST_TIMEOUT = 15000;
