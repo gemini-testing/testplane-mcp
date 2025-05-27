@@ -16,6 +16,7 @@ export const startClient = async (): Promise<Client> => {
         command: "node",
         args: [MCP_SERVER_PATH, ...args],
         cwd: path.join(__dirname, "../.."),
+        env: process.env as Record<string, string>,
     });
 
     await client.connect(transport);
