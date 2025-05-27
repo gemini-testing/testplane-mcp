@@ -20,6 +20,11 @@ export class BrowserContext {
 
         this._browser = await launchBrowser({
             headless: this._options.headless ? "new" : false,
+            desiredCapabilities: {
+                "goog:chromeOptions": {
+                    args: process.env.DISABLE_BROWSER_SANDBOX ? ["--no-sandbox", "--disable-dev-shm-usage"] : [],
+                },
+            },
         });
 
         return this._browser;

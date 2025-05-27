@@ -42,8 +42,12 @@ jobs:
               run: npm run build
 
             - name: Preload browser
+              env:
+                  DISABLE_BROWSER_SANDBOX: true
               run: |
                   timeout 90s npm run ci:preload-browser || echo "Browser setup completed"
 
             - name: Run tests
+              env:
+                  DISABLE_BROWSER_SANDBOX: true
               run: npm test
