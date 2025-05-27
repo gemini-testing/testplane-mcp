@@ -20,7 +20,7 @@ jobs:
               with:
                   token: ${{ secrets.GH_ACCESS_TOKEN }}
                   release-type: node
-                  bump-minor-pre-major: Yes
+                  config-file: release-please-config.json
 
     publish:
         needs: release-please
