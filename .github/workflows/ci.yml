@@ -26,8 +26,8 @@ jobs:
                   node-version: ${{ matrix.node-version }}
                   cache: "npm"
 
-            - name: Cache Testplane browsers and drivers
-              uses: actions/cache@v3
+            - name: Cache Testplane browsers
+              uses: actions/cache@v4
               with:
                   path: ~/.testplane
                   key: ${{ runner.os }}-testplane-${{ matrix.browser }}
@@ -40,6 +40,10 @@ jobs:
 
             - name: Run build
               run: npm run build
+
+            - name: Pre-download browser
+              run: |
+                  timeout 90s node scripts/setup-browser.js || echo "Browser setup completed"
 
             - name: Run tests
               run: npm test
