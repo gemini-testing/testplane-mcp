@@ -18,8 +18,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const packageJson: PackageJson = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
 
-export async function startServer(): Promise<McpServer> {
-    const browserContext = new BrowserContext();
+export interface ServerOptions {
+    headless?: boolean;
+}
+
+export async function startServer(options: ServerOptions = {}): Promise<McpServer> {
+    const browserContext = new BrowserContext(options);
 
     const context: Context = {
         browser: browserContext,

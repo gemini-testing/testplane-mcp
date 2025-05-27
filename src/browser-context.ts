@@ -1,15 +1,26 @@
 import { WdioBrowser } from "testplane";
 import { launchBrowser } from "testplane/unstable";
 
+export interface BrowserOptions {
+    headless?: boolean;
+}
+
 export class BrowserContext {
     protected _browser: WdioBrowser | null = null;
+    protected _options: BrowserOptions;
+
+    constructor(options: BrowserOptions = {}) {
+        this._options = options;
+    }
 
     async get(): Promise<WdioBrowser> {
         if (this._browser) {
             return this._browser;
         }
 
-        this._browser = await launchBrowser({ headless: false });
+        this._browser = await launchBrowser({
+            headless: this._options.headless ? "new" : false,
+        });
 
         return this._browser;
     }
