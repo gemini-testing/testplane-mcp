@@ -43,7 +43,7 @@ jobs:
 
             - name: Preload browser
               run: |
-                  timeout 90s npm run preload-browser || echo "Browser setup completed"
+                  timeout 90s npm run ci:preload-browser || echo "Browser setup completed"
 
             - name: Run tests
               run: npm test
