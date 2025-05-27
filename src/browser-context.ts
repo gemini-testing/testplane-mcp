@@ -20,11 +20,6 @@ export class BrowserContext {
 
         this._browser = await launchBrowser({
             headless: this._options.headless ? "new" : false,
-            desiredCapabilities: {
-                "goog:chromeOptions": {
-                    args: ['--user-data-dir=""'],
-                },
-            },
         });
 
         return this._browser;
