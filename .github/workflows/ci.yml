@@ -41,9 +41,9 @@ jobs:
             - name: Run build
               run: npm run build
 
-            - name: Pre-download browser
+            - name: Preload browser
               run: |
-                  timeout 90s node scripts/setup-browser.js || echo "Browser setup completed"
+                  timeout 90s npm run preload-browser || echo "Browser setup completed"
 
             - name: Run tests
               run: npm test

@@ -16,7 +16,8 @@
     "check-formatting": "prettier --check .",
     "lint": "eslint .",
     "test-unit": "vitest run",
-    "test": "npm run lint && npm run check-formatting && npm run test-unit"
+    "test": "npm run lint && npm run check-formatting && npm run test-unit",
+    "ci:preload-browser": "node scripts/preload-browser.js"
   },
   "keywords": [],
   "author": "",
