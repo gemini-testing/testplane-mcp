@@ -127,7 +127,7 @@ A [Model Context Protocol server](https://modelcontextprotocol.io/quickstart/use
 <summary>Navigation</summary>
 
 ### `navigate`
-Open a URL in the browser.
+Navigate to URL in the browser.
 - **Parameters:**
   - `url` (string, required): The URL to navigate to
 
