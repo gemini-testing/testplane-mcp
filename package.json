@@ -1,5 +1,5 @@
 {
-  "name": "testplane-mcp",
+  "name": "@testplane/mcp",
   "version": "0.1.0",
   "description": "MCP server for Testplane tool",
   "main": "build/index.js",
@@ -7,6 +7,9 @@
   "bin": {
     "testplane-mcp-server": "build/cli.js"
   },
+  "files": [
+    "build"
+  ],
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
@@ -17,7 +20,8 @@
     "lint": "eslint .",
     "test-unit": "vitest run",
     "test": "npm run lint && npm run check-formatting && npm run test-unit",
-    "ci:preload-browser": "node scripts/preload-browser.js"
+    "ci:preload-browser": "node scripts/preload-browser.js",
+    "prepack": "npm run build"
   },
   "keywords": [],
   "author": "",
