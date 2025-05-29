@@ -1,6 +1,7 @@
-import { spawn, ChildProcess } from "child_process";
+import { launchServer } from "./simple-http-server.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import http from "http";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,82 +12,35 @@ export interface TestServer {
 }
 
 export class PlaygroundServer implements TestServer {
-    private serverProcess: ChildProcess | null = null;
+    private server: http.Server | null = null;
     private readonly port: number;
     private readonly playgroundPath: string;
 
-    constructor(port: number = 8090) {
-        this.port = port;
+    constructor(port?: number) {
+        this.port = port ?? Math.floor(Math.random() * (65535 - 3000) + 3000);
         this.playgroundPath = path.join(__dirname, "playground");
     }
 
     async start(): Promise<string> {
-        return new Promise((resolve, reject) => {
-            this.serverProcess = spawn(
-                "npx",
-                ["http-server", this.playgroundPath, "-p", this.port.toString(), "--silent"],
-                {
-                    stdio: ["ignore", "pipe", "pipe"],
-                    cwd: path.join(__dirname, ".."),
-                },
-            );
+        this.server = await launchServer(this.port, this.playgroundPath);
+        const url = `http://localhost:${this.port}`;
 
-            this.serverProcess.on("error", error => {
-                reject(new Error(`Failed to start server: ${error.message}`));
-            });
-
-            this.serverProcess.on("exit", code => {
-                if (code !== 0 && code !== null) {
-                    reject(new Error(`Server exited with code ${code}`));
-                }
-            });
-
-            setTimeout(() => {
-                if (this.serverProcess && !this.serverProcess.killed) {
-                    resolve(`http://localhost:${this.port}`);
-                } else {
-                    reject(new Error(`Server startup failed`));
-                }
-            }, 1000);
-        });
+        return url;
     }
 
     async stop(): Promise<void> {
+        console.log("Stopping HTTP server...");
         return new Promise(resolve => {
-            if (this.serverProcess && !this.serverProcess.killed) {
-                this.serverProcess.kill();
-                this.serverProcess.on("exit", () => {
-                    this.serverProcess = null;
+            if (this.server) {
+                this.server.close(() => {
+                    console.log("HTTP server stopped");
+                    this.server = null;
                     resolve();
                 });
-
-                setTimeout(() => {
-                    if (this.serverProcess && !this.serverProcess.killed) {
-                        this.serverProcess.kill("SIGKILL");
-                        this.serverProcess = null;
-                        resolve();
-                    }
-                }, 2000);
             } else {
+                console.log("No server to stop");
                 resolve();
             }
         });
     }
 }
-
-let globalTestServer: PlaygroundServer | null = null;
-
-export const getTestServerUrl = async (): Promise<string> => {
-    if (!globalTestServer) {
-        globalTestServer = new PlaygroundServer();
-        return globalTestServer.start();
-    }
-    return `http://localhost:8090`;
-};
-
-export const stopTestServer = async (): Promise<void> => {
-    if (globalTestServer) {
-        await globalTestServer.stop();
-        globalTestServer = null;
-    }
-};

@@ -5,7 +5,7 @@ import { INTEGRATION_TEST_TIMEOUT } from "../constants";
 import { PlaygroundServer } from "../test-server";
 
 describe(
-    "tools/clickOnElement",
+    "tools/typeIntoElement",
     () => {
         let client: Client;
         let playgroundUrl: string;
@@ -34,71 +34,73 @@ describe(
         });
 
         describe("tool availability", () => {
-            it("should list clickOnElement tool in available tools", async () => {
+            it("should list typeIntoElement tool in available tools", async () => {
                 const tools = await client.listTools();
 
-                const elementClickTool = tools.tools.find(tool => tool.name === "clickOnElement");
+                const typeIntoElementTool = tools.tools.find(tool => tool.name === "typeIntoElement");
 
-                expect(elementClickTool).toBeDefined();
+                expect(typeIntoElementTool).toBeDefined();
             });
         });
 
-        describe("clicking functionality", () => {
-            it("should click an element using semantic query", async () => {
+        describe("typing functionality", () => {
+            it("should successfully type text into an element using semantic query", async () => {
                 const result = await client.callTool({
-                    name: "clickOnElement",
+                    name: "typeIntoElement",
                     arguments: {
-                        queryType: "role",
-                        queryValue: "button",
-                        queryOptions: { name: "Submit Form" },
+                        queryType: "labelText",
+                        queryValue: "Email Address",
+                        text: "test@example.com",
                     },
                 });
 
                 expect(result.isError).toBe(false);
                 const content = result.content as Array<{ type: string; text: string }>;
-                expect(content[0].text).toContain("Successfully clicked element");
-                expect(content[0].text).toContain("clicked-indicator show");
+
+                expect(content[0].text).toContain('Successfully typed "test@example.com" into element');
+                // TODO: once page snapshots will have info about form values, we can check that the form value is updated
             });
 
-            it("should click an element using CSS selector", async () => {
+            it("should successfully type text into element using CSS selector", async () => {
                 const result = await client.callTool({
-                    name: "clickOnElement",
+                    name: "typeIntoElement",
                     arguments: {
-                        selector: "#unique-element",
+                        selector: "#username",
+                        text: "john_doe",
                     },
                 });
 
                 expect(result.isError).toBe(false);
                 const content = result.content as Array<{ type: string; text: string }>;
-                expect(content[0].text).toContain("Successfully clicked element");
-                expect(content[0].text).toContain("clicked-indicator show");
+                expect(content[0].text).toContain('Successfully typed "john_doe" into element');
+                // TODO: once page snapshots will have info about form values, we can check that the form value is updated
             });
 
-            it("should return correct testplane code for clicked element", async () => {
+            it("should return correct testplane code for typed element", async () => {
                 const result = await client.callTool({
-                    name: "clickOnElement",
+                    name: "typeIntoElement",
                     arguments: {
-                        queryType: "role",
-                        queryValue: "button",
-                        queryOptions: { name: "Submit Form" },
+                        queryType: "placeholderText",
+                        queryValue: "Enter your name",
+                        text: "John Smith",
                     },
                 });
 
                 expect(result.isError).toBe(false);
                 const content = result.content as Array<{ type: string; text: string }>;
-                expect(content[0].text).toContain('browser.getByRole("button"');
-                expect(content[0].text).toContain("await element.click();");
+                expect(content[0].text).toContain('browser.getByPlaceholderText("Enter your name"');
+                expect(content[0].text).toContain('await element.setValue("John Smith");');
             });
         });
 
-        describe("error handling specific to clicking", () => {
-            it("should provide helpful error messages for clicking failures", async () => {
+        describe("error handling specific to typing", () => {
+            it("should provide helpful error messages for element not found", async () => {
                 const result = await client.callTool({
-                    name: "clickOnElement",
+                    name: "typeIntoElement",
                     arguments: {
-                        queryType: "role",
-                        queryValue: "button",
-                        queryOptions: { name: "Non-existent Button" },
+                        queryType: "labelText",
+                        queryValue: "Non-existent Field",
+                        text: "test",
                     },
                 });
 
