@@ -141,3 +141,87 @@ Navigate to URL in the browser.
 Close the current browser session.
 
 </details>
+
+<details>
+<summary>Element Interaction</summary>
+
+### `clickOnElement`
+Click an element on the page using semantic queries (`testing-library`-style) or CSS selectors.
+
+- Semantic Queries:
+    - **Parameters:**
+    - `queryType` (string, optional): Semantic query type. One of:
+        - `"role"` - Find by ARIA role (e.g., "button", "link", "heading")
+        - `"text"` - Find by visible text content
+        - `"labelText"` - Find form inputs by their label text
+        - `"placeholderText"` - Find inputs by placeholder text
+        - `"altText"` - Find images by alt text
+        - `"testId"` - Find by data-testid attribute
+        - `"title"` - Find by title attribute
+        - `"displayValue"` - Find inputs by their current value
+    - `queryValue` (string, required when using queryType): The value to search for
+    - `queryOptions` (object, optional): Additional options:
+        - `name` (string): Accessible name for role queries
+        - `exact` (boolean): Whether to match exact text (default: true)
+        - `hidden` (boolean): Include hidden elements (default: false)
+        - `level` (number): Heading level for role="heading" (1-6)
+
+- CSS Selectors:
+    - **Parameters:**
+    - `selector` (string, optional): CSS selector or XPath when semantic queries cannot locate the element
+
+**Examples:**
+```javascript
+// Semantic queries (preferred)
+{ queryType: "role", queryValue: "button", queryOptions: { name: "Submit" } }
+{ queryType: "text", queryValue: "Click here" }
+{ queryType: "labelText", queryValue: "Email Address" }
+
+// CSS selector fallback
+{ selector: ".submit-btn" }
+{ selector: "#unique-element" }
+```
+
+**Note:** Provide either semantic query parameters OR selector, not both.
+
+### `typeIntoElement`
+Type text into an input element on the page using semantic queries (`testing-library`-style) or CSS selectors.
+
+- Semantic Queries:
+    - **Parameters:**
+    - `queryType` (string, optional): Semantic query type. One of:
+        - `"role"` - Find by ARIA role (e.g., "textbox", "searchbox")
+        - `"text"` - Find by visible text content
+        - `"labelText"` - Find form inputs by their label text
+        - `"placeholderText"` - Find inputs by placeholder text
+        - `"altText"` - Find images by alt text
+        - `"testId"` - Find by data-testid attribute
+        - `"title"` - Find by title attribute
+        - `"displayValue"` - Find inputs by their current value
+    - `queryValue` (string, required when using queryType): The value to search for
+    - `text` (string, required): The text to type into the element
+    - `queryOptions` (object, optional): Additional options:
+        - `name` (string): Accessible name for role queries
+        - `exact` (boolean): Whether to match exact text (default: true)
+        - `hidden` (boolean): Include hidden elements (default: false)
+
+- CSS Selectors:
+    - **Parameters:**
+    - `selector` (string, optional): CSS selector or XPath when semantic queries cannot locate the element
+    - `text` (string, required): The text to type into the element
+
+**Examples:**
+```javascript
+// Semantic queries (preferred)
+{ queryType: "labelText", queryValue: "Email Address", text: "test@example.com" }
+{ queryType: "placeholderText", queryValue: "Enter your name", text: "John Smith" }
+{ queryType: "role", queryValue: "textbox", queryOptions: { name: "Username" }, text: "john_doe" }
+
+// CSS selector fallback
+{ selector: "#username", text: "john_doe" }
+{ selector: "input[name='email']", text: "user@domain.com" }
+```
+
+**Note:** Provide either semantic query parameters OR selector, not both.
+
+</details>
