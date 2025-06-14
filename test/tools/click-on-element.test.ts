@@ -57,7 +57,7 @@ describe(
                 expect(result.isError).toBe(false);
                 const content = result.content as Array<{ type: string; text: string }>;
                 expect(content[0].text).toContain("Successfully clicked element");
-                expect(content[0].text).toContain("clicked-indicator show");
+                expect(content[0].text).toContain("span.clicked-indicator.show");
             });
 
             it("should click an element using CSS selector", async () => {
@@ -71,7 +71,7 @@ describe(
                 expect(result.isError).toBe(false);
                 const content = result.content as Array<{ type: string; text: string }>;
                 expect(content[0].text).toContain("Successfully clicked element");
-                expect(content[0].text).toContain("clicked-indicator show");
+                expect(content[0].text).toContain("span.clicked-indicator.show");
             });
 
             it("should return correct testplane code for clicked element", async () => {

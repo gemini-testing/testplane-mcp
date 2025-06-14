@@ -1,7 +1,7 @@
 import { ToolCallback } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ToolDefinition } from "../types.js";
 import { contextProvider } from "../context-provider.js";
-import { createBrowserStateResponse, createErrorResponse } from "../responses/index.js";
+import { createElementStateResponse, createErrorResponse } from "../responses/index.js";
 import { elementSelectorSchema, findElement } from "./utils/element-selector.js";
 
 export const elementClickSchema = elementSelectorSchema;
@@ -17,21 +17,21 @@ const clickOnElementCb: ToolCallback<typeof elementClickSchema> = async args => 
 
         console.error(`Successfully clicked element with ${queryDescription}`);
 
-        return await createBrowserStateResponse(browser, {
+        return await createElementStateResponse(element, {
             action: `Successfully clicked element found by ${queryDescription}`,
             testplaneCode,
             additionalInfo: `Element selection strategy: ${args.queryType ? `Semantic query (${args.queryType})` : "CSS selector (fallback)"}`,
         });
     } catch (error) {
         console.error("Error clicking element:", error);
-        let errorMessage = "Error clicking element";
 
         if (error instanceof Error && error.message.includes("Unable to find")) {
-            errorMessage =
-                "Element not found. Try using a different query strategy or check if the element exists on the page.";
+            return createErrorResponse(
+                "Element not found. Try using a different query strategy or check if the element exists on the page.",
+            );
         }
 
-        return createErrorResponse(errorMessage, error instanceof Error ? error : undefined);
+        return createErrorResponse("Error clicking element", error instanceof Error ? error : undefined);
     }
 };
 
