@@ -133,9 +133,7 @@ describe("responses/index", () => {
             const responseText = result.content[0].text;
 
             expect(responseText).toContain("## Current Tab Snapshot");
-            expect(responseText).toContain("```html");
             expect(responseText).toContain("<html><body>Test content</body></html>");
-            expect(responseText).toContain("```");
         });
 
         it("should include additional information when provided", async () => {

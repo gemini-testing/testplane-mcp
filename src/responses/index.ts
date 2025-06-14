@@ -1,13 +1,26 @@
 import { WdioBrowser } from "testplane";
 import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { getBrowserTabs, getCurrentTabSnapshot } from "./browser-helpers.js";
+import {
+    CaptureSnapshotOptions,
+    getBrowserTabs,
+    getCurrentTabSnapshot,
+    getElementSnapshot,
+} from "./browser-helpers.js";
 
 export type ToolResponse = CallToolResult;
 
 export interface BrowserResponseOptions {
-    action: string;
+    action?: string;
     testplaneCode?: string;
     additionalInfo?: string;
+    snapshotOptions?: CaptureSnapshotOptions;
+}
+
+export interface ElementResponseOptions {
+    action?: string;
+    testplaneCode?: string;
+    additionalInfo?: string;
+    snapshotOptions?: CaptureSnapshotOptions;
 }
 
 export function createSimpleResponse(message: string, isError = false): ToolResponse {
@@ -28,7 +41,9 @@ export async function createBrowserStateResponse(
 ): Promise<ToolResponse> {
     const sections: string[] = [];
 
-    sections.push(`✅ ${options.action}`);
+    if (options.action) {
+        sections.push(`✅ ${options.action}`);
+    }
 
     if (options.testplaneCode) {
         sections.push("## Testplane Code");
@@ -46,12 +61,10 @@ export async function createBrowserStateResponse(
         });
     }
 
-    const snapshot = await getCurrentTabSnapshot(browser);
+    const snapshot = await getCurrentTabSnapshot(browser, options.snapshotOptions);
     if (snapshot) {
         sections.push("## Current Tab Snapshot");
-        sections.push("```html");
         sections.push(snapshot);
-        sections.push("```");
     }
 
     if (options.additionalInfo) {
@@ -74,4 +87,35 @@ export function createErrorResponse(message: string, error?: Error): ToolRespons
         ],
         isError: true,
     };
+}
+
+export async function createElementStateResponse(
+    element: WebdriverIO.Element,
+    options: ElementResponseOptions,
+): Promise<ToolResponse> {
+    const sections: string[] = [];
+
+    if (options.action) {
+        sections.push(`✅ ${options.action}`);
+    }
+
+    if (options.testplaneCode) {
+        sections.push("## Testplane Code");
+        sections.push("```javascript");
+        sections.push(options.testplaneCode);
+        sections.push("```");
+    }
+
+    const elementSnapshot = await getElementSnapshot(element, options.snapshotOptions);
+    if (elementSnapshot) {
+        sections.push("## Element Snapshot");
+        sections.push(elementSnapshot);
+    }
+
+    if (options.additionalInfo) {
+        sections.push("## Additional Information");
+        sections.push(options.additionalInfo);
+    }
+
+    return createSimpleResponse(sections.join("\n\n"));
 }
