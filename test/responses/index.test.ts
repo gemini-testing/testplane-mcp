@@ -188,8 +188,8 @@ describe("responses/index", () => {
             const result = await createBrowserStateResponse(mockBrowser, options);
             const responseText = result.content[0].text;
 
-            expect(responseText).not.toContain("## Browser Tabs");
-            expect(responseText).toContain("✅ No tabs test");
+            expect(responseText).toContain("## Browser Tabs");
+            expect(responseText).toContain("No opened tabs");
         });
 
         it("should handle null snapshot", async () => {

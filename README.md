@@ -143,6 +143,31 @@ Close the current browser session.
 </details>
 
 <details>
+<summary>Tabs</summary>
+
+### `listTabs`
+Get a list of all currently opened browser tabs with their URLs, titles, and active status.
+
+### `switchToTab`
+Switch to a specific browser tab by its number (starting from 1).
+- **Parameters:**
+  - `tabNumber` (number, required): The number of the tab to switch to (starting from 1)
+
+### `openNewTab`
+Open a new browser tab, optionally navigate to a URL, and automatically switch to it.
+- **Parameters:**
+  - `url` (string, optional): The URL to navigate to in the new tab. If not provided, opens a blank tab
+
+### `closeTab`
+Close a specific browser tab by its number (1-based), or close the current tab if no number is provided.
+- **Parameters:**
+  - `tabNumber` (number, optional): The number of the tab to close (starting from 1). If not provided, closes the current tab
+
+**Note:** Cannot close the last remaining tab. `closeBrowser` should be used to close the entire browser session.
+
+</details>
+
+<details>
 <summary>Element Interaction</summary>
 
 ### `clickOnElement`
