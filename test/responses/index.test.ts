@@ -133,9 +133,7 @@ describe("responses/index", () => {
             const responseText = result.content[0].text;
 
             expect(responseText).toContain("## Current Tab Snapshot");
-            expect(responseText).toContain("```html");
             expect(responseText).toContain("<html><body>Test content</body></html>");
-            expect(responseText).toContain("```");
         });
 
         it("should include additional information when provided", async () => {
@@ -190,8 +188,8 @@ describe("responses/index", () => {
             const result = await createBrowserStateResponse(mockBrowser, options);
             const responseText = result.content[0].text;
 
-            expect(responseText).not.toContain("## Browser Tabs");
-            expect(responseText).toContain("✅ No tabs test");
+            expect(responseText).toContain("## Browser Tabs");
+            expect(responseText).toContain("No opened tabs");
         });
 
         it("should handle null snapshot", async () => {

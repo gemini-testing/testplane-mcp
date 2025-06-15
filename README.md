@@ -143,6 +143,31 @@ Close the current browser session.
 </details>
 
 <details>
+<summary>Tabs</summary>
+
+### `listTabs`
+Get a list of all currently opened browser tabs with their URLs, titles, and active status.
+
+### `switchToTab`
+Switch to a specific browser tab by its number (starting from 1).
+- **Parameters:**
+  - `tabNumber` (number, required): The number of the tab to switch to (starting from 1)
+
+### `openNewTab`
+Open a new browser tab, optionally navigate to a URL, and automatically switch to it.
+- **Parameters:**
+  - `url` (string, optional): The URL to navigate to in the new tab. If not provided, opens a blank tab
+
+### `closeTab`
+Close a specific browser tab by its number (1-based), or close the current tab if no number is provided.
+- **Parameters:**
+  - `tabNumber` (number, optional): The number of the tab to close (starting from 1). If not provided, closes the current tab
+
+**Note:** Cannot close the last remaining tab. `closeBrowser` should be used to close the entire browser session.
+
+</details>
+
+<details>
 <summary>Element Interaction</summary>
 
 ### `clickOnElement`
@@ -223,5 +248,23 @@ Type text into an input element on the page using semantic queries (`testing-lib
 ```
 
 **Note:** Provide either semantic query parameters OR selector, not both.
+
+</details>
+
+<details>
+<summary>Page Inspection</summary>
+
+### `takePageSnapshot`
+Capture a DOM snapshot of the current page with configurable filtering options.
+
+- **Parameters:**
+  - `includeTags` (array of strings, optional): HTML tags to include in the snapshot besides defaults
+  - `includeAttrs` (array of strings, optional): HTML attributes to include in the snapshot besides defaults
+  - `excludeTags` (array of strings, optional): HTML tags to exclude from the snapshot
+  - `excludeAttrs` (array of strings, optional): HTML attributes to exclude from the snapshot
+  - `truncateText` (boolean, optional): Whether to truncate long text content (default: true)
+  - `maxTextLength` (number, optional): Maximum length of text content before truncation
+
+**Note:** By default, only useful tags and attributes are included in snapshots. The response will indicate what was omitted. Use the filtering options only if you need specific content that's not included by default.
 
 </details>

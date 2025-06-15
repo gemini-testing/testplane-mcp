@@ -1,3 +1,5 @@
 node_modules
 build
 testplane-mcp-*.tgz
+tmp
+.vscode
