@@ -225,3 +225,21 @@ Type text into an input element on the page using semantic queries (`testing-lib
 **Note:** Provide either semantic query parameters OR selector, not both.
 
 </details>
+
+<details>
+<summary>Page Inspection</summary>
+
+### `takePageSnapshot`
+Capture a DOM snapshot of the current page with configurable filtering options.
+
+- **Parameters:**
+  - `includeTags` (array of strings, optional): HTML tags to include in the snapshot besides defaults
+  - `includeAttrs` (array of strings, optional): HTML attributes to include in the snapshot besides defaults
+  - `excludeTags` (array of strings, optional): HTML tags to exclude from the snapshot
+  - `excludeAttrs` (array of strings, optional): HTML attributes to exclude from the snapshot
+  - `truncateText` (boolean, optional): Whether to truncate long text content (default: true)
+  - `maxTextLength` (number, optional): Maximum length of text content before truncation
+
+**Note:** By default, only useful tags and attributes are included in snapshots. The response will indicate what was omitted. Use the filtering options only if you need specific content that's not included by default.
+
+</details>
