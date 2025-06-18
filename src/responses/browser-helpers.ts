@@ -34,17 +34,83 @@ export async function getBrowserTabs(browser: WdioBrowser): Promise<BrowserTab[]
     }
 }
 
-export async function getCurrentTabSnapshot(browser: WdioBrowser): Promise<string | null> {
-    try {
-        const pageSource = await browser.getPageSource();
+export interface CaptureSnapshotOptions {
+    includeTags?: string[];
+    includeAttrs?: string[];
+    excludeTags?: string[];
+    excludeAttrs?: string[];
+    truncateText?: boolean;
+    maxTextLength?: number;
+}
 
-        if (!pageSource || pageSource.trim().length === 0) {
-            return null;
+async function captureSnapshot(
+    browserOrElement: WebdriverIO.Element | WdioBrowser,
+    options: CaptureSnapshotOptions = {},
+    context: { type: "browser" | "element"; fallbackMethod?: string },
+): Promise<string | null> {
+    try {
+        const snapshotResult = await (browserOrElement as WdioBrowser).unstable_captureDomSnapshot(options);
+
+        const notes: string[] = [];
+
+        const omittedParts: string[] = [];
+        if (snapshotResult.omittedTags.length > 0) {
+            omittedParts.push(`tags: ${snapshotResult.omittedTags.join(", ")}`);
+        }
+        if (snapshotResult.omittedAttributes.length > 0) {
+            omittedParts.push(`attributes: ${snapshotResult.omittedAttributes.join(", ")}`);
         }
 
-        return pageSource;
+        if (omittedParts.length > 0) {
+            notes.push(
+                `# Note: ${omittedParts.join(" and ")} were omitted from this ${context.type} snapshot. If you need them, request the ${context.type} snapshot again and explicitly specify them as needed.`,
+            );
+        }
+
+        if (snapshotResult.textWasTruncated) {
+            notes.push(
+                `# Note: some text contents/attribute values were truncated. If you need full text contents, request a snapshot with truncateText: false.`,
+            );
+        }
+
+        return "```yaml\n" + notes.join("\n") + "\n" + snapshotResult.snapshot + "\n```";
     } catch (error) {
-        console.error("Error getting tab snapshot:", error);
-        return null;
+        console.error(`Error getting ${context.type} snapshot:`, error);
+
+        if (context.type === "browser" && browserOrElement.getPageSource) {
+            const pageSource = await browserOrElement.getPageSource();
+            return (
+                "```html\n" +
+                `<!-- Note: failed to get optimized ${context.type} snapshot, below is raw page source as a fallback. The error was: ${(error as Error)?.stack} -->\n\n` +
+                pageSource +
+                "\n```"
+            );
+        }
+
+        if (context.type === "element" && (browserOrElement as WebdriverIO.Element).getHTML) {
+            const elementHTML = await (browserOrElement as WebdriverIO.Element).getHTML();
+            return (
+                "```html\n" +
+                `<!-- Note: failed to get ${context.type} snapshot, below is element HTML as a fallback. The error was: ${(error as Error)?.message} -->\n\n` +
+                elementHTML +
+                "\n```"
+            );
+        }
     }
+
+    return null;
+}
+
+export async function getCurrentTabSnapshot(
+    browser: WdioBrowser,
+    options: CaptureSnapshotOptions = {},
+): Promise<string | null> {
+    return captureSnapshot(browser, options, { type: "browser" });
+}
+
+export async function getElementSnapshot(
+    element: WebdriverIO.Element,
+    options: CaptureSnapshotOptions = {},
+): Promise<string | null> {
+    return captureSnapshot(element, options, { type: "element" });
 }
