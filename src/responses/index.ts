@@ -14,6 +14,7 @@ export interface BrowserResponseOptions {
     testplaneCode?: string;
     additionalInfo?: string;
     snapshotOptions?: CaptureSnapshotOptions;
+    isSnapshotNeeded?: boolean;
 }
 
 export interface ElementResponseOptions {
@@ -59,12 +60,17 @@ export async function createBrowserStateResponse(
             const activeIndicator = tab.isActive ? "(current)" : "";
             sections.push(`  ${index + 1}. Title: ${tab.title}; URL: ${tab.url} ${activeIndicator}`);
         });
+    } else {
+        sections.push("## Browser Tabs");
+        sections.push("No opened tabs");
     }
 
-    const snapshot = await getCurrentTabSnapshot(browser, options.snapshotOptions);
-    if (snapshot) {
-        sections.push("## Current Tab Snapshot");
-        sections.push(snapshot);
+    if (options.isSnapshotNeeded !== false) {
+        const snapshot = await getCurrentTabSnapshot(browser, options.snapshotOptions);
+        if (snapshot) {
+            sections.push("## Current Tab Snapshot");
+            sections.push(snapshot);
+        }
     }
 
     if (options.additionalInfo) {
