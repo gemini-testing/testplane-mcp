@@ -34,7 +34,7 @@ const closeTabCb: ToolCallback<typeof closeTabSchema> = async args => {
 
         if (windowHandles.length === 1) {
             return createErrorResponse(
-                "Cannot close tab — this is the last remaining tab. Use closeBrowser to close the entire browser session.",
+                'Cannot close tab — this is the last remaining tab. Use "closeBrowser" command to close the entire browser session.',
             );
         }
 
