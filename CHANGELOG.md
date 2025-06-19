@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.0](https://github.com/gemini-testing/testplane-mcp/compare/v0.2.0...v0.3.0) (2025-06-18)
+
+
+### Features
+
+* implement tab management tools ([#17](https://github.com/gemini-testing/testplane-mcp/issues/17)) ([12ad0f3](https://github.com/gemini-testing/testplane-mcp/commit/12ad0f3ee481bb803a71b643a1cd3951daf512fb))
+* implement take page snapshot command ([#16](https://github.com/gemini-testing/testplane-mcp/issues/16)) ([dede051](https://github.com/gemini-testing/testplane-mcp/commit/dede051a3da90e2eba3ff379f316c770ad592eee))
+* use optimized snapshots provided by testplane ([#15](https://github.com/gemini-testing/testplane-mcp/issues/15)) ([1f09ebc](https://github.com/gemini-testing/testplane-mcp/commit/1f09ebccf85bae614c66c947295d5cc6b826e108))
+
 ## [0.2.0](https://github.com/gemini-testing/testplane-mcp/compare/v0.1.2...v0.2.0) (2025-06-10)
 
 
