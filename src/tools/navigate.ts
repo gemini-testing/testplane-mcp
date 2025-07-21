@@ -16,11 +16,11 @@ const navigateCb: ToolCallback<typeof navigateSchema> = async args => {
         const browser = await context.browser.get();
 
         console.error(`Navigating to: ${url}`);
-        await browser.url(url);
+        await browser.openAndWait(url);
 
         return await createBrowserStateResponse(browser, {
             action: `Successfully navigated to ${url}`,
-            testplaneCode: `await browser.url("${url}");`,
+            testplaneCode: `await browser.openAndWait("${url}");`,
         });
     } catch (error) {
         console.error("Error navigating to URL:", error);
