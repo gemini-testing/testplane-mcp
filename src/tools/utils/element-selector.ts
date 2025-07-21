@@ -2,49 +2,68 @@ import { z } from "zod";
 import { WdioBrowser } from "testplane";
 import { setupBrowser } from "@testing-library/webdriverio";
 
+export enum LocatorStrategy {
+    Wdio = "webdriverio",
+    TestingLibrary = "testing-library",
+}
+
 export const elementSelectorSchema = {
-    queryType: z
-        .enum(["role", "text", "labelText", "placeholderText", "displayValue", "altText", "title", "testId"])
-        .optional()
-        .describe(
-            "Semantic query type (PREFERRED). Use this whenever possible for better accessibility and robustness.",
-        ),
-
-    queryValue: z
-        .string()
-        .optional()
-        .describe("The value to search for with the specified queryType (e.g., 'button' for role, 'Submit' for text)."),
-
-    queryOptions: z
-        .object({
-            name: z
+    locator: z.discriminatedUnion("strategy", [
+        z.object({
+            strategy: z.literal(LocatorStrategy.Wdio),
+            selector: z.string().describe("CSS selector, XPath or WebdriverIO locator."),
+        }),
+        z.object({
+            strategy: z.literal(LocatorStrategy.TestingLibrary),
+            queryType: z
+                .enum(["role", "text", "labelText", "placeholderText", "displayValue", "altText", "title", "testId"])
+                .describe(
+                    "Semantic query type (PREFERRED). Use this whenever possible for better accessibility and robustness.",
+                ),
+            queryValue: z
                 .string()
+                .describe(
+                    "The value to search for with the specified queryType (e.g., 'button' for role, 'Submit' for text).",
+                ),
+            queryOptions: z
+                .object({
+                    name: z
+                        .string()
+                        .optional()
+                        .describe("Accessible name for role queries (e.g., getByRole('button', {name: 'Submit'}))"),
+                    exact: z.boolean().optional().describe("Whether to match exact text (default: true)"),
+                    hidden: z
+                        .boolean()
+                        .optional()
+                        .describe("Include elements hidden from accessibility tree (default: false)"),
+                    level: z.number().optional().describe("Heading level for role='heading' (1-6)"),
+                })
                 .optional()
-                .describe("Accessible name for role queries (e.g., getByRole('button', {name: 'Submit'}))"),
-            exact: z.boolean().optional().describe("Whether to match exact text (default: true)"),
-            hidden: z.boolean().optional().describe("Include elements hidden from accessibility tree (default: false)"),
-            level: z.number().optional().describe("Heading level for role='heading' (1-6)"),
-        })
-        .optional()
-        .describe("Additional options for semantic queries"),
+                .describe("Additional options for semantic queries"),
+        }),
+    ])
+        .describe(`Element location strategy, an object, properties of which depend on the strategy. Available strategies: wdio or testing-library.
 
-    selector: z
-        .string()
-        .optional()
-        .describe("CSS selector or XPath. Use only when semantic queries cannot locate the element."),
+    - wdio strategy: CSS selectors, XPath expressions or wdio locators. Examples:
+        - CSS selector: {"strategy": "wdio", "selector": "button.submit-btn"}
+        - XPath: {"strategy": "wdio", "selector": "//button[text()='Submit']"}
+        - wdio locator: {"strategy": "wdio", "selector": "button*=Submit"}
+
+    - testing-library strategy: semantic queries like getByRole, getByText, getByTestId, etc. Examples:
+        - {"strategy": "testing-library", "queryType": "role", "queryValue": "button", "queryOptions": {"name": "submit", "exact": false}}
+        - {"strategy": "testing-library", "queryType": "text", "queryValue": "Submit"}
+        - {"strategy": "testing-library", "queryType": "labelText", "queryValue": "Email"}
+        - {"strategy": "testing-library", "queryType": "placeholderText", "queryValue": "Enter your name"}
+        - {"strategy": "testing-library", "queryType": "displayValue", "queryValue": "123456"}
+        - {"strategy": "testing-library", "queryType": "altText", "queryValue": "Submit"}
+        - {"strategy": "testing-library", "queryType": "title", "queryValue": "Submit"}
+        - {"strategy": "testing-library", "queryType": "testId", "queryValue": "submit-btn"}
+
+Match user's code style - use testing-library queries if user asks to write tests and has testing-library installed.
+`),
 };
 
-export interface ElementSelectorArgs {
-    queryType?: "role" | "text" | "labelText" | "placeholderText" | "displayValue" | "altText" | "title" | "testId";
-    queryValue?: string;
-    queryOptions?: {
-        name?: string;
-        exact?: boolean;
-        hidden?: boolean;
-        level?: number;
-    };
-    selector?: string;
-}
+export type ElementSelectorArgs = z.infer<typeof elementSelectorSchema.locator>;
 
 export interface ElementResult {
     element: WebdriverIO.Element;
@@ -52,97 +71,98 @@ export interface ElementResult {
     testplaneCode: string;
 }
 
-export async function findElement(
+export interface NullableElementResult {
+    element: WebdriverIO.Element | null;
+    queryDescription: string;
+    testplaneCode: string;
+}
+
+export async function findElementByWdioSelector(
     browser: WdioBrowser,
-    args: ElementSelectorArgs,
-    actionCode: string,
+    locator: Extract<ElementSelectorArgs, { strategy: LocatorStrategy.Wdio }>,
 ): Promise<ElementResult> {
-    const { queryType, queryValue, queryOptions, selector } = args;
+    const { selector } = locator;
+    const element = await browser.$(selector);
+    const queryDescription = `CSS selector "${selector}"`;
+    const testplaneCode = `browser.$("${selector}")`;
 
-    const hasSemanticQuery = queryType && queryValue;
-    const hasSelector = selector;
+    return {
+        element,
+        queryDescription,
+        testplaneCode,
+    };
+}
 
-    if (!hasSemanticQuery && !hasSelector) {
-        throw new Error("Provide either semantic query (queryType + queryValue) or selector");
-    }
+export async function findElementByTestingLibraryQuery(
+    browser: WdioBrowser,
+    locator: Extract<ElementSelectorArgs, { strategy: LocatorStrategy.TestingLibrary }>,
+): Promise<NullableElementResult> {
+    const {
+        queryByRole,
+        queryByText,
+        queryByLabelText,
+        queryByPlaceholderText,
+        queryByDisplayValue,
+        queryByAltText,
+        queryByTitle,
+        queryByTestId,
+    } = setupBrowser(browser as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
-    if (hasSemanticQuery && hasSelector) {
-        throw new Error(
-            "Provide EITHER semantic query (queryType + queryValue) OR selector, not both. Prefer semantic queries for better accessibility.",
-        );
-    }
-
+    const { queryType, queryValue, queryOptions } = locator;
     let element;
-    let testplaneCode = "";
     let queryDescription = "";
+    let testplaneCode = "";
 
-    if (queryType && queryValue) {
-        const {
-            getByRole,
-            getByText,
-            getByLabelText,
-            getByPlaceholderText,
-            getByDisplayValue,
-            getByAltText,
-            getByTitle,
-            getByTestId,
-        } = setupBrowser(browser as any); // eslint-disable-line @typescript-eslint/no-explicit-any
-
+    try {
         switch (queryType) {
             case "role":
-                element = await getByRole(queryValue, queryOptions);
+                element = await queryByRole(queryValue, queryOptions);
                 queryDescription = `role "${queryValue}"${queryOptions?.name ? ` with name "${queryOptions.name}"` : ""}`;
-                testplaneCode = `const element = await browser.getByRole("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""});\n${actionCode}`;
+                testplaneCode = `await browser.findByRole("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
                 break;
             case "text":
-                element = await getByText(queryValue, queryOptions);
+                element = await queryByText(queryValue, queryOptions);
                 queryDescription = `text "${queryValue}"`;
-                testplaneCode = `const element = await browser.getByText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""});\n${actionCode}`;
+                testplaneCode = `await browser.findByText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
                 break;
             case "labelText":
-                element = await getByLabelText(queryValue, queryOptions);
+                element = await queryByLabelText(queryValue, queryOptions);
                 queryDescription = `label text "${queryValue}"`;
-                testplaneCode = `const element = await browser.getByLabelText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""});\n${actionCode}`;
+                testplaneCode = `await browser.findByLabelText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
                 break;
             case "placeholderText":
-                element = await getByPlaceholderText(queryValue, queryOptions);
+                element = await queryByPlaceholderText(queryValue, queryOptions);
                 queryDescription = `placeholder text "${queryValue}"`;
-                testplaneCode = `const element = await browser.getByPlaceholderText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""});\n${actionCode}`;
+                testplaneCode = `await browser.findByPlaceholderText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
                 break;
             case "displayValue":
-                element = await getByDisplayValue(queryValue, queryOptions);
+                element = await queryByDisplayValue(queryValue, queryOptions);
                 queryDescription = `display value "${queryValue}"`;
-                testplaneCode = `const element = await browser.getByDisplayValue("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""});\n${actionCode}`;
+                testplaneCode = `await browser.findByDisplayValue("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
                 break;
             case "altText":
-                element = await getByAltText(queryValue, queryOptions);
+                element = await queryByAltText(queryValue, queryOptions);
                 queryDescription = `alt text "${queryValue}"`;
-                testplaneCode = `const element = await browser.getByAltText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""});\n${actionCode}`;
+                testplaneCode = `await browser.findByAltText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
                 break;
             case "title":
-                element = await getByTitle(queryValue, queryOptions);
+                element = await queryByTitle(queryValue, queryOptions);
                 queryDescription = `title "${queryValue}"`;
-                testplaneCode = `const element = await browser.getByTitle("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""});\n${actionCode}`;
+                testplaneCode = `await browser.findByTitle("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
                 break;
             case "testId":
-                element = await getByTestId(queryValue, queryOptions);
+                element = await queryByTestId(queryValue, queryOptions);
                 queryDescription = `test ID "${queryValue}"`;
-                testplaneCode = `const element = await browser.getByTestId("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""});\n${actionCode}`;
+                testplaneCode = `await browser.findByTestId("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
                 break;
             default:
                 throw new Error(`Unsupported queryType: ${queryType}`);
         }
-        testplaneCode += `\n// IMPORTANT for AI agents: if user asks to write tests, prefer to use semantic queries over CSS selectors, if user tests also use testing-library queries.`;
-    } else if (selector) {
-        element = await browser.$(selector);
-        queryDescription = `CSS selector "${selector}"`;
-        testplaneCode = `const element = await browser.$("${selector}");\n${actionCode}`;
-    } else {
-        throw new Error("No valid element selection method provided");
-    }
-
-    if (!element) {
-        throw new Error("Element not found");
+    } catch (e) {
+        if (e instanceof Error && e.message.includes("Found multiple elements")) {
+            throw new Error(e.message.split("\n")[0]);
+        }
+        throw e;
     }
 
     return {
@@ -150,4 +170,21 @@ export async function findElement(
         queryDescription,
         testplaneCode,
     };
+}
+
+export async function findElement(browser: WdioBrowser, locator: ElementSelectorArgs): Promise<ElementResult> {
+    let result;
+    if (locator.strategy === LocatorStrategy.TestingLibrary) {
+        result = await findElementByTestingLibraryQuery(browser, locator);
+    } else if (locator.strategy === LocatorStrategy.Wdio) {
+        result = await findElementByWdioSelector(browser, locator);
+    } else {
+        throw new Error("Invalid element selector configuration");
+    }
+
+    if (!result.element) {
+        throw new Error(`Unable to find element with ${result.queryDescription}`);
+    }
+
+    return result as ElementResult;
 }

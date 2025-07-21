@@ -46,7 +46,7 @@ const takePageSnapshotCb: ToolCallback<typeof takePageSnapshotSchema> = async ar
 export const takePageSnapshot: ToolDefinition<typeof takePageSnapshotSchema> = {
     name: "takePageSnapshot",
     description:
-        "Capture a DOM snapshot of the current page. Note: by default, only useful tags and attributes are included. Prefer to use defaults. Response contains info as to what was omitted. If you need more info, request a snapshot with more tags and attributes.",
+        "Capture a DOM snapshot of the current page. Note: by default, not useful tags and attributes are excluded (e.g. script, style, etc.). Prefer to use defaults. Response contains info as to what was omitted. If you need more info, request a snapshot with more tags and attributes.",
     schema: takePageSnapshotSchema,
     cb: takePageSnapshotCb,
 };

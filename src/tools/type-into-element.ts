@@ -12,16 +12,12 @@ export const typeIntoElementSchema = {
 
 const typeIntoElementCb: ToolCallback<typeof typeIntoElementSchema> = async args => {
     try {
-        const { text, ...selectorArgs } = args;
+        const { text } = args;
 
         const context = contextProvider.getContext();
         const browser = await context.browser.get();
 
-        const { element, queryDescription, testplaneCode } = await findElement(
-            browser,
-            selectorArgs,
-            `await element.setValue("${text}");`,
-        );
+        const { element, queryDescription, testplaneCode } = await findElement(browser, args.locator);
 
         await element.setValue(text);
 
@@ -29,8 +25,9 @@ const typeIntoElementCb: ToolCallback<typeof typeIntoElementSchema> = async args
 
         return await createElementStateResponse(element, {
             action: `Successfully typed "${text}" into element found by ${queryDescription}`,
-            testplaneCode,
-            additionalInfo: `Element selection strategy: ${selectorArgs.queryType ? `Semantic query (${selectorArgs.queryType})` : "CSS selector (fallback)"}`,
+            testplaneCode: testplaneCode.startsWith("await")
+                ? `await (${testplaneCode}).setValue("${text}");`
+                : `await ${testplaneCode}.setValue("${text}");`,
         });
     } catch (error) {
         console.error("Error typing into element:", error);
@@ -47,18 +44,7 @@ const typeIntoElementCb: ToolCallback<typeof typeIntoElementSchema> = async args
 
 export const typeIntoElement: ToolDefinition<typeof typeIntoElementSchema> = {
     name: "typeIntoElement",
-    description: `Type text into an element on the page. The API is very similar to clickOnElement for consistency.
-
-PREFERRED APPROACH (for AI agents): Use semantic queries (queryType + queryValue) which are more robust and accessibility-focused:
-- queryType="role" + queryValue="textbox" + queryOptions.name="Email" → finds email input
-- queryType="labelText" + queryValue="Password" → finds input with Password label
-- queryType="placeholderText" + queryValue="Enter your name" → finds input with specific placeholder
-
-FALLBACK APPROACH: Use selector only when semantic queries cannot locate the element:
-- selector="input[name='email']" → CSS selector
-- selector="//input[@placeholder='Search...']" → XPath
-
-AI agents should prioritize semantic queries for better accessibility and test maintainability.`,
+    description: "Type text into an element on the page.",
     schema: typeIntoElementSchema,
     cb: typeIntoElementCb,
 };

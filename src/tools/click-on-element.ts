@@ -11,7 +11,7 @@ const clickOnElementCb: ToolCallback<typeof elementClickSchema> = async args => 
         const context = contextProvider.getContext();
         const browser = await context.browser.get();
 
-        const { element, queryDescription, testplaneCode } = await findElement(browser, args, `await element.click();`);
+        const { element, queryDescription, testplaneCode } = await findElement(browser, args.locator);
 
         await element.click();
 
@@ -19,8 +19,9 @@ const clickOnElementCb: ToolCallback<typeof elementClickSchema> = async args => 
 
         return await createElementStateResponse(element, {
             action: `Successfully clicked element found by ${queryDescription}`,
-            testplaneCode,
-            additionalInfo: `Element selection strategy: ${args.queryType ? `Semantic query (${args.queryType})` : "CSS selector (fallback)"}`,
+            testplaneCode: testplaneCode.startsWith("await")
+                ? `await (${testplaneCode}).click();`
+                : `await ${testplaneCode}.click();`,
         });
     } catch (error) {
         console.error("Error clicking element:", error);
@@ -37,18 +38,7 @@ const clickOnElementCb: ToolCallback<typeof elementClickSchema> = async args => 
 
 export const clickOnElement: ToolDefinition<typeof elementClickSchema> = {
     name: "clickOnElement",
-    description: `Click an element on the page. 
-
-PREFERRED APPROACH (for AI agents): Use semantic queries (queryType + queryValue) which are more robust and accessibility-focused:
-- queryType="role" + queryValue="button" + queryOptions.name="Submit" → finds submit button
-- queryType="text" + queryValue="Click here" → finds element containing that text
-- queryType="labelText" + queryValue="Email" → finds input with Email label
-
-FALLBACK APPROACH: Use selector only when semantic queries cannot locate the element:
-- selector="button.submit-btn" → CSS selector
-- selector="//button[text()='Submit']" → XPath
-
-AI agents should prioritize semantic queries for better accessibility and test maintainability.`,
+    description: "Click an element on the page.",
     schema: elementClickSchema,
     cb: clickOnElementCb,
 };
