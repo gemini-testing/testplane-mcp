@@ -199,7 +199,7 @@ Click an element on the page using semantic queries (`testing-library`-style) or
 
 **Examples:**
 ```javascript
-// Semantic queries (preferred)
+// Testing Library strategy
 {
   locator: {
     strategy: "testing-library",
@@ -225,7 +225,7 @@ Click an element on the page using semantic queries (`testing-library`-style) or
   }
 }
 
-// CSS selector fallback
+// WebdriverIO strategy
 {
   locator: {
     strategy: "webdriverio",
