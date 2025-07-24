@@ -270,12 +270,12 @@ describe("tools/utils/element-selector", () => {
                         queryValue: "button",
                     } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
                 ),
-            ).rejects.toThrow("Invalid element selector configuration");
+            ).rejects.toThrow(/Provided locator.strategy is not supported/);
         });
 
         it("should reject when neither semantic query nor selector is provided", async () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            await expect(findElement(browser, {} as any)).rejects.toThrow("Invalid element selector configuration");
+            await expect(findElement(browser, {} as any)).rejects.toThrow(/Provided locator.strategy is not supported/);
         });
 
         it("should handle element not found gracefully", async () => {

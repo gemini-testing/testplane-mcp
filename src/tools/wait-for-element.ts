@@ -47,7 +47,7 @@ const waitForElementCb: ToolCallback<typeof waitForElementSchema> = async args =
 
             await result.element.waitForDisplayed(waitOptions);
 
-            console.error(`Element with ${result.queryDescription} ${actionDescription} successfully`);
+            console.error(`Element with ${result.queryDescription} ${actionDescription}ed successfully`);
 
             queryDescription = result.queryDescription;
             testplaneCode = `await ${result.testplaneCode}.waitForDisplayed(${Object.keys(waitOptions).length > 0 ? JSON.stringify(waitOptions) : ""});`;
@@ -64,7 +64,7 @@ const waitForElementCb: ToolCallback<typeof waitForElementSchema> = async args =
                 { timeoutMsg: `Timeout waiting for element to ${actionDescription}`, ...waitOptions },
             );
 
-            console.error(`Element with ${queryDescription} ${actionDescription} successfully`);
+            console.error(`Element with ${queryDescription} ${actionDescription}ed successfully`);
             const queryName = `queryBy${testingLibraryLocator.queryType.charAt(0).toUpperCase() + testingLibraryLocator.queryType.slice(1)}`;
             testplaneCode = `await browser.waitUntil(async () => {
     const result = await browser.${queryName}("${testingLibraryLocator.queryValue}"${testingLibraryLocator.queryOptions ? `, ${JSON.stringify(testingLibraryLocator.queryOptions)}` : ""});
@@ -88,7 +88,7 @@ const waitForElementCb: ToolCallback<typeof waitForElementSchema> = async args =
 
         if (error instanceof Error && error.message.includes("Unable to find")) {
             return createErrorResponse(
-                "Element not found. Try using a different query strategy or check if the element exists on the page.",
+                `Element not found by provided locator:\n${JSON.stringify(args.locator, null, 2)}.\nTry using a different query strategy or check if the element exists on the page.`,
             );
         }
 
@@ -104,7 +104,9 @@ const waitForElementCb: ToolCallback<typeof waitForElementSchema> = async args =
             );
         }
 
-        return createErrorResponse("Error waiting for element", error instanceof Error ? error : undefined);
+        return createErrorResponse(
+            `Error waiting for element with locator:\n${JSON.stringify(args.locator, null, 2)}.\nError message: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
     }
 };
 

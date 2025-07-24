@@ -179,7 +179,9 @@ export async function findElement(browser: WdioBrowser, locator: ElementSelector
     } else if (locator.strategy === LocatorStrategy.Wdio) {
         result = await findElementByWdioSelector(browser, locator);
     } else {
-        throw new Error("Invalid element selector configuration");
+        throw new Error(
+            `Provided locator.strategy is not supported. Please pass either ${LocatorStrategy.Wdio} or ${LocatorStrategy.TestingLibrary} as locator.strategy.`,
+        );
     }
 
     if (!result.element) {
