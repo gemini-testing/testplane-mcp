@@ -3,6 +3,7 @@ import { describe, it, expect, beforeAll, beforeEach, afterEach, afterAll } from
 import { startClient } from "../utils";
 import { INTEGRATION_TEST_TIMEOUT } from "../constants";
 import { PlaygroundServer } from "../test-server";
+import { LocatorStrategy } from "../../src/tools/utils/element-selector";
 
 describe(
     "tools/clickOnElement",
@@ -48,9 +49,12 @@ describe(
                 const result = await client.callTool({
                     name: "clickOnElement",
                     arguments: {
-                        queryType: "role",
-                        queryValue: "button",
-                        queryOptions: { name: "Submit Form" },
+                        locator: {
+                            strategy: LocatorStrategy.TestingLibrary,
+                            queryType: "role",
+                            queryValue: "button",
+                            queryOptions: { name: "Submit Form" },
+                        },
                     },
                 });
 
@@ -64,7 +68,10 @@ describe(
                 const result = await client.callTool({
                     name: "clickOnElement",
                     arguments: {
-                        selector: "#unique-element",
+                        locator: {
+                            strategy: LocatorStrategy.Wdio,
+                            selector: "#unique-element",
+                        },
                     },
                 });
 
@@ -78,16 +85,20 @@ describe(
                 const result = await client.callTool({
                     name: "clickOnElement",
                     arguments: {
-                        queryType: "role",
-                        queryValue: "button",
-                        queryOptions: { name: "Submit Form" },
+                        locator: {
+                            strategy: LocatorStrategy.TestingLibrary,
+                            queryType: "role",
+                            queryValue: "button",
+                            queryOptions: { name: "Submit Form" },
+                        },
                     },
                 });
 
                 expect(result.isError).toBe(false);
                 const content = result.content as Array<{ type: string; text: string }>;
-                expect(content[0].text).toContain('browser.getByRole("button"');
-                expect(content[0].text).toContain("await element.click();");
+                expect(content[0].text).toContain(
+                    'await (await browser.findByRole("button", {"name":"Submit Form"})).click()',
+                );
             });
         });
 
@@ -96,9 +107,12 @@ describe(
                 const result = await client.callTool({
                     name: "clickOnElement",
                     arguments: {
-                        queryType: "role",
-                        queryValue: "button",
-                        queryOptions: { name: "Non-existent Button" },
+                        locator: {
+                            strategy: LocatorStrategy.TestingLibrary,
+                            queryType: "role",
+                            queryValue: "button",
+                            queryOptions: { name: "Non-existent Button" },
+                        },
                     },
                 });
 

@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Slow Loading Test Playground</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                background-color: #f5f5f5;
+            }
+            .section {
+                background: white;
+                padding: 20px;
+                margin: 20px 0;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .section h2 {
+                color: #333;
+                border-bottom: 2px solid #007bff;
+                padding-bottom: 10px;
+            }
+            .loading-spinner {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border: 2px solid #f3f3f3;
+                border-top: 2px solid #007bff;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-right: 10px;
+            }
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            .content {
+                padding: 15px;
+                background-color: #e9ecef;
+                border-radius: 4px;
+                margin: 10px 0;
+            }
+            .hidden {
+                display: none !important;
+            }
+            .loading-placeholder {
+                padding: 15px;
+                background-color: #fff3cd;
+                border: 1px solid #ffeaa7;
+                border-radius: 4px;
+                margin: 10px 0;
+                color: #856404;
+            }
+            .success {
+                background-color: #d4edda;
+                border: 1px solid #c3e6cb;
+                color: #155724;
+            }
+            .error {
+                background-color: #f8d7da;
+                border: 1px solid #f5c6cb;
+                color: #721c24;
+            }
+            button {
+                padding: 10px 20px;
+                margin: 5px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                background-color: #007bff;
+                color: white;
+            }
+            button:hover {
+                background-color: #0056b3;
+            }
+            .warning {
+                background-color: #fff3cd;
+                border: 1px solid #ffeaa7;
+                color: #856404;
+                padding: 10px;
+                border-radius: 4px;
+                margin: 10px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Slow Loading Test Playground</h1>
+        <p>This page simulates content loading at different speeds for testing the waitForElement tool.</p>
+
+        <!-- Immediate loading section -->
+        <div class="section">
+            <h2>Immediate Loading (0ms)</h2>
+            <div id="immediate-content" class="content success">
+                <h3>Immediate Content</h3>
+                <p>This content loads immediately when the page loads.</p>
+                <button id="immediate-button" data-testid="immediate-btn">Immediate Button</button>
+                <div class="loading-indicator" data-testid="immediate-indicator">✓ Loaded immediately</div>
+            </div>
+        </div>
+
+        <!-- 2 second loading section -->
+        <div class="section">
+            <h2>Medium Loading (3 seconds)</h2>
+            <div id="medium-loading-placeholder" class="loading-placeholder">
+                <div class="loading-spinner"></div>
+                Loading content in 3 seconds...
+            </div>
+            <div id="medium-content" class="content success hidden">
+                <h3>Medium Speed Content</h3>
+                <p>This content appears after 3 seconds.</p>
+                <button id="medium-button" data-testid="medium-btn">Medium Button</button>
+                <div class="loading-indicator" data-testid="medium-indicator">✓ Loaded after 3 seconds</div>
+            </div>
+        </div>
+
+        <!-- 5 second loading section -->
+        <div class="section">
+            <h2>Slow Loading (5 seconds)</h2>
+            <div id="slow-loading-placeholder" class="loading-placeholder">
+                <div class="loading-spinner"></div>
+                Loading content in 5 seconds...
+            </div>
+            <div id="slow-content" class="content success hidden">
+                <h3>Slow Loading Content</h3>
+                <p>This content appears after 5 seconds.</p>
+                <button id="slow-button" data-testid="slow-btn">Slow Button</button>
+                <div class="loading-indicator" data-testid="slow-indicator">✓ Loaded after 5 seconds</div>
+            </div>
+        </div>
+
+        <!-- 10 second loading section -->
+        <div class="section">
+            <h2>Very Slow Loading (10 seconds)</h2>
+            <div id="very-slow-loading-placeholder" class="loading-placeholder">
+                <div class="loading-spinner"></div>
+                Loading content in 10 seconds...
+            </div>
+            <div id="very-slow-content" class="content success hidden">
+                <h3>Very Slow Loading Content</h3>
+                <p>This content appears after 10 seconds.</p>
+                <button id="very-slow-button" data-testid="very-slow-btn">Very Slow Button</button>
+                <div class="loading-indicator" data-testid="very-slow-indicator">✓ Loaded after 10 seconds</div>
+            </div>
+        </div>
+
+        <!-- Disappearing content section -->
+        <div class="section">
+            <h2>Disappearing Content</h2>
+            <div id="disappearing-content" class="content warning">
+                <h3>Temporary Content</h3>
+                <p>This content will disappear after 3 seconds.</p>
+                <button id="disappearing-button" data-testid="disappearing-btn">Temporary Button</button>
+                <div class="loading-indicator" data-testid="disappearing-indicator">Will disappear soon...</div>
+            </div>
+            <div id="disappeared-placeholder" class="loading-placeholder hidden">
+                <p>Content has disappeared!</p>
+            </div>
+        </div>
+
+        <!-- Dynamic content section -->
+        <div class="section">
+            <h2>Dynamic Content Controls</h2>
+            <button onclick="showDynamicContent()">Show Dynamic Content</button>
+            <button onclick="hideDynamicContent()">Hide Dynamic Content</button>
+            <button onclick="resetAll()">Reset All Loading States</button>
+
+            <div id="dynamic-content" class="content hidden">
+                <h3>Dynamic Content</h3>
+                <p>This content can be shown/hidden on demand.</p>
+                <button id="dynamic-button" data-testid="dynamic-btn">Dynamic Button</button>
+                <div class="loading-indicator" data-testid="dynamic-indicator">✓ Dynamic content is visible</div>
+            </div>
+        </div>
+
+        <!-- Error simulation section -->
+        <div class="section">
+            <h2>Error Simulation</h2>
+            <div id="error-loading-placeholder" class="loading-placeholder">
+                <div class="loading-spinner"></div>
+                Attempting to load content... (will fail after 4 seconds)
+            </div>
+            <div id="error-content" class="content error hidden">
+                <h3>Error State</h3>
+                <p>❌ Failed to load content!</p>
+                <button id="error-button" data-testid="error-btn" disabled>Error Button</button>
+                <div class="loading-indicator" data-testid="error-indicator">✗ Loading failed</div>
+            </div>
+        </div>
+
+        <!-- Test status display -->
+        <div id="test-status" class="section">
+            <h2>Loading Status</h2>
+            <ul id="status-list">
+                <li>Page loaded - immediate content available</li>
+            </ul>
+        </div>
+
+        <script>
+            let statusList = document.getElementById("status-list");
+
+            function addStatus(message) {
+                const li = document.createElement("li");
+                li.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+                statusList.appendChild(li);
+            }
+
+            // 3 second loading
+            setTimeout(() => {
+                document.getElementById("medium-loading-placeholder").classList.add("hidden");
+                document.getElementById("medium-content").classList.remove("hidden");
+                addStatus("Medium content loaded (3 seconds)");
+            }, 3000);
+
+            // 3 second disappearing
+            setTimeout(() => {
+                document.getElementById("disappearing-content").classList.add("hidden");
+                document.getElementById("disappeared-placeholder").classList.remove("hidden");
+                addStatus("Temporary content disappeared (3 seconds)");
+            }, 3000);
+
+            // 4 second error simulation
+            setTimeout(() => {
+                document.getElementById("error-loading-placeholder").classList.add("hidden");
+                document.getElementById("error-content").classList.remove("hidden");
+                addStatus("Error content shown (4 seconds)");
+            }, 4000);
+
+            // 5 second loading
+            setTimeout(() => {
+                document.getElementById("slow-loading-placeholder").classList.add("hidden");
+                document.getElementById("slow-content").classList.remove("hidden");
+                addStatus("Slow content loaded (5 seconds)");
+            }, 5000);
+
+            // 10 second loading
+            setTimeout(() => {
+                document.getElementById("very-slow-loading-placeholder").classList.add("hidden");
+                document.getElementById("very-slow-content").classList.remove("hidden");
+                addStatus("Very slow content loaded (10 seconds)");
+            }, 10000);
+
+            function showDynamicContent() {
+                document.getElementById("dynamic-content").classList.remove("hidden");
+                addStatus("Dynamic content shown manually");
+            }
+
+            function hideDynamicContent() {
+                document.getElementById("dynamic-content").classList.add("hidden");
+                addStatus("Dynamic content hidden manually");
+            }
+
+            function resetAll() {
+                // Reset medium content
+                document.getElementById("medium-loading-placeholder").classList.remove("hidden");
+                document.getElementById("medium-content").classList.add("hidden");
+
+                // Reset slow content
+                document.getElementById("slow-loading-placeholder").classList.remove("hidden");
+                document.getElementById("slow-content").classList.add("hidden");
+
+                // Reset very slow content
+                document.getElementById("very-slow-loading-placeholder").classList.remove("hidden");
+                document.getElementById("very-slow-content").classList.add("hidden");
+
+                // Reset disappearing content
+                document.getElementById("disappearing-content").classList.remove("hidden");
+                document.getElementById("disappeared-placeholder").classList.add("hidden");
+
+                // Reset error content
+                document.getElementById("error-loading-placeholder").classList.remove("hidden");
+                document.getElementById("error-content").classList.add("hidden");
+
+                // Reset dynamic content
+                document.getElementById("dynamic-content").classList.add("hidden");
+
+                // Clear status
+                statusList.innerHTML = "<li>Page reset - restarting timers...</li>";
+
+                addStatus("All content reset - timers restarted");
+
+                // Restart timers
+                setTimeout(() => {
+                    document.getElementById("medium-loading-placeholder").classList.add("hidden");
+                    document.getElementById("medium-content").classList.remove("hidden");
+                    addStatus("Medium content reloaded (2 seconds)");
+                }, 2000);
+
+                setTimeout(() => {
+                    document.getElementById("disappearing-content").classList.add("hidden");
+                    document.getElementById("disappeared-placeholder").classList.remove("hidden");
+                    addStatus("Temporary content disappeared again (3 seconds)");
+                }, 3000);
+
+                setTimeout(() => {
+                    document.getElementById("error-loading-placeholder").classList.add("hidden");
+                    document.getElementById("error-content").classList.remove("hidden");
+                    addStatus("Error content shown again (4 seconds)");
+                }, 4000);
+
+                setTimeout(() => {
+                    document.getElementById("slow-loading-placeholder").classList.add("hidden");
+                    document.getElementById("slow-content").classList.remove("hidden");
+                    addStatus("Slow content reloaded (5 seconds)");
+                }, 5000);
+
+                setTimeout(() => {
+                    document.getElementById("very-slow-loading-placeholder").classList.add("hidden");
+                    document.getElementById("very-slow-content").classList.remove("hidden");
+                    addStatus("Very slow content reloaded (10 seconds)");
+                }, 10000);
+            }
+
+            // Add initial status
+            addStatus("Page initialization complete");
+        </script>
+    </body>
+</html>

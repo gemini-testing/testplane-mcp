@@ -44,7 +44,7 @@ describe(
                 expect(content[0].type).toBe("text");
                 expect(content[0].text).toContain(`Successfully navigated to ${url}`);
                 expect(content[0].text).toContain("## Testplane Code");
-                expect(content[0].text).toContain(`await browser.url("${url}");`);
+                expect(content[0].text).toContain(`await browser.openAndWait("${url}");`);
             });
 
             it("should include browser state information in response", async () => {

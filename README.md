@@ -37,7 +37,7 @@ A [Model Context Protocol server](https://modelcontextprotocol.io/quickstart/use
     <details>
     <summary>Set up in Cursor</summary>
 
-    Open Cursor `Settings` (button at the top right corner of the screen), find `MCP` section, click on the `Add new global MCP server` button, edit the config to include Testplane MCP as seen below.
+    Open Cursor `Settings` (button at the top right corner of the screen), find `Tools & Integrations` section, click on the `New MCP Server` button, edit the config to include Testplane MCP as seen below.
 
     ```json
     {
@@ -173,9 +173,12 @@ Close a specific browser tab by its number (1-based), or close the current tab i
 ### `clickOnElement`
 Click an element on the page using semantic queries (`testing-library`-style) or CSS selectors.
 
-- Semantic Queries:
-    - **Parameters:**
-    - `queryType` (string, optional): Semantic query type. One of:
+- **Parameters:**
+  - `locator` (object, required): Element location strategy
+    - `strategy` (string, required): Either `"testing-library"` or `"webdriverio"`
+    
+    For **testing-library strategy**:
+    - `queryType` (string, required): Semantic query type. One of:
         - `"role"` - Find by ARIA role (e.g., "button", "link", "heading")
         - `"text"` - Find by visible text content
         - `"labelText"` - Find form inputs by their label text
@@ -184,37 +187,69 @@ Click an element on the page using semantic queries (`testing-library`-style) or
         - `"testId"` - Find by data-testid attribute
         - `"title"` - Find by title attribute
         - `"displayValue"` - Find inputs by their current value
-    - `queryValue` (string, required when using queryType): The value to search for
+    - `queryValue` (string, required): The value to search for
     - `queryOptions` (object, optional): Additional options:
         - `name` (string): Accessible name for role queries
         - `exact` (boolean): Whether to match exact text (default: true)
         - `hidden` (boolean): Include hidden elements (default: false)
         - `level` (number): Heading level for role="heading" (1-6)
-
-- CSS Selectors:
-    - **Parameters:**
-    - `selector` (string, optional): CSS selector or XPath when semantic queries cannot locate the element
+    
+    For **webdriverio strategy**:
+    - `selector` (string, required): CSS selector, XPath or WebdriverIO locator
 
 **Examples:**
 ```javascript
-// Semantic queries (preferred)
-{ queryType: "role", queryValue: "button", queryOptions: { name: "Submit" } }
-{ queryType: "text", queryValue: "Click here" }
-{ queryType: "labelText", queryValue: "Email Address" }
+// Testing Library strategy
+{
+  locator: {
+    strategy: "testing-library",
+    queryType: "role",
+    queryValue: "button",
+    queryOptions: { name: "Submit" }
+  }
+}
 
-// CSS selector fallback
-{ selector: ".submit-btn" }
-{ selector: "#unique-element" }
+{
+  locator: {
+    strategy: "testing-library",
+    queryType: "text",
+    queryValue: "Click here"
+  }
+}
+
+{
+  locator: {
+    strategy: "testing-library",
+    queryType: "labelText",
+    queryValue: "Email Address"
+  }
+}
+
+// WebdriverIO strategy
+{
+  locator: {
+    strategy: "webdriverio",
+    selector: ".submit-btn"
+  }
+}
+
+{
+  locator: {
+    strategy: "webdriverio",
+    selector: "button*=Submit"
+  }
+}
 ```
-
-**Note:** Provide either semantic query parameters OR selector, not both.
 
 ### `typeIntoElement`
 Type text into an input element on the page using semantic queries (`testing-library`-style) or CSS selectors.
 
-- Semantic Queries:
-    - **Parameters:**
-    - `queryType` (string, optional): Semantic query type. One of:
+- **Parameters:**
+  - `locator` (object, required): Element location strategy
+    - `strategy` (string, required): Either `"testing-library"` or `"webdriverio"`
+    
+    For **testing-library strategy**:
+    - `queryType` (string, required): Semantic query type. One of:
         - `"role"` - Find by ARIA role (e.g., "textbox", "searchbox")
         - `"text"` - Find by visible text content
         - `"labelText"` - Find form inputs by their label text
@@ -223,31 +258,55 @@ Type text into an input element on the page using semantic queries (`testing-lib
         - `"testId"` - Find by data-testid attribute
         - `"title"` - Find by title attribute
         - `"displayValue"` - Find inputs by their current value
-    - `queryValue` (string, required when using queryType): The value to search for
-    - `text` (string, required): The text to type into the element
+    - `queryValue` (string, required): The value to search for
     - `queryOptions` (object, optional): Additional options:
         - `name` (string): Accessible name for role queries
         - `exact` (boolean): Whether to match exact text (default: true)
         - `hidden` (boolean): Include hidden elements (default: false)
-
-- CSS Selectors:
-    - **Parameters:**
-    - `selector` (string, optional): CSS selector or XPath when semantic queries cannot locate the element
-    - `text` (string, required): The text to type into the element
+    
+    For **webdriverio strategy**:
+    - `selector` (string, required): CSS selector or XPath
+    
+  - `text` (string, required): The text to type into the element
 
 **Examples:**
-```javascript
-// Semantic queries (preferred)
-{ queryType: "labelText", queryValue: "Email Address", text: "test@example.com" }
-{ queryType: "placeholderText", queryValue: "Enter your name", text: "John Smith" }
-{ queryType: "role", queryValue: "textbox", queryOptions: { name: "Username" }, text: "john_doe" }
 
-// CSS selector fallback
-{ selector: "#username", text: "john_doe" }
-{ selector: "input[name='email']", text: "user@domain.com" }
-```
+See above in the `clickOnElement` tool.
 
-**Note:** Provide either semantic query parameters OR selector, not both.
+### `waitForElement`
+Wait for an element to appear or disappear on the page. Useful for waiting until page loads fully or loading spinners disappear.
+
+- **Parameters:**
+  - `locator` (object, required): Element location strategy
+    - `strategy` (string, required): Either `"testing-library"` or `"webdriverio"`
+    
+    For **testing-library strategy**:
+    - `queryType` (string, required): Semantic query type. One of:
+        - `"role"` - Find by ARIA role (e.g., "button", "link", "heading")
+        - `"text"` - Find by visible text content
+        - `"labelText"` - Find form inputs by their label text
+        - `"placeholderText"` - Find inputs by placeholder text
+        - `"altText"` - Find images by alt text
+        - `"testId"` - Find by data-testid attribute
+        - `"title"` - Find by title attribute
+        - `"displayValue"` - Find inputs by their current value
+    - `queryValue` (string, required): The value to search for
+    - `queryOptions` (object, optional): Additional options:
+        - `name` (string): Accessible name for role queries
+        - `exact` (boolean): Whether to match exact text (default: true)
+        - `hidden` (boolean): Include hidden elements (default: false)
+        - `level` (number): Heading level for role="heading" (1-6)
+    
+    For **webdriverio strategy**:
+    - `selector` (string, required): CSS selector or XPath
+    
+  - `disappear` (boolean, optional): Whether to wait for element to disappear. Default: false (wait for element to appear)
+  - `timeout` (number, optional): Maximum time to wait in milliseconds. Default: 3000
+  - `includeSnapshotInResponse` (boolean, optional): Whether to include page snapshot in response. Default: true
+
+**Examples:**
+
+See above in the `clickOnElement` tool.
 
 </details>
 

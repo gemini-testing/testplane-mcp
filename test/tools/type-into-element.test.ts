@@ -3,6 +3,7 @@ import { describe, it, expect, beforeAll, beforeEach, afterEach, afterAll } from
 import { startClient } from "../utils";
 import { INTEGRATION_TEST_TIMEOUT } from "../constants";
 import { PlaygroundServer } from "../test-server";
+import { LocatorStrategy } from "../../src/tools/utils/element-selector";
 
 describe(
     "tools/typeIntoElement",
@@ -48,8 +49,11 @@ describe(
                 const result = await client.callTool({
                     name: "typeIntoElement",
                     arguments: {
-                        queryType: "labelText",
-                        queryValue: "Email Address",
+                        locator: {
+                            strategy: LocatorStrategy.TestingLibrary,
+                            queryType: "labelText",
+                            queryValue: "Email Address",
+                        },
                         text: "test@example.com",
                     },
                 });
@@ -65,7 +69,10 @@ describe(
                 const result = await client.callTool({
                     name: "typeIntoElement",
                     arguments: {
-                        selector: "#username",
+                        locator: {
+                            strategy: LocatorStrategy.Wdio,
+                            selector: "#username",
+                        },
                         text: "john_doe",
                     },
                 });
@@ -80,16 +87,20 @@ describe(
                 const result = await client.callTool({
                     name: "typeIntoElement",
                     arguments: {
-                        queryType: "placeholderText",
-                        queryValue: "Enter your name",
+                        locator: {
+                            strategy: LocatorStrategy.TestingLibrary,
+                            queryType: "placeholderText",
+                            queryValue: "Enter your name",
+                        },
                         text: "John Smith",
                     },
                 });
 
                 expect(result.isError).toBe(false);
                 const content = result.content as Array<{ type: string; text: string }>;
-                expect(content[0].text).toContain('browser.getByPlaceholderText("Enter your name"');
-                expect(content[0].text).toContain('await element.setValue("John Smith");');
+                expect(content[0].text).toContain(
+                    'await (await browser.findByPlaceholderText("Enter your name")).setValue("John Smith")',
+                );
             });
         });
 
@@ -98,8 +109,11 @@ describe(
                 const result = await client.callTool({
                     name: "typeIntoElement",
                     arguments: {
-                        queryType: "labelText",
-                        queryValue: "Non-existent Field",
+                        locator: {
+                            strategy: LocatorStrategy.TestingLibrary,
+                            queryType: "labelText",
+                            queryValue: "Non-existent Field",
+                        },
                         text: "test",
                     },
                 });
