@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/gemini-testing/testplane-mcp/compare/v0.3.0...v0.4.0) (2025-07-24)
+
+
+### Features
+
+* implement waitFor tool ([#20](https://github.com/gemini-testing/testplane-mcp/issues/20)) ([bde02dd](https://github.com/gemini-testing/testplane-mcp/commit/bde02ddc30246035dc9f35acaa02e986c0f495db))
+
 ## [0.3.0](https://github.com/gemini-testing/testplane-mcp/compare/v0.2.0...v0.3.0) (2025-06-18)
 
 
