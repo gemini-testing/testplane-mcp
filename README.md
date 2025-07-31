@@ -7,7 +7,8 @@
 </p>
 
 <p align="center">
-    <a href="https://testplane.io"><img src="https://img.shields.io/badge/Docs-Website-6c47ff" alt="Total Downloads"></a>
+    <a href="https://www.npmjs.com/package/@testplane/mcp"><img src="https://img.shields.io/npm/d18m/@testplane/mcp.svg" alt="Total Downloads"></a>
+    <a href="https://testplane.io"><img src="https://img.shields.io/badge/Docs-Website-6c47ff" alt="Documentation"></a>
     <a href="https://www.npmjs.com/package/@testplane/mcp"><img src="https://img.shields.io/npm/v/@testplane/mcp.svg" alt="Latest Release"></a>
     <a href="https://github.com/gemini-testing/testplane-mcp/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/@testplane/mcp.svg" alt="License"></a>
     <a href="https://t.me/testplane"><img src="https://img.shields.io/badge/community-chat-blue?logo=telegram" alt="Community Chat"></a>
