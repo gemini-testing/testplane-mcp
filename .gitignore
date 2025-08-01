@@ -3,3 +3,4 @@ build
 testplane-mcp-*.tgz
 tmp
 .vscode
+.idea
