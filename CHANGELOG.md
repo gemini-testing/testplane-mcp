@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/gemini-testing/testplane-mcp/compare/v0.4.0...v0.5.0) (2025-08-06)
+
+
+### Features
+
+* **mcp-tools:** add hover element tool ([06790c8](https://github.com/gemini-testing/testplane-mcp/commit/06790c8485659ec91d152c3ecbee36481a123cd3))
+
 ## [0.4.0](https://github.com/gemini-testing/testplane-mcp/compare/v0.3.0...v0.4.0) (2025-07-24)
 
 
