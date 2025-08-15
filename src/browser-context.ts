@@ -1,5 +1,5 @@
-import { WdioBrowser } from "testplane";
-import { launchBrowser } from "testplane/unstable";
+import { WdioBrowser, SessionOptions } from "testplane";
+import { launchBrowser, attachToBrowser } from "testplane/unstable";
 
 export interface BrowserOptions {
     headless?: boolean;
@@ -8,9 +8,11 @@ export interface BrowserOptions {
 export class BrowserContext {
     protected _browser: WdioBrowser | null = null;
     protected _options: BrowserOptions;
+    protected _session: SessionOptions | undefined;
 
-    constructor(options: BrowserOptions = {}) {
+    constructor(options: BrowserOptions = {}, session?: SessionOptions) {
         this._options = options;
+        this._session = session;
     }
 
     async get(): Promise<WdioBrowser> {
@@ -18,14 +20,20 @@ export class BrowserContext {
             return this._browser;
         }
 
-        this._browser = await launchBrowser({
-            headless: this._options.headless ? "new" : false,
-            desiredCapabilities: {
-                "goog:chromeOptions": {
-                    args: process.env.DISABLE_BROWSER_SANDBOX ? ["--no-sandbox", "--disable-dev-shm-usage"] : [],
+        if (this._session) {
+            console.error("Attach to browser");
+            this._browser = await attachToBrowser(this._session);
+        } else {
+            console.error("Launch browser");
+            this._browser = await launchBrowser({
+                headless: this._options.headless ? "new" : false,
+                desiredCapabilities: {
+                    "goog:chromeOptions": {
+                        args: process.env.DISABLE_BROWSER_SANDBOX ? ["--no-sandbox", "--disable-dev-shm-usage"] : [],
+                    },
                 },
-            },
-        });
+            });
+        }
 
         return this._browser;
     }
