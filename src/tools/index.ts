@@ -11,6 +11,7 @@ import { openNewTab } from "./open-new-tab.js";
 import { closeTab } from "./close-tab.js";
 import { waitForElement } from "./wait-for-element.js";
 import { attachToBrowser } from "./attach-to-browser.js";
+import { runTests } from "./run-tests.js";
 
 export const tools = [
     navigate,
@@ -25,4 +26,5 @@ export const tools = [
     closeTab,
     waitForElement,
     attachToBrowser,
+    runTests,
 ] as const satisfies ToolDefinition<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
