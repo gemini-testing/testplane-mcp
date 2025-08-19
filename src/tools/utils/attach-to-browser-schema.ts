@@ -4,6 +4,7 @@ export const attachToBrowserSchema = {
     session: z
         .object({
             sessionId: z.string().describe("Unique identifier for the session"),
+            pid: z.number().describe("Pid of webdriver process, need for close browser correct"),
             sessionCaps: z
                 .object({
                     acceptInsecureCerts: z
@@ -102,7 +103,6 @@ export const attachToBrowserSchema = {
                 })
                 .describe("Session options")
                 .optional(),
-            pid: z.number().describe("Pid of webdriver process").optional(),
         })
         .describe("Attach to browser json object from console after --keep-browser testplane run"),
 };
