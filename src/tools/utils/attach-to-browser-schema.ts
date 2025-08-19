@@ -102,6 +102,7 @@ export const attachToBrowserSchema = {
                 })
                 .describe("Session options")
                 .optional(),
+            pid: z.number().describe("Pid of webdriver process").optional(),
         })
         .describe("Attach to browser json object from console after --keep-browser testplane run"),
 };

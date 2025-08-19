@@ -53,8 +53,6 @@ describe.only(
                     },
                 });
 
-                expect(true).toBe(true);
-
                 expect(result.isError).toBe(false);
                 expect(result.content).toBeDefined();
 
