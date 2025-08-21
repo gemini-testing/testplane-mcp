@@ -13,7 +13,7 @@ const openNewTabCb: ToolCallback<typeof openNewTabSchema> = async args => {
         const { url } = args;
         const context = contextProvider.getContext();
 
-        const browserWasActive = context.browser.isActive();
+        const browserWasActive = await context.browser.isActive();
         const browser = await context.browser.get();
 
         let actionMessage = "Opened new tab";

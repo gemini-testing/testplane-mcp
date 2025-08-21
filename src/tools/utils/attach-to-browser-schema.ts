@@ -4,7 +4,12 @@ export const attachToBrowserSchema = {
     session: z
         .object({
             sessionId: z.string().describe("Unique identifier for the session"),
-            pid: z.number().describe("Pid of webdriver process, need for close browser correct"),
+            driverPid: z
+                .number()
+                .describe(
+                    "Pid of webdriver process, need for close browser correct, necessarily provide it if it exist",
+                )
+                .optional(),
             sessionCaps: z
                 .object({
                     acceptInsecureCerts: z
@@ -70,12 +75,14 @@ export const attachToBrowserSchema = {
                             browserName: z.string().describe("Requested browser name"),
                             "wdio:enforceWebDriverClassic": z
                                 .boolean()
-                                .describe("Flag to enforce classic WebDriver protocol"),
+                                .describe("Flag to enforce classic WebDriver protocol")
+                                .optional(),
                             "goog:chromeOptions": z
                                 .object({
-                                    binary: z.string().describe("Path to Chrome binary"),
+                                    binary: z.string().describe("Path to Chrome binary").optional(),
                                 })
-                                .describe("Chrome-specific options"),
+                                .describe("Chrome-specific options")
+                                .optional(),
                         })
                         .describe("Requested capabilities")
                         .optional(),
@@ -89,10 +96,13 @@ export const attachToBrowserSchema = {
                             browserName: z.string().describe("Originally requested browser name"),
                             "wdio:enforceWebDriverClassic": z
                                 .boolean()
-                                .describe("Originally requested protocol enforcement"),
-                            "goog:chromeOptions": z.object({
-                                binary: z.string().describe("Originally requested Chrome binary path"),
-                            }),
+                                .describe("Originally requested protocol enforcement")
+                                .optional(),
+                            "goog:chromeOptions": z
+                                .object({
+                                    binary: z.string().describe("Originally requested Chrome binary path").optional(),
+                                })
+                                .optional(),
                         })
                         .describe("Originally requested capabilities")
                         .optional(),

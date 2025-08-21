@@ -65,7 +65,7 @@ export async function startServer(options: ServerOptions = {}): Promise<McpServe
 
             Promise.resolve()
                 .then(async () => {
-                    if (context.browser.isActive()) {
+                    if (await context.browser.isActive()) {
                         await context.browser.close();
                     }
                 })

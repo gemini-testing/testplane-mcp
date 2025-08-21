@@ -19,8 +19,8 @@ const attachToBrowserCb: ToolCallback<typeof attachToBrowserSchema> = async args
 
         const context = contextProvider.getContext();
 
-        if (!context.browser.isActive()) {
-            return createSimpleResponse("Can not attach to browser using existing session options");
+        if (!(await context.browser.isActive())) {
+            return createErrorResponse("Can not attach to browser using existing session options");
         }
 
         return createSimpleResponse("Successfully attached to existing browser session");

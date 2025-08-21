@@ -9,7 +9,7 @@ const listTabsCb: ToolCallback<typeof listTabsSchema> = async () => {
     try {
         const context = contextProvider.getContext();
 
-        if (!context.browser.isActive()) {
+        if (!(await context.browser.isActive())) {
             return createErrorResponse(
                 "No opened tabs — browser is not launched yet. Try opening a tab or navigating to URL.",
             );

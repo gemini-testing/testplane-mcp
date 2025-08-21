@@ -22,7 +22,16 @@ export class BrowserContext {
 
         if (this._session) {
             console.error("Attach to browser");
+
             this._browser = await attachToBrowser(this._session);
+
+            // try {
+            //     this._browser = await attachToBrowser(this._session);
+            //     await this._browser.getUrl();
+            //     console.error("Attached to browser successfully");
+            // } catch (e) {
+            //     console.error("Can't attach to browser", e);
+            // }
         } else {
             console.error("Launch browser");
             this._browser = await launchBrowser({
@@ -51,7 +60,17 @@ export class BrowserContext {
         }
     }
 
-    isActive(): boolean {
-        return this._browser !== null;
+    async isActive(): Promise<boolean> {
+        try {
+            if (this._browser) {
+                await this._browser.getUrl();
+                return true;
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (_) {
+            /* empty */
+        }
+        return false;
+        // return this._browser !== null;
     }
 }
