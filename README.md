@@ -327,4 +327,12 @@ Capture a DOM snapshot of the current page with configurable filtering options.
 
 **Note:** By default, only useful tags and attributes are included in snapshots. The response will indicate what was omitted. Use the filtering options only if you need specific content that's not included by default.
 
+### `takeViewportScreenshot`
+Capture a PNG screenshot of the current browser viewport.
+
+- **Parameters:**
+  - `filename` (string, optional): Path to save the screenshot (defaults to tmp directory with timestamp)
+
+**Note:** Screenshots are saved as PNG files. If no filename is provided, the screenshot will be saved to the system's temporary directory with a filename like `viewport-{timestamp}.png`.
+
 </details>
