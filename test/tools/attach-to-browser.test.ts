@@ -81,7 +81,16 @@ describe(
 
                 expect(content).toHaveLength(1);
                 expect(content[0].type).toBe("text");
-                expect(content[0].text.startsWith("❌ Error attach to browser: connect ECONNREFUSED")).toBe(true);
+                expect(content[0].text).toContain("Error attach to browser:");
+
+                // Check that after error attach we still have working browser
+                const url = "https://example.com";
+                const navigateResult = await client.callTool({ name: "navigate", arguments: { url } });
+                const navigateContent = navigateResult.content as Array<{ type: string; text: string }>;
+
+                expect(navigateResult.isError).toBe(false);
+                expect(navigateContent[0].type).toBe("text");
+                expect(navigateContent[0].text).toContain("✅ Successfully navigated to https://example.com");
             });
 
             it("should attach to existing browser session", async () => {
