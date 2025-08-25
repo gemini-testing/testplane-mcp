@@ -30,7 +30,7 @@
     "@modelcontextprotocol/sdk": "^1.11.2",
     "@testing-library/webdriverio": "^3.2.1",
     "commander": "^13.1.0",
-    "testplane": "^8.29.3",
+    "testplane": "^8.31.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

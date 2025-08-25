@@ -24,14 +24,7 @@ export class BrowserContext {
             console.error("Attach to browser");
 
             this._browser = await attachToBrowser(this._session);
-
-            // try {
-            //     this._browser = await attachToBrowser(this._session);
-            //     await this._browser.getUrl();
-            //     console.error("Attached to browser successfully");
-            // } catch (e) {
-            //     console.error("Can't attach to browser", e);
-            // }
+            await this._browser.getUrl(); // Need to get exception if not attach
         } else {
             console.error("Launch browser");
             this._browser = await launchBrowser({

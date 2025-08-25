@@ -25,7 +25,7 @@ const checkProcessExists = (pid: number): boolean => {
     }
 };
 
-describe.only(
+describe(
     "tools/attachToBrowser",
     () => {
         let client: Client;
@@ -81,7 +81,7 @@ describe.only(
 
                 expect(content).toHaveLength(1);
                 expect(content[0].type).toBe("text");
-                expect(content[0].text).toBe("❌ Can not attach to browser using existing session options");
+                expect(content[0].text.startsWith("❌ Error attach to browser: connect ECONNREFUSED")).toBe(true);
             });
 
             it("should attach to existing browser session", async () => {
