@@ -139,6 +139,8 @@ describe(
                 const navigateResult = await client.callTool({ name: "navigate", arguments: { url } });
                 const navigateContent = navigateResult.content as Array<{ type: string; text: string }>;
 
+                console.error("navigateResult", navigateResult);
+
                 expect(navigateResult.isError).toBe(false);
                 expect(navigateContent[0].type).toBe("text");
                 expect(navigateContent[0].text).toContain("✅ Successfully navigated to https://example.com");
