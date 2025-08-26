@@ -10,7 +10,9 @@ const attachToBrowserCb: ToolCallback<typeof attachToBrowserSchema> = async args
     try {
         const { session } = args;
 
-        const browserContext = new BrowserContext({}, session as SessionOptions);
+        const currentOptions = contextProvider.getContext().browser.getOptions();
+
+        const browserContext = new BrowserContext(currentOptions, session as SessionOptions);
         await browserContext.get();
 
         if (await contextProvider.getContext().browser.isActive()) {

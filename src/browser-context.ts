@@ -42,6 +42,10 @@ export class BrowserContext {
         return this._browser;
     }
 
+    getOptions(): BrowserOptions {
+        return this._options;
+    }
+
     async close(): Promise<void> {
         if (this._browser) {
             try {
