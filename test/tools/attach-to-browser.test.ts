@@ -4,18 +4,6 @@ import { startClient } from "../utils";
 import { INTEGRATION_TEST_TIMEOUT } from "../constants";
 import { launchBrowser } from "testplane/unstable";
 
-export const BROWSER_NAME = (process.env.BROWSER || "chrome").toLowerCase() as string;
-
-export const BROWSER_CONFIG = {
-    desiredCapabilities: {
-        browserName: BROWSER_NAME,
-    },
-    headless: true,
-    system: {
-        debug: Boolean(process.env.DEBUG) || false,
-    },
-};
-
 const checkProcessExists = (pid: number): boolean => {
     try {
         process.kill(pid, 0);
@@ -93,8 +81,16 @@ describe(
             });
 
             it("should attach to existing browser session", async () => {
-                const browser: WebdriverIO.Browser & { getDriverPid?: () => number | undefined } =
-                    await launchBrowser(BROWSER_CONFIG);
+                const browser: WebdriverIO.Browser & { getDriverPid?: () => number | undefined } = await launchBrowser({
+                    headless: "new",
+                    desiredCapabilities: {
+                        "goog:chromeOptions": {
+                            args: process.env.DISABLE_BROWSER_SANDBOX
+                                ? ["--no-sandbox", "--disable-dev-shm-usage"]
+                                : [],
+                        },
+                    },
+                });
                 const driverPid = (await browser.getDriverPid!()) as number;
 
                 const result = await client.callTool({
@@ -138,8 +134,6 @@ describe(
                 const url = "https://example.com";
                 const navigateResult = await client.callTool({ name: "navigate", arguments: { url } });
                 const navigateContent = navigateResult.content as Array<{ type: string; text: string }>;
-
-                console.error("navigateResult", navigateResult);
 
                 expect(navigateResult.isError).toBe(false);
                 expect(navigateContent[0].type).toBe("text");
