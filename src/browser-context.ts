@@ -8,9 +8,9 @@ export interface BrowserOptions {
 export class BrowserContext {
     protected _browser: WdioBrowser | null = null;
     protected _options: BrowserOptions;
-    protected _session: SessionOptions | undefined;
+    protected _session: SessionOptions | null;
 
-    constructor(options: BrowserOptions = {}, session?: SessionOptions) {
+    constructor(options: BrowserOptions = {}, session: SessionOptions | null = null) {
         this._options = options;
         this._session = session;
     }
@@ -49,6 +49,7 @@ export class BrowserContext {
                 console.error("Error closing browser session:", error);
             } finally {
                 this._browser = null;
+                this._session = null;
             }
         }
     }

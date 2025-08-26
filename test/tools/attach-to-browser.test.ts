@@ -68,7 +68,6 @@ describe(
                                 hostname: "127.0.0.1",
                                 port: 49426,
                                 path: "/",
-                                strictSSL: true,
                             },
                         },
                     },
@@ -134,6 +133,21 @@ describe(
 
                 // Check that browser process doesn't exist
                 expect(checkProcessExists(driverPid)).toBe(false);
+
+                // Check that after close session and call navigate we run new browser
+                const url = "https://example.com";
+                const navigateResult = await client.callTool({ name: "navigate", arguments: { url } });
+                const navigateContent = navigateResult.content as Array<{ type: string; text: string }>;
+
+                expect(navigateResult.isError).toBe(false);
+                expect(navigateContent[0].type).toBe("text");
+                expect(navigateContent[0].text).toContain("✅ Successfully navigated to https://example.com");
+
+                // Call closeBrowser tool
+                await client.callTool({
+                    name: "closeBrowser",
+                    arguments: {},
+                });
             });
         });
     },
