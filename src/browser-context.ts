@@ -31,7 +31,9 @@ export class BrowserContext {
                 headless: this._options.headless ? "new" : false,
                 desiredCapabilities: {
                     "goog:chromeOptions": {
-                        args: process.env.DISABLE_BROWSER_SANDBOX ? ["--no-sandbox", "--disable-dev-shm-usage"] : [],
+                        args: process.env.DISABLE_BROWSER_SANDBOX
+                            ? ["--no-sandbox", "--disable-dev-shm-usage", "--disable-web-security"]
+                            : [],
                     },
                 },
             });
