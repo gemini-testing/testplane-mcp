@@ -13,6 +13,11 @@ const attachToBrowserCb: ToolCallback<typeof attachToBrowserSchema> = async args
         const browserContext = new BrowserContext({}, session as SessionOptions);
         await browserContext.get();
 
+        if (await contextProvider.getContext().browser.isActive()) {
+            console.error("Closing existing browser");
+            await contextProvider.getContext().browser.close();
+        }
+
         contextProvider.setContext({
             browser: browserContext,
         } as Context);
