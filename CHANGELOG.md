@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.5.0](https://github.com/gemini-testing/testplane-mcp/compare/v0.4.0...v0.5.0) (2025-08-28)
+
+
+### Features
+
+* implement takeViewportScreenshot tool ([#26](https://github.com/gemini-testing/testplane-mcp/issues/26)) ([20ac3b1](https://github.com/gemini-testing/testplane-mcp/commit/20ac3b1129b3612457df8429664582f263b682fc))
+* **mcp-tools:** add attach to existing browser ([7b2ae9b](https://github.com/gemini-testing/testplane-mcp/commit/7b2ae9b3f24b1ff7b79d5a70b6b6e9f8ee15d2f0))
+* **mcp-tools:** add hover element tool ([06790c8](https://github.com/gemini-testing/testplane-mcp/commit/06790c8485659ec91d152c3ecbee36481a123cd3))
+
 ## [0.4.0](https://github.com/gemini-testing/testplane-mcp/compare/v0.3.0...v0.4.0) (2025-07-24)
 
 
