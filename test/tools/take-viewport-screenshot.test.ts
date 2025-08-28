@@ -42,13 +42,15 @@ describe(
                 const screenshotTool = tools.tools.find(tool => tool.name === "takeViewportScreenshot");
 
                 expect(screenshotTool).toBeDefined();
-                expect(screenshotTool?.description).toBe("Capture a PNG screenshot of the current browser viewport");
-                expect(screenshotTool?.inputSchema.properties).toHaveProperty("filename");
+                expect(screenshotTool?.description).toContain(
+                    "Capture a PNG screenshot of the current browser viewport",
+                );
+                expect(screenshotTool?.inputSchema.properties).toHaveProperty("filePath");
             });
         });
 
         describe("takeViewportScreenshot tool execution", () => {
-            it("should capture screenshot with default filename in tmp directory", async () => {
+            it("should capture screenshot with default filePath in tmp directory", async () => {
                 await client.callTool({
                     name: "navigate",
                     arguments: { url: playgroundUrl },
@@ -74,29 +76,29 @@ describe(
                 expect(responseText).toContain(".png");
                 expect(responseText).toContain("KB)");
 
-                const filenameMatch = responseText.match(/Screenshot saved: ([^\s]+)/);
-                expect(filenameMatch).toBeTruthy();
+                const filePathMatch = responseText.match(/Screenshot saved: ([^\s]+)/);
+                expect(filePathMatch).toBeTruthy();
 
-                if (filenameMatch) {
-                    const filename = filenameMatch[1];
+                if (filePathMatch) {
+                    const filePath = filePathMatch[1];
                     const fileExists = await fs
-                        .access(filename)
+                        .access(filePath)
                         .then(() => true)
                         .catch(() => false);
                     expect(fileExists).toBe(true);
 
                     if (fileExists) {
-                        const stats = await fs.stat(filename);
+                        const stats = await fs.stat(filePath);
                         expect(stats.size).toBeGreaterThan(0);
-                        await fs.unlink(filename).catch(() => {});
+                        await fs.unlink(filePath).catch(() => {});
                     }
                 }
             });
 
-            it("should capture screenshot with custom filename", async () => {
-                const customFilename = path.join(os.tmpdir(), "test-screenshot.png");
+            it("should capture screenshot with custom filePath", async () => {
+                const customFilePath = path.join(os.tmpdir(), "test-screenshot.png");
 
-                await fs.unlink(customFilename).catch(() => {});
+                await fs.unlink(customFilePath).catch(() => {});
 
                 await client.callTool({
                     name: "navigate",
@@ -105,7 +107,7 @@ describe(
 
                 const result = await client.callTool({
                     name: "takeViewportScreenshot",
-                    arguments: { filename: customFilename },
+                    arguments: { filePath: customFilePath },
                 });
 
                 expect(result.isError).toBe(false);
@@ -114,25 +116,25 @@ describe(
                 const responseText = content[0].text;
 
                 expect(responseText).toContain("✅ Viewport screenshot captured successfully");
-                expect(responseText).toContain(`Screenshot saved: ${customFilename}`);
-                expect(responseText).toContain(`await browser.saveScreenshot("${customFilename}")`);
+                expect(responseText).toContain(`Screenshot saved: ${customFilePath}`);
+                expect(responseText).toContain(`await browser.saveScreenshot("${customFilePath}")`);
 
                 const fileExists = await fs
-                    .access(customFilename)
+                    .access(customFilePath)
                     .then(() => true)
                     .catch(() => false);
                 expect(fileExists).toBe(true);
 
                 if (fileExists) {
-                    const stats = await fs.stat(customFilename);
+                    const stats = await fs.stat(customFilePath);
                     expect(stats.size).toBeGreaterThan(0);
-                    await fs.unlink(customFilename).catch(() => {});
+                    await fs.unlink(customFilePath).catch(() => {});
                 }
             });
 
             it("should create directory if it doesn't exist", async () => {
                 const testDir = path.join(os.tmpdir(), "test-screenshots-" + Date.now());
-                const customFilename = path.join(testDir, "nested", "screenshot.png");
+                const customFilePath = path.join(testDir, "nested", "screenshot.png");
 
                 await client.callTool({
                     name: "navigate",
@@ -141,13 +143,13 @@ describe(
 
                 const result = await client.callTool({
                     name: "takeViewportScreenshot",
-                    arguments: { filename: customFilename },
+                    arguments: { filePath: customFilePath },
                 });
 
                 expect(result.isError).toBe(false);
 
                 const fileExists = await fs
-                    .access(customFilename)
+                    .access(customFilePath)
                     .then(() => true)
                     .catch(() => false);
                 expect(fileExists).toBe(true);
@@ -219,7 +221,7 @@ describe(
 
                 const result = await client.callTool({
                     name: "takeViewportScreenshot",
-                    arguments: { filename: invalidPath },
+                    arguments: { filePath: invalidPath },
                 });
 
                 expect(result.isError).toBe(true);

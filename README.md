@@ -331,8 +331,8 @@ Capture a DOM snapshot of the current page with configurable filtering options.
 Capture a PNG screenshot of the current browser viewport.
 
 - **Parameters:**
-  - `filename` (string, optional): Path to save the screenshot (defaults to tmp directory with timestamp)
+  - `filePath` (string, optional): Path to save the screenshot (defaults to tmp directory with timestamp in file name)
 
-**Note:** Screenshots are saved as PNG files. If no filename is provided, the screenshot will be saved to the system's temporary directory with a filename like `viewport-{timestamp}.png`.
+**Note:** Screenshots are saved as PNG files. If no filePath is provided, the screenshot will be saved to the system's temporary directory with a filePath like `viewport-{timestamp}.png`.
 
 </details>

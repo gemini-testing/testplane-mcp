@@ -8,7 +8,7 @@ import fs from "fs/promises";
 import os from "os";
 
 export const takeViewportScreenshotSchema = {
-    filename: z.string().optional().describe("Path to save the screenshot (defaults to tmp directory)"),
+    filePath: z.string().optional().describe("Path to save the screenshot (defaults to tmp directory)"),
 };
 
 const takeViewportScreenshotCb: ToolCallback<typeof takeViewportScreenshotSchema> = async args => {
@@ -17,22 +17,22 @@ const takeViewportScreenshotCb: ToolCallback<typeof takeViewportScreenshotSchema
         const browser = await context.browser.get();
 
         const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-        const defaultFilename = path.join(os.tmpdir(), `viewport-${timestamp}.png`);
-        const filename = args.filename || defaultFilename;
+        const defaultFilePath = path.join(os.tmpdir(), `viewport-${timestamp}.png`);
+        const filePath = args.filePath || defaultFilePath;
 
-        const screenshotDir = path.dirname(filename);
+        const screenshotDir = path.dirname(filePath);
         await fs.mkdir(screenshotDir, { recursive: true });
 
-        await browser.saveScreenshot(filename);
+        await browser.saveScreenshot(filePath);
 
-        const fileStats = await fs.stat(filename);
+        const fileStats = await fs.stat(filePath);
         const fileSizeKB = Math.round(fileStats.size / 1024);
 
-        const additionalInfo = `Screenshot saved: ${filename} (${fileSizeKB} KB)`;
+        const additionalInfo = `Screenshot saved: ${filePath} (${fileSizeKB} KB)`;
 
         return await createBrowserStateResponse(browser, {
             action: "Viewport screenshot captured successfully",
-            testplaneCode: `await browser.saveScreenshot("${filename}");`,
+            testplaneCode: `await browser.saveScreenshot("${filePath}");`,
             additionalInfo,
             isSnapshotNeeded: false,
         });
@@ -44,7 +44,10 @@ const takeViewportScreenshotCb: ToolCallback<typeof takeViewportScreenshotSchema
 
 export const takeViewportScreenshot: ToolDefinition<typeof takeViewportScreenshotSchema> = {
     name: "takeViewportScreenshot",
-    description: "Capture a PNG screenshot of the current browser viewport",
+    description:
+        "Capture a PNG screenshot of the current browser viewport. " +
+        "Strongly prefer capturing text-based snapshots using takePageSnapshot tool. " +
+        "Only use to test for visual changes when text-based snapshots are not useful.",
     schema: takeViewportScreenshotSchema,
     cb: takeViewportScreenshotCb,
 };

@@ -71,6 +71,5 @@ export class BrowserContext {
             /* empty */
         }
         return false;
-        // return this._browser !== null;
     }
 }
