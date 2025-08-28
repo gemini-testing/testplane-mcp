@@ -19,7 +19,7 @@ const closeTabCb: ToolCallback<typeof closeTabSchema> = async args => {
         const { tabNumber } = args;
         const context = contextProvider.getContext();
 
-        if (!context.browser.isActive()) {
+        if (!(await context.browser.isActive())) {
             return createErrorResponse(
                 "Cannot close tab — browser is not launched yet. Try opening a tab or navigating to URL.",
             );

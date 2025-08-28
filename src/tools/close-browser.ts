@@ -9,7 +9,7 @@ const closeBrowserCb: ToolCallback<typeof closeBrowserSchema> = async () => {
     try {
         const context = contextProvider.getContext();
 
-        if (!context.browser.isActive()) {
+        if (!(await context.browser.isActive())) {
             return createSimpleResponse("No active browser session to close");
         }
 
