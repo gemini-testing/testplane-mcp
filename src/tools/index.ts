@@ -5,6 +5,7 @@ import { clickOnElement } from "./click-on-element.js";
 import { hoverElement } from "./hover-element.js";
 import { typeIntoElement } from "./type-into-element.js";
 import { takePageSnapshot } from "./take-page-snapshot.js";
+import { takeViewportScreenshot } from "./take-viewport-screenshot.js";
 import { listTabs } from "./list-tabs.js";
 import { switchToTab } from "./switch-to-tab.js";
 import { openNewTab } from "./open-new-tab.js";
@@ -19,6 +20,7 @@ export const tools = [
     hoverElement,
     typeIntoElement,
     takePageSnapshot,
+    takeViewportScreenshot,
     listTabs,
     switchToTab,
     openNewTab,
