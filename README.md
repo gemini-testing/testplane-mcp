@@ -141,6 +141,27 @@ Navigate to URL in the browser.
 ### `closeBrowser`
 Close the current browser session.
 
+### `launchBrowser`
+Launch a new browser session with optional custom `desiredCapabilities`. Avoid using this tool unless the user explicitly asks for a custom browser configuration—commands like `navigate` launch a browser automatically when needed. Only Chrome and Firefox are currently supported.
+- **Parameters:**
+  - `desiredCapabilities` (object, optional): WebDriver [desired capabilities](https://www.selenium.dev/documentation/webdriver/capabilities/) to forward to the Testplane launcher. Example:
+
+    ```json
+    {
+        "browserName": "chrome",
+        "goog:chromeOptions": {
+            "mobileEmulation": {
+                "deviceMetrics": {
+                    "width": 360,
+                    "height": 640,
+                    "pixelRatio": 3.0
+                },
+                "userAgent": "Mozilla/5.0 (Linux; Android 8.0.0; Pixel 2 XL) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36"
+            }
+        }
+    }
+    ```
+
 </details>
 
 <details>
