@@ -13,7 +13,7 @@ concurrency:
 jobs:
     test:
         name: Run tests on Node.js ${{ matrix.node-version }}
-        runs-on: self-hosted-arc
+        runs-on: ubuntu-latest
 
         strategy:
             matrix:
