@@ -141,6 +141,36 @@ Navigate to URL in the browser.
 ### `closeBrowser`
 Close the current browser session.
 
+### `launchBrowser`
+Launch a new browser session with custom configuration options.
+
+- **Parameters:**
+  - `desiredCapabilities` (object, optional): WebDriver [desired capabilities](https://www.selenium.dev/documentation/webdriver/capabilities/) to forward to the Testplane launcher. Example:
+
+    ```json
+    {
+        "browserName": "chrome",
+        "goog:chromeOptions": {
+            "mobileEmulation": {
+                "deviceMetrics": {
+                    "width": 375,
+                    "height": 667,
+                    "pixelRatio": 2.0
+                }
+            }
+        }
+    }
+    ```
+
+  - `gridUrl` (string, optional): WebDriver endpoint to connect to. Default: `"local"` (lets Testplane MCP manage Chrome and Firefox automatically). Set a Selenium grid URL only when you need other browsers.
+
+  - `windowSize` (object | string | null, optional): Viewport size for the browser session. Can be:
+    - Object format: `{"width": 1280, "height": 720}`
+    - String format: `"1280x720"`
+    - `null` to reset to default size
+
+> **Note:** Testplane MCP automatically downloads Chrome and Firefox. To launch additional browsers (for example, Safari, Edge, or mobile-specific builds), use the `gridUrl` parameter to point to your Selenium grid.
+
 </details>
 
 <details>

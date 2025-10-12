@@ -1,9 +1,22 @@
 import { WdioBrowser, SessionOptions } from "testplane";
 import { launchBrowser, attachToBrowser } from "testplane/unstable";
+import type { StandaloneBrowserOptionsInput } from "testplane/unstable";
 
 export interface BrowserOptions {
     headless?: boolean;
+    desiredCapabilities?: StandaloneBrowserOptionsInput["desiredCapabilities"];
+    gridUrl?: string;
+    windowSize?: StandaloneBrowserOptionsInput["windowSize"];
 }
+
+const getSandboxArgs = (): string[] =>
+    process.env.DISABLE_BROWSER_SANDBOX ? ["--no-sandbox", "--disable-dev-shm-usage", "--disable-web-security"] : [];
+
+const buildSandboxCapabilities = (sandboxArgs: string[]): StandaloneBrowserOptionsInput["desiredCapabilities"] => ({
+    "goog:chromeOptions": {
+        args: sandboxArgs,
+    },
+});
 
 export class BrowserContext {
     protected _browser: WdioBrowser | null = null;
@@ -27,15 +40,17 @@ export class BrowserContext {
             await this._browser.getUrl(); // Need to get exception if not attach
         } else {
             console.error("Launch browser");
+
+            const sandboxArgs = getSandboxArgs();
+            const desiredCapabilities =
+                this._options.desiredCapabilities ??
+                (sandboxArgs.length ? buildSandboxCapabilities(sandboxArgs) : undefined);
+
             this._browser = await launchBrowser({
                 headless: this._options.headless ? "new" : false,
-                desiredCapabilities: {
-                    "goog:chromeOptions": {
-                        args: process.env.DISABLE_BROWSER_SANDBOX
-                            ? ["--no-sandbox", "--disable-dev-shm-usage", "--disable-web-security"]
-                            : [],
-                    },
-                },
+                desiredCapabilities,
+                gridUrl: this._options.gridUrl,
+                windowSize: this._options.windowSize,
             });
         }
 

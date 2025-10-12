@@ -1,6 +1,7 @@
 import { ToolDefinition } from "../types.js";
 import { navigate } from "./navigate.js";
 import { closeBrowser } from "./close-browser.js";
+import { launchBrowser } from "./launch-browser.js";
 import { clickOnElement } from "./click-on-element.js";
 import { hoverElement } from "./hover-element.js";
 import { typeIntoElement } from "./type-into-element.js";
@@ -16,6 +17,7 @@ import { attachToBrowser } from "./attach-to-browser.js";
 export const tools = [
     navigate,
     closeBrowser,
+    launchBrowser,
     clickOnElement,
     hoverElement,
     typeIntoElement,

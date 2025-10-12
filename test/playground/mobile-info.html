@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Mobile Emulation Diagnostics</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                line-height: 1.6;
+            }
+            h1 {
+                color: #333;
+            }
+            p {
+                margin: 0.5rem 0;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Mobile Emulation Diagnostics</h1>
+        <p id="viewport-width">Viewport width:</p>
+        <p id="viewport-height">Viewport height:</p>
+        <p id="device-pixel-ratio">Device pixel ratio:</p>
+        <p id="user-agent">User agent:</p>
+        <script>
+            const $ = id => document.getElementById(id);
+
+            const updateDiagnostics = () => {
+                $("viewport-width").textContent = `Viewport width: ${Math.round(window.innerWidth)}`;
+                $("viewport-height").textContent = `Viewport height: ${Math.round(window.innerHeight)}`;
+                $("device-pixel-ratio").textContent = `Device pixel ratio: ${window.devicePixelRatio}`;
+                $("user-agent").textContent = `User agent: ${navigator.userAgent}`;
+            };
+
+            updateDiagnostics();
+            window.addEventListener("resize", updateDiagnostics);
+        </script>
+    </body>
+</html>
