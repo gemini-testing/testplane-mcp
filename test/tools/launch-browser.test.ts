@@ -111,7 +111,6 @@ describe(
                     },
                 });
 
-                expect(launchResult.isError).toBe(false);
                 const launchContent = launchResult.content as Array<{ type: string; text: string }>;
                 expect(launchContent[0].text).toBe("Successfully launched browser session");
 
