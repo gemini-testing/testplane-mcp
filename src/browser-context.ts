@@ -12,11 +12,36 @@ export interface BrowserOptions {
 const getSandboxArgs = (): string[] =>
     process.env.DISABLE_BROWSER_SANDBOX ? ["--no-sandbox", "--disable-dev-shm-usage", "--disable-web-security"] : [];
 
-const buildSandboxCapabilities = (sandboxArgs: string[]): StandaloneBrowserOptionsInput["desiredCapabilities"] => ({
-    "goog:chromeOptions": {
-        args: sandboxArgs,
-    },
-});
+const mergeSandboxArgs = (
+    desiredCapabilities: StandaloneBrowserOptionsInput["desiredCapabilities"],
+    sandboxArgs: string[],
+): StandaloneBrowserOptionsInput["desiredCapabilities"] => {
+    if (!sandboxArgs.length) {
+        return desiredCapabilities;
+    }
+
+    if (!desiredCapabilities) {
+        return {
+            "goog:chromeOptions": {
+                args: sandboxArgs,
+            },
+        };
+    }
+
+    const chromeOptions = desiredCapabilities["goog:chromeOptions"] as Record<string, unknown> | undefined;
+    const existingArgs = (chromeOptions?.args as string[]) || [];
+
+    const mergedArgs = [...existingArgs, ...sandboxArgs];
+    const uniqueArgs = Array.from(new Set(mergedArgs));
+
+    return {
+        ...desiredCapabilities,
+        "goog:chromeOptions": {
+            ...(chromeOptions || {}),
+            args: uniqueArgs,
+        },
+    };
+};
 
 export class BrowserContext {
     protected _browser: WdioBrowser | null = null;
@@ -42,9 +67,7 @@ export class BrowserContext {
             console.error("Launch browser");
 
             const sandboxArgs = getSandboxArgs();
-            const desiredCapabilities =
-                this._options.desiredCapabilities ??
-                (sandboxArgs.length ? buildSandboxCapabilities(sandboxArgs) : undefined);
+            const desiredCapabilities = mergeSandboxArgs(this._options.desiredCapabilities, sandboxArgs);
 
             this._browser = await launchBrowser({
                 headless: this._options.headless ? "new" : false,
