@@ -1,9 +1,47 @@
 import { WdioBrowser, SessionOptions } from "testplane";
 import { launchBrowser, attachToBrowser } from "testplane/unstable";
+import type { StandaloneBrowserOptionsInput } from "testplane/unstable";
 
 export interface BrowserOptions {
     headless?: boolean;
+    desiredCapabilities?: StandaloneBrowserOptionsInput["desiredCapabilities"];
+    gridUrl?: string;
+    windowSize?: StandaloneBrowserOptionsInput["windowSize"];
 }
+
+const getSandboxArgs = (): string[] =>
+    process.env.DISABLE_BROWSER_SANDBOX ? ["--no-sandbox", "--disable-dev-shm-usage", "--disable-web-security"] : [];
+
+const mergeSandboxArgs = (
+    desiredCapabilities: StandaloneBrowserOptionsInput["desiredCapabilities"],
+    sandboxArgs: string[],
+): StandaloneBrowserOptionsInput["desiredCapabilities"] => {
+    if (!sandboxArgs.length) {
+        return desiredCapabilities;
+    }
+
+    if (!desiredCapabilities) {
+        return {
+            "goog:chromeOptions": {
+                args: sandboxArgs,
+            },
+        };
+    }
+
+    const chromeOptions = desiredCapabilities["goog:chromeOptions"] as Record<string, unknown> | undefined;
+    const existingArgs = (chromeOptions?.args as string[]) || [];
+
+    const mergedArgs = [...existingArgs, ...sandboxArgs];
+    const uniqueArgs = Array.from(new Set(mergedArgs));
+
+    return {
+        ...desiredCapabilities,
+        "goog:chromeOptions": {
+            ...(chromeOptions || {}),
+            args: uniqueArgs,
+        },
+    };
+};
 
 export class BrowserContext {
     protected _browser: WdioBrowser | null = null;
@@ -27,15 +65,15 @@ export class BrowserContext {
             await this._browser.getUrl(); // Need to get exception if not attach
         } else {
             console.error("Launch browser");
+
+            const sandboxArgs = getSandboxArgs();
+            const desiredCapabilities = mergeSandboxArgs(this._options.desiredCapabilities, sandboxArgs);
+
             this._browser = await launchBrowser({
                 headless: this._options.headless ? "new" : false,
-                desiredCapabilities: {
-                    "goog:chromeOptions": {
-                        args: process.env.DISABLE_BROWSER_SANDBOX
-                            ? ["--no-sandbox", "--disable-dev-shm-usage", "--disable-web-security"]
-                            : [],
-                    },
-                },
+                desiredCapabilities,
+                gridUrl: this._options.gridUrl,
+                windowSize: this._options.windowSize,
             });
         }
 

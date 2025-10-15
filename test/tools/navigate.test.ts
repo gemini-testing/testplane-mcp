@@ -59,7 +59,9 @@ describe(
                 expect(responseText).toContain("Title: Example Domain");
 
                 expect(responseText).toContain("## Current Tab Snapshot");
-                expect(responseText).toContain("This domain is for use in illustrative examples in documents.");
+                expect(responseText).toContain(
+                    "This domain is for use in documentation examples without needing permission. Avoid use in operations.",
+                );
             });
         });
 
