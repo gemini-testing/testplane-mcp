@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/gemini-testing/testplane-mcp/compare/v0.5.0...v0.6.0) (2025-10-15)
+
+
+### Features
+
+* implement launchBrowser tool ([#29](https://github.com/gemini-testing/testplane-mcp/issues/29)) ([5171785](https://github.com/gemini-testing/testplane-mcp/commit/517178518074d3bd92cfbdc041ac83b924713fb2))
+
 ## [0.5.0](https://github.com/gemini-testing/testplane-mcp/compare/v0.4.0...v0.5.0) (2025-08-28)
 
 
