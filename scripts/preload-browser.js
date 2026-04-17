@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
-import { BrowserContext } from "../build/browser-context.js";
+import { launchBrowser } from "testplane/unstable";
 
 async function preloadBrowser() {
-    const browserContext = new BrowserContext({ headless: true });
-    await browserContext.get();
-    await browserContext.close();
+    const browser = await launchBrowser({
+        headless: "new",
+    });
+
+    await browser.deleteSession();
 }
 
 preloadBrowser();
