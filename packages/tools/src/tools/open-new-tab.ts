@@ -46,4 +46,5 @@ export const openNewTab: ActionTool<typeof openNewTabSchema> = {
     description: "Open a new browser tab, optionally navigate to a URL, and automatically switch to it",
     schema: openNewTabSchema,
     cb: openNewTabCb,
+    cli: { positional: ["url"] },
 };

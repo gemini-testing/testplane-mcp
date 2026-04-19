@@ -130,4 +130,5 @@ export const waitForElement: ActionTool<typeof waitForElementSchema> = {
     description: `Wait for an element to appear or disappear on the page. Useful for waiting until page loads fully or loading spinners disappear.`,
     schema: waitForElementSchema,
     cb: waitForElementCb,
+    cli: { positional: ["selector"] },
 };

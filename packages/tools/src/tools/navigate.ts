@@ -28,4 +28,5 @@ export const navigate: ActionTool<typeof navigateSchema> = {
     description: "Open a URL in the browser",
     schema: navigateSchema,
     cb: navigateCb,
+    cli: { positional: ["url"] },
 };

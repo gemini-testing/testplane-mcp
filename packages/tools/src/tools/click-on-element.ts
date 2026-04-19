@@ -37,4 +37,5 @@ export const clickOnElement: ActionTool<typeof elementClickSchema> = {
     description: "Click an element on the page.",
     schema: elementClickSchema,
     cb: clickOnElementCb,
+    cli: { positional: ["selector"] },
 };

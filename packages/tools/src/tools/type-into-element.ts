@@ -43,4 +43,5 @@ export const typeIntoElement: ActionTool<typeof typeIntoElementSchema> = {
     description: "Type text into an element on the page.",
     schema: typeIntoElementSchema,
     cb: typeIntoElementCb,
+    cli: { positional: ["selector"] },
 };

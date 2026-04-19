@@ -37,4 +37,5 @@ export const hoverElement: ActionTool<typeof elementHoverSchema> = {
     description: "Hover an element on the page.",
     schema: elementHoverSchema,
     cb: hoverElementCb,
+    cli: { positional: ["selector"] },
 };

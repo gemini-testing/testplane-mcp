@@ -45,4 +45,5 @@ export const takeViewportScreenshot: ActionTool<typeof takeViewportScreenshotSch
         "Only use to test for visual changes when text-based snapshots are not useful.",
     schema: takeViewportScreenshotSchema,
     cb: takeViewportScreenshotCb,
+    cli: { positional: ["filePath"] },
 };

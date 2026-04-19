@@ -57,4 +57,5 @@ export const switchToTab: ActionTool<typeof switchToTabSchema> = {
     description: "Switch to a specific browser tab by its number (starting from 1)",
     schema: switchToTabSchema,
     cb: switchToTabCb,
+    cli: { positional: ["tabNumber"] },
 };
