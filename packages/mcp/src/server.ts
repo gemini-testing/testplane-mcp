@@ -48,18 +48,18 @@ export async function startServer(serverOptions: ServerOptions = {}): Promise<Mc
 
     for (const tool of sessionOpenTools) {
         server.tool(tool.name, tool.description, tool.schema, async (args: any) => {
-            if (browser) {
-                try {
-                    await browser.deleteSession();
-                } catch (error) {
-                    console.error("Error closing existing browser before opening a new session:", error);
-                }
-                browser = null;
-            }
-
             const result = await tool.cb(args, options);
 
             if (result.browser) {
+                if (browser) {
+                    try {
+                        await browser.deleteSession();
+                    } catch (error) {
+                        console.error("Error closing existing browser before opening a new session:", error);
+                    }
+                    browser = null;
+                }
+
                 browser = result.browser;
                 options = result.options;
             }
