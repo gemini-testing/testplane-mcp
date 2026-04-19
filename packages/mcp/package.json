@@ -2,7 +2,7 @@
   "name": "@testplane/mcp",
   "version": "0.6.0",
   "description": "MCP server for Testplane tool",
-  "main": "build/index.js",
+  "main": "build/cli.js",
   "type": "module",
   "bin": {
     "testplane-mcp-server": "build/cli.js"
@@ -11,13 +11,13 @@
     "build"
   ],
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
-    "start": "node build/index.js",
-    "dev": "tsc && node build/index.js",
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "start": "node build/cli.js",
+    "dev": "npm run build && node build/cli.js",
     "lint": "eslint .",
     "test-unit": "vitest run",
-    "test": "npm run lint && npm run test-unit",
+    "test": "npm run lint && npm run typecheck && npm run test-unit",
     "prepack": "npm run build"
   },
   "keywords": [],
@@ -31,6 +31,8 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@testplane/tools": "*",
+    "esbuild": "^0.24.0",
     "serve-handler": "^6.1.6"
   }
 }

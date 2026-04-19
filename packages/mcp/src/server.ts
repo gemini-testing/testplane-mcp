@@ -1,10 +1,15 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import type { WdioBrowser } from "testplane";
 
-import { tools } from "./tools/index.js";
-import { BrowserContext } from "./browser-context.js";
-import { Context } from "./types.js";
-import { contextProvider } from "./context-provider.js";
+import {
+    actionTools,
+    sessionOpenTools,
+    sessionCloseTools,
+    launchBrowserWithOptions,
+    type BrowserOptions,
+} from "@testplane/tools";
+
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -22,23 +27,55 @@ export interface ServerOptions {
     headless?: boolean;
 }
 
-export async function startServer(options: ServerOptions = {}): Promise<McpServer> {
-    const browserContext = new BrowserContext(options);
-
-    const context: Context = {
-        browser: browserContext,
-    };
-
-    contextProvider.setContext(context);
+export async function startServer(serverOptions: ServerOptions = {}): Promise<McpServer> {
+    let browser: WdioBrowser | null = null;
+    let options: BrowserOptions = { headless: serverOptions.headless ?? false };
 
     const server = new McpServer({
         name: packageJson.name,
         version: packageJson.version,
     });
 
-    for (const tool of tools) {
-        server.tool(tool.name, tool.description, tool.schema, tool.cb);
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    for (const tool of actionTools) {
+        server.tool(tool.name, tool.description, tool.schema, async (args: any) => {
+            if (!browser) {
+                browser = await launchBrowserWithOptions(options);
+            }
+            return tool.cb(args, browser);
+        });
     }
+
+    for (const tool of sessionOpenTools) {
+        server.tool(tool.name, tool.description, tool.schema, async (args: any) => {
+            if (browser) {
+                try {
+                    await browser.deleteSession();
+                } catch (error) {
+                    console.error("Error closing existing browser before opening a new session:", error);
+                }
+                browser = null;
+            }
+
+            const result = await tool.cb(args, options);
+
+            if (result.browser) {
+                browser = result.browser;
+                options = result.options;
+            }
+
+            return result.response;
+        });
+    }
+
+    for (const tool of sessionCloseTools) {
+        server.tool(tool.name, tool.description, tool.schema, async (args: any) => {
+            const response = await tool.cb(args, browser);
+            browser = null;
+            return response;
+        });
+    }
+    /* eslint-enable @typescript-eslint/no-explicit-any */
 
     console.error("Starting Testplane MCP server...");
     console.error("Name:", packageJson.name, "Version:", packageJson.version);
@@ -65,8 +102,15 @@ export async function startServer(options: ServerOptions = {}): Promise<McpServe
 
             Promise.resolve()
                 .then(async () => {
-                    if (await context.browser.isActive()) {
-                        await context.browser.close();
+                    if (browser) {
+                        try {
+                            await browser.deleteSession();
+                            console.error("Browser session closed");
+                        } catch (error) {
+                            console.error("Error closing browser session:", error);
+                        } finally {
+                            browser = null;
+                        }
                     }
                 })
                 .then(() => {
