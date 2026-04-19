@@ -2,13 +2,12 @@ import { WdioBrowser } from "testplane";
 import { describe, it, expect, beforeAll, beforeEach, afterAll } from "vitest";
 
 import { hoverElement } from "../../src/tools/hover-element.js";
-import { LocatorStrategy } from "../../src/schemas/element-selector.js";
 import { PlaygroundServer } from "../test-server.js";
 import { launchHeadlessBrowser, getTextContent } from "../setup.js";
 import { INTEGRATION_TEST_TIMEOUT } from "../constants.js";
 
 describe(
-    "tools/hoverElement",
+    "tools/hover",
     () => {
         let browser: WdioBrowser;
         let playgroundUrl: string;
@@ -33,12 +32,8 @@ describe(
             it("should hover an element using semantic query", async () => {
                 const result = await hoverElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "role",
-                            queryValue: "button",
-                            queryOptions: { name: "Submit Form" },
-                        },
+                        role: "button",
+                        name: "Submit Form",
                     },
                     browser,
                 );
@@ -52,10 +47,7 @@ describe(
             it("should hover an element using CSS selector", async () => {
                 const result = await hoverElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.Wdio,
-                            selector: "#unique-element",
-                        },
+                        selector: "#unique-element",
                     },
                     browser,
                 );
@@ -69,12 +61,8 @@ describe(
             it("should return correct testplane code for hovered element", async () => {
                 const result = await hoverElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "role",
-                            queryValue: "button",
-                            queryOptions: { name: "Submit Form" },
-                        },
+                        role: "button",
+                        name: "Submit Form",
                     },
                     browser,
                 );
@@ -89,12 +77,8 @@ describe(
             it("should provide helpful error messages for hover failures", async () => {
                 const result = await hoverElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "role",
-                            queryValue: "button",
-                            queryOptions: { name: "Non-existent Button" },
-                        },
+                        role: "button",
+                        name: "Non-existent Button",
                     },
                     browser,
                 );

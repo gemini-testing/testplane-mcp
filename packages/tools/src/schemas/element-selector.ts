@@ -1,64 +1,59 @@
 import { z } from "zod";
 
-export enum LocatorStrategy {
-    Wdio = "webdriverio",
-    TestingLibrary = "testing-library",
-}
+export const TESTING_LIBRARY_QUERY_FIELDS = [
+    "role",
+    "text",
+    "labelText",
+    "placeholderText",
+    "displayValue",
+    "altText",
+    "title",
+    "testId",
+] as const;
 
-export const elementSelectorSchema = {
-    locator: z.discriminatedUnion("strategy", [
-        z.object({
-            strategy: z.literal(LocatorStrategy.Wdio),
-            selector: z.string().describe("CSS selector, XPath or WebdriverIO locator."),
-        }),
-        z.object({
-            strategy: z.literal(LocatorStrategy.TestingLibrary),
-            queryType: z
-                .enum(["role", "text", "labelText", "placeholderText", "displayValue", "altText", "title", "testId"])
-                .describe(
-                    "Semantic query type (PREFERRED). Use this whenever possible for better accessibility and robustness.",
-                ),
-            queryValue: z
-                .string()
-                .describe(
-                    "The value to search for with the specified queryType (e.g., 'button' for role, 'Submit' for text).",
-                ),
-            queryOptions: z
-                .object({
-                    name: z
-                        .string()
-                        .optional()
-                        .describe("Accessible name for role queries (e.g., getByRole('button', {name: 'Submit'}))"),
-                    exact: z.boolean().optional().describe("Whether to match exact text (default: true)"),
-                    hidden: z
-                        .boolean()
-                        .optional()
-                        .describe("Include elements hidden from accessibility tree (default: false)"),
-                    level: z.number().optional().describe("Heading level for role='heading' (1-6)"),
-                })
-                .optional()
-                .describe("Additional options for semantic queries"),
-        }),
-    ])
-        .describe(`Element location strategy, an object, properties of which depend on the strategy. Available strategies: wdio or testing-library.
+export type TestingLibraryQueryField = (typeof TESTING_LIBRARY_QUERY_FIELDS)[number];
 
-    - wdio strategy: CSS selectors, XPath expressions or wdio locators. Examples:
-        - CSS selector: {"strategy": "wdio", "selector": "button.submit-btn"}
-        - XPath: {"strategy": "wdio", "selector": "//button[text()='Submit']"}
-        - wdio locator: {"strategy": "wdio", "selector": "button*=Submit"}
+export const QUERY_OPTION_FIELDS = ["name", "exact", "hidden", "level"] as const;
+export type QueryOptionField = (typeof QUERY_OPTION_FIELDS)[number];
 
-    - testing-library strategy: semantic queries like getByRole, getByText, getByTestId, etc. Examples:
-        - {"strategy": "testing-library", "queryType": "role", "queryValue": "button", "queryOptions": {"name": "submit", "exact": false}}
-        - {"strategy": "testing-library", "queryType": "text", "queryValue": "Submit"}
-        - {"strategy": "testing-library", "queryType": "labelText", "queryValue": "Email"}
-        - {"strategy": "testing-library", "queryType": "placeholderText", "queryValue": "Enter your name"}
-        - {"strategy": "testing-library", "queryType": "displayValue", "queryValue": "123456"}
-        - {"strategy": "testing-library", "queryType": "altText", "queryValue": "Submit"}
-        - {"strategy": "testing-library", "queryType": "title", "queryValue": "Submit"}
-        - {"strategy": "testing-library", "queryType": "testId", "queryValue": "submit-btn"}
+export const elementSelectorShape = {
+    selector: z
+        .string()
+        .optional()
+        .describe("CSS selector, XPath, or webdriverio locator. Mutually exclusive with testing-library query fields."),
+    role: z.string().optional().describe('ARIA role for testing-library getByRole (e.g. "button", "heading", "link").'),
+    text: z.string().optional().describe("Visible text content for testing-library getByText."),
+    labelText: z
+        .string()
+        .optional()
+        .describe("Label text associated with a form input for testing-library getByLabelText."),
+    placeholderText: z.string().optional().describe("Input placeholder text for testing-library getByPlaceholderText."),
+    displayValue: z.string().optional().describe("Current input display value for testing-library getByDisplayValue."),
+    altText: z.string().optional().describe("Image alt attribute for testing-library getByAltText."),
+    title: z.string().optional().describe("HTML title attribute for testing-library getByTitle."),
+    testId: z.string().optional().describe("data-testid attribute for testing-library getByTestId."),
 
-Match user's code style - use testing-library queries if user asks to write tests and has testing-library installed.
-`),
+    name: z.string().optional().describe("Accessible name modifier (queryOptions.name) for role queries."),
+    exact: z.boolean().optional().describe("Whether to match text exactly (queryOptions.exact)."),
+    hidden: z
+        .boolean()
+        .optional()
+        .describe("Include elements hidden from the accessibility tree (queryOptions.hidden)."),
+    level: z.number().int().optional().describe("Heading level modifier for role='heading' (queryOptions.level), 1-6."),
 };
 
-export type ElementSelectorArgs = z.infer<typeof elementSelectorSchema.locator>;
+export type ElementSelector = {
+    selector?: string;
+    role?: string;
+    text?: string;
+    labelText?: string;
+    placeholderText?: string;
+    displayValue?: string;
+    altText?: string;
+    title?: string;
+    testId?: string;
+    name?: string;
+    exact?: boolean;
+    hidden?: boolean;
+    level?: number;
+};

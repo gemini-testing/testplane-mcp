@@ -75,7 +75,7 @@ describe(
             const result = await client.callTool({
                 name: "click",
                 arguments: {
-                    locator: { strategy: "webdriverio", selector: "#does-not-exist-1234" },
+                    selector: "#does-not-exist-1234",
                 },
             });
             expect(result.isError).toBe(true);

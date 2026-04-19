@@ -1,6 +1,10 @@
 import { WdioBrowser } from "testplane";
 import { setupBrowser } from "@testing-library/webdriverio";
-import { ElementSelectorArgs, LocatorStrategy } from "../schemas/element-selector.js";
+import {
+    ElementSelector,
+    TESTING_LIBRARY_QUERY_FIELDS,
+    TestingLibraryQueryField,
+} from "../schemas/element-selector.js";
 
 export interface ElementResult {
     element: WebdriverIO.Element;
@@ -14,86 +18,120 @@ export interface NullableElementResult {
     testplaneCode: string;
 }
 
-export async function findElementByWdioSelector(
-    browser: WdioBrowser,
-    locator: Extract<ElementSelectorArgs, { strategy: LocatorStrategy.Wdio }>,
-): Promise<ElementResult> {
-    const { selector } = locator;
-    const element = await browser.$(selector);
-    const queryDescription = `CSS selector "${selector}"`;
-    const testplaneCode = `browser.$("${selector}")`;
+export type ElementSource =
+    | { kind: "wdio"; selector: string }
+    | {
+          kind: "testing-library";
+          field: TestingLibraryQueryField;
+          value: string;
+          options?: Record<string, unknown>;
+      };
 
+function pickQueryOptions(args: ElementSelector): Record<string, unknown> | undefined {
+    const opts: Record<string, unknown> = {};
+    if (args.name !== undefined) opts.name = args.name;
+    if (args.exact !== undefined) opts.exact = args.exact;
+    if (args.hidden !== undefined) opts.hidden = args.hidden;
+    if (args.level !== undefined) opts.level = args.level;
+    return Object.keys(opts).length > 0 ? opts : undefined;
+}
+
+export function detectElementSource(args: ElementSelector): ElementSource {
+    const hasSelector = args.selector !== undefined;
+    const tlFields = TESTING_LIBRARY_QUERY_FIELDS.filter(f => args[f] !== undefined);
+
+    if (hasSelector && tlFields.length > 0) {
+        throw new Error(
+            `Provide either 'selector' or a testing-library query field (${TESTING_LIBRARY_QUERY_FIELDS.join(
+                "/",
+            )}), not both.`,
+        );
+    }
+    if (tlFields.length > 1) {
+        throw new Error(`Provide only one testing-library query field. Got: ${tlFields.join(", ")}.`);
+    }
+    if (!hasSelector && tlFields.length === 0) {
+        throw new Error(
+            `Provide a 'selector' or a testing-library query field (${TESTING_LIBRARY_QUERY_FIELDS.join("/")}).`,
+        );
+    }
+
+    if (hasSelector) {
+        return { kind: "wdio", selector: args.selector as string };
+    }
+
+    const field = tlFields[0];
+    return {
+        kind: "testing-library",
+        field,
+        value: args[field] as string,
+        options: pickQueryOptions(args),
+    };
+}
+
+export async function findElementByWdioSelector(browser: WdioBrowser, selector: string): Promise<ElementResult> {
+    const element = await browser.$(selector);
     return {
         element,
-        queryDescription,
-        testplaneCode,
+        queryDescription: `CSS selector "${selector}"`,
+        testplaneCode: `browser.$("${selector}")`,
     };
 }
 
 export async function findElementByTestingLibraryQuery(
     browser: WdioBrowser,
-    locator: Extract<ElementSelectorArgs, { strategy: LocatorStrategy.TestingLibrary }>,
+    field: TestingLibraryQueryField,
+    value: string,
+    options?: Record<string, unknown>,
 ): Promise<NullableElementResult> {
-    const {
-        queryByRole,
-        queryByText,
-        queryByLabelText,
-        queryByPlaceholderText,
-        queryByDisplayValue,
-        queryByAltText,
-        queryByTitle,
-        queryByTestId,
-    } = setupBrowser(browser as any); // eslint-disable-line @typescript-eslint/no-explicit-any
-
-    const { queryType, queryValue, queryOptions } = locator;
-    let element;
+    const api = setupBrowser(browser as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const serializedOptions = options ? `, ${JSON.stringify(options)}` : "";
+    let element: WebdriverIO.Element | null = null;
     let queryDescription = "";
     let testplaneCode = "";
 
     try {
-        switch (queryType) {
+        switch (field) {
             case "role":
-                element = await queryByRole(queryValue, queryOptions);
-                queryDescription = `role "${queryValue}"${queryOptions?.name ? ` with name "${queryOptions.name}"` : ""}`;
-                testplaneCode = `await browser.findByRole("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
+                element = (await api.queryByRole(value, options as never)) as WebdriverIO.Element | null;
+                queryDescription = `role "${value}"${options?.name ? ` with name "${options.name as string}"` : ""}`;
+                testplaneCode = `await browser.findByRole("${value}"${serializedOptions})`;
                 break;
             case "text":
-                element = await queryByText(queryValue, queryOptions);
-                queryDescription = `text "${queryValue}"`;
-                testplaneCode = `await browser.findByText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
+                element = (await api.queryByText(value, options as never)) as WebdriverIO.Element | null;
+                queryDescription = `text "${value}"`;
+                testplaneCode = `await browser.findByText("${value}"${serializedOptions})`;
                 break;
             case "labelText":
-                element = await queryByLabelText(queryValue, queryOptions);
-                queryDescription = `label text "${queryValue}"`;
-                testplaneCode = `await browser.findByLabelText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
+                element = (await api.queryByLabelText(value, options as never)) as WebdriverIO.Element | null;
+                queryDescription = `label text "${value}"`;
+                testplaneCode = `await browser.findByLabelText("${value}"${serializedOptions})`;
                 break;
             case "placeholderText":
-                element = await queryByPlaceholderText(queryValue, queryOptions);
-                queryDescription = `placeholder text "${queryValue}"`;
-                testplaneCode = `await browser.findByPlaceholderText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
+                element = (await api.queryByPlaceholderText(value, options as never)) as WebdriverIO.Element | null;
+                queryDescription = `placeholder text "${value}"`;
+                testplaneCode = `await browser.findByPlaceholderText("${value}"${serializedOptions})`;
                 break;
             case "displayValue":
-                element = await queryByDisplayValue(queryValue, queryOptions);
-                queryDescription = `display value "${queryValue}"`;
-                testplaneCode = `await browser.findByDisplayValue("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
+                element = (await api.queryByDisplayValue(value, options as never)) as WebdriverIO.Element | null;
+                queryDescription = `display value "${value}"`;
+                testplaneCode = `await browser.findByDisplayValue("${value}"${serializedOptions})`;
                 break;
             case "altText":
-                element = await queryByAltText(queryValue, queryOptions);
-                queryDescription = `alt text "${queryValue}"`;
-                testplaneCode = `await browser.findByAltText("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
+                element = (await api.queryByAltText(value, options as never)) as WebdriverIO.Element | null;
+                queryDescription = `alt text "${value}"`;
+                testplaneCode = `await browser.findByAltText("${value}"${serializedOptions})`;
                 break;
             case "title":
-                element = await queryByTitle(queryValue, queryOptions);
-                queryDescription = `title "${queryValue}"`;
-                testplaneCode = `await browser.findByTitle("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
+                element = (await api.queryByTitle(value, options as never)) as WebdriverIO.Element | null;
+                queryDescription = `title "${value}"`;
+                testplaneCode = `await browser.findByTitle("${value}"${serializedOptions})`;
                 break;
             case "testId":
-                element = await queryByTestId(queryValue, queryOptions);
-                queryDescription = `test ID "${queryValue}"`;
-                testplaneCode = `await browser.findByTestId("${queryValue}"${queryOptions ? `, ${JSON.stringify(queryOptions)}` : ""})`;
+                element = (await api.queryByTestId(value, options as never)) as WebdriverIO.Element | null;
+                queryDescription = `test ID "${value}"`;
+                testplaneCode = `await browser.findByTestId("${value}"${serializedOptions})`;
                 break;
-            default:
-                throw new Error(`Unsupported queryType: ${queryType}`);
         }
     } catch (e) {
         if (e instanceof Error && e.message.includes("Found multiple elements")) {
@@ -102,23 +140,17 @@ export async function findElementByTestingLibraryQuery(
         throw e;
     }
 
-    return {
-        element,
-        queryDescription,
-        testplaneCode,
-    };
+    return { element, queryDescription, testplaneCode };
 }
 
-export async function findElement(browser: WdioBrowser, locator: ElementSelectorArgs): Promise<ElementResult> {
-    let result;
-    if (locator.strategy === LocatorStrategy.TestingLibrary) {
-        result = await findElementByTestingLibraryQuery(browser, locator);
-    } else if (locator.strategy === LocatorStrategy.Wdio) {
-        result = await findElementByWdioSelector(browser, locator);
+export async function findElement(browser: WdioBrowser, args: ElementSelector): Promise<ElementResult> {
+    const source = detectElementSource(args);
+
+    let result: ElementResult | NullableElementResult;
+    if (source.kind === "wdio") {
+        result = await findElementByWdioSelector(browser, source.selector);
     } else {
-        throw new Error(
-            `Provided locator.strategy is not supported. Please pass either ${LocatorStrategy.Wdio} or ${LocatorStrategy.TestingLibrary} as locator.strategy.`,
-        );
+        result = await findElementByTestingLibraryQuery(browser, source.field, source.value, source.options);
     }
 
     if (!result.element) {

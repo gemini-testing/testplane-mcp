@@ -1,11 +1,15 @@
 import { z } from "zod";
 import { ActionTool } from "../types.js";
 import { createSimpleResponse, createErrorResponse, createBrowserStateResponse } from "../responses/index.js";
-import { elementSelectorSchema, LocatorStrategy } from "../schemas/element-selector.js";
-import { findElementByTestingLibraryQuery, findElementByWdioSelector } from "../utils/element-selector.js";
+import { elementSelectorShape, TESTING_LIBRARY_QUERY_FIELDS } from "../schemas/element-selector.js";
+import {
+    detectElementSource,
+    findElementByTestingLibraryQuery,
+    findElementByWdioSelector,
+} from "../utils/element-selector.js";
 
 export const waitForElementSchema = {
-    ...elementSelectorSchema,
+    ...elementSelectorShape,
     disappear: z
         .boolean()
         .optional()
@@ -19,6 +23,25 @@ export const waitForElementSchema = {
         .describe("Whether to include page snapshot in response. Default: true"),
 };
 
+function describeSelectorArgs(args: {
+    selector?: string;
+    role?: string;
+    text?: string;
+    labelText?: string;
+    placeholderText?: string;
+    displayValue?: string;
+    altText?: string;
+    title?: string;
+    testId?: string;
+}): string {
+    const picked: Record<string, unknown> = {};
+    if (args.selector !== undefined) picked.selector = args.selector;
+    for (const field of TESTING_LIBRARY_QUERY_FIELDS) {
+        if (args[field] !== undefined) picked[field] = args[field];
+    }
+    return JSON.stringify(picked, null, 2);
+}
+
 const waitForElementCb: ActionTool<typeof waitForElementSchema>["cb"] = async (args, browser) => {
     try {
         const { disappear = false, timeout, includeSnapshotInResponse = true } = args;
@@ -30,11 +53,12 @@ const waitForElementCb: ActionTool<typeof waitForElementSchema>["cb"] = async (a
         }
 
         const actionDescription = disappear ? "disappear" : "appear";
+        const source = detectElementSource(args);
         let queryDescription = "";
         let testplaneCode = "";
 
-        if (args.locator.strategy === LocatorStrategy.Wdio) {
-            const result = await findElementByWdioSelector(browser, args.locator);
+        if (source.kind === "wdio") {
+            const result = await findElementByWdioSelector(browser, source.selector);
 
             await result.element.waitForDisplayed(waitOptions);
 
@@ -42,12 +66,12 @@ const waitForElementCb: ActionTool<typeof waitForElementSchema>["cb"] = async (a
 
             queryDescription = result.queryDescription;
             testplaneCode = `await ${result.testplaneCode}.waitForDisplayed(${Object.keys(waitOptions).length > 0 ? JSON.stringify(waitOptions) : ""});`;
-        } else if (args.locator.strategy === LocatorStrategy.TestingLibrary) {
-            const testingLibraryLocator = args.locator;
+        } else {
+            const { field, value, options } = source;
 
             await browser.waitUntil(
                 async () => {
-                    const result = await findElementByTestingLibraryQuery(browser, testingLibraryLocator);
+                    const result = await findElementByTestingLibraryQuery(browser, field, value, options);
                     queryDescription = result.queryDescription;
 
                     return (await result.element?.isDisplayed()) === !disappear;
@@ -56,9 +80,9 @@ const waitForElementCb: ActionTool<typeof waitForElementSchema>["cb"] = async (a
             );
 
             console.error(`Element with ${queryDescription} ${actionDescription}ed successfully`);
-            const queryName = `queryBy${testingLibraryLocator.queryType.charAt(0).toUpperCase() + testingLibraryLocator.queryType.slice(1)}`;
+            const queryName = `queryBy${field.charAt(0).toUpperCase() + field.slice(1)}`;
             testplaneCode = `await browser.waitUntil(async () => {
-    const result = await browser.${queryName}("${testingLibraryLocator.queryValue}"${testingLibraryLocator.queryOptions ? `, ${JSON.stringify(testingLibraryLocator.queryOptions)}` : ""});
+    const result = await browser.${queryName}("${value}"${options ? `, ${JSON.stringify(options)}` : ""});
     return await result.isDisplayed() === ${!disappear};
 }, ${waitOptions.timeout ? `{ timeout: ${waitOptions.timeout} }` : ""});`;
         }
@@ -79,7 +103,7 @@ const waitForElementCb: ActionTool<typeof waitForElementSchema>["cb"] = async (a
 
         if (error instanceof Error && error.message.includes("Unable to find")) {
             return createErrorResponse(
-                `Element not found by provided locator:\n${JSON.stringify(args.locator, null, 2)}.\nTry using a different query strategy or check if the element exists on the page.`,
+                `Element not found by provided selector:\n${describeSelectorArgs(args)}.\nTry using a different query strategy or check if the element exists on the page.`,
             );
         }
 
@@ -96,7 +120,7 @@ const waitForElementCb: ActionTool<typeof waitForElementSchema>["cb"] = async (a
         }
 
         return createErrorResponse(
-            `Error waiting for element with locator:\n${JSON.stringify(args.locator, null, 2)}.\nError message: ${error instanceof Error ? error.message : "Unknown error"}`,
+            `Error waiting for element with selector:\n${describeSelectorArgs(args)}.\nError message: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
     }
 };

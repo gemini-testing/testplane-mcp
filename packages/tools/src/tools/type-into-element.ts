@@ -1,29 +1,29 @@
 import { z } from "zod";
 import { ActionTool } from "../types.js";
 import { createElementStateResponse, createErrorResponse } from "../responses/index.js";
-import { elementSelectorSchema } from "../schemas/element-selector.js";
+import { elementSelectorShape } from "../schemas/element-selector.js";
 import { findElement } from "../utils/element-selector.js";
 
 export const typeIntoElementSchema = {
-    ...elementSelectorSchema,
-    text: z.string().describe("The text to type into the element"),
+    ...elementSelectorShape,
+    value: z.string().describe("The text value to type into the element"),
 };
 
 const typeIntoElementCb: ActionTool<typeof typeIntoElementSchema>["cb"] = async (args, browser) => {
     try {
-        const { text } = args;
+        const { value } = args;
 
-        const { element, queryDescription, testplaneCode } = await findElement(browser, args.locator);
+        const { element, queryDescription, testplaneCode } = await findElement(browser, args);
 
-        await element.setValue(text);
+        await element.setValue(value);
 
-        console.error(`Successfully typed "${text}" into element with ${queryDescription}`);
+        console.error(`Successfully typed "${value}" into element with ${queryDescription}`);
 
         return await createElementStateResponse(element, {
-            action: `Successfully typed "${text}" into element found by ${queryDescription}`,
+            action: `Successfully typed "${value}" into element found by ${queryDescription}`,
             testplaneCode: testplaneCode.startsWith("await")
-                ? `await (${testplaneCode}).setValue("${text}");`
-                : `await ${testplaneCode}.setValue("${text}");`,
+                ? `await (${testplaneCode}).setValue("${value}");`
+                : `await ${testplaneCode}.setValue("${value}");`,
         });
     } catch (error) {
         console.error("Error typing into element:", error);

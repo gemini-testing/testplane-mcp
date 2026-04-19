@@ -1,13 +1,13 @@
 import { ActionTool } from "../types.js";
 import { createElementStateResponse, createErrorResponse } from "../responses/index.js";
-import { elementSelectorSchema } from "../schemas/element-selector.js";
+import { elementSelectorShape } from "../schemas/element-selector.js";
 import { findElement } from "../utils/element-selector.js";
 
-export const elementHoverSchema = elementSelectorSchema;
+export const elementHoverSchema = { ...elementSelectorShape };
 
 const hoverElementCb: ActionTool<typeof elementHoverSchema>["cb"] = async (args, browser) => {
     try {
-        const { element, queryDescription, testplaneCode } = await findElement(browser, args.locator);
+        const { element, queryDescription, testplaneCode } = await findElement(browser, args);
 
         await element.moveTo();
 

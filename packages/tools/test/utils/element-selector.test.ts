@@ -3,7 +3,6 @@ import { launchBrowser } from "testplane/unstable";
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 
 import { findElement } from "../../src/utils/element-selector.js";
-import { LocatorStrategy } from "../../src/schemas/element-selector.js";
 import { PlaygroundServer } from "../test-server.js";
 
 describe("tools/utils/element-selector", () => {
@@ -41,10 +40,8 @@ describe("tools/utils/element-selector", () => {
         describe("getByRole queries", () => {
             it("should find button by role with name", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "role",
-                    queryValue: "button",
-                    queryOptions: { name: "Submit Form" },
+                    role: "button",
+                    name: "Submit Form",
                 });
 
                 expect(result.element).toBeDefined();
@@ -54,10 +51,8 @@ describe("tools/utils/element-selector", () => {
 
             it("should find link by role with name", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "role",
-                    queryValue: "link",
-                    queryOptions: { name: "Home" },
+                    role: "link",
+                    name: "Home",
                 });
 
                 expect(result.element).toBeDefined();
@@ -67,25 +62,22 @@ describe("tools/utils/element-selector", () => {
 
             it("should find heading by role with level", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "role",
-                    queryValue: "heading",
-                    queryOptions: { level: 3, name: "Click this heading" },
+                    role: "heading",
+                    level: 3,
+                    name: "Click this heading",
                 });
 
                 expect(result.element).toBeDefined();
                 expect(result.queryDescription).toBe('role "heading" with name "Click this heading"');
                 expect(result.testplaneCode).toContain(
-                    'await browser.findByRole("heading", {"level":3,"name":"Click this heading"})',
+                    'await browser.findByRole("heading", {"name":"Click this heading","level":3})',
                 );
             });
 
             it("should throw error with short message when multiple elements are found", async () => {
                 await expect(
                     findElement(browser, {
-                        strategy: LocatorStrategy.TestingLibrary,
-                        queryType: "role",
-                        queryValue: "button",
+                        role: "button",
                     }),
                 ).rejects.toThrow('Found multiple elements with the role "button"');
             });
@@ -94,9 +86,7 @@ describe("tools/utils/element-selector", () => {
         describe("getByText queries", () => {
             it("should find element by exact text content", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "text",
-                    queryValue: "Click here to test text selection",
+                    text: "Click here to test text selection",
                 });
 
                 expect(result.element).toBeDefined();
@@ -106,10 +96,8 @@ describe("tools/utils/element-selector", () => {
 
             it("should find element by partial text with exact: false", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "text",
-                    queryValue: "Download",
-                    queryOptions: { exact: false },
+                    text: "Download",
+                    exact: false,
                 });
 
                 expect(result.element).toBeDefined();
@@ -121,9 +109,7 @@ describe("tools/utils/element-selector", () => {
         describe("getByLabelText queries", () => {
             it("should find input by label text", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "labelText",
-                    queryValue: "Email Address",
+                    labelText: "Email Address",
                 });
 
                 expect(result.element).toBeDefined();
@@ -133,9 +119,7 @@ describe("tools/utils/element-selector", () => {
 
             it("should find textarea by label text", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "labelText",
-                    queryValue: "Message",
+                    labelText: "Message",
                 });
 
                 expect(result.element).toBeDefined();
@@ -147,9 +131,7 @@ describe("tools/utils/element-selector", () => {
         describe("getByPlaceholderText queries", () => {
             it("should find input by placeholder text", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "placeholderText",
-                    queryValue: "Enter your name",
+                    placeholderText: "Enter your name",
                 });
 
                 expect(result.element).toBeDefined();
@@ -159,9 +141,7 @@ describe("tools/utils/element-selector", () => {
 
             it("should find textarea by placeholder text", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "placeholderText",
-                    queryValue: "Type your feedback here...",
+                    placeholderText: "Type your feedback here...",
                 });
 
                 expect(result.element).toBeDefined();
@@ -175,9 +155,7 @@ describe("tools/utils/element-selector", () => {
         describe("getByAltText queries", () => {
             it("should find image by alt text", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "altText",
-                    queryValue: "Company Logo",
+                    altText: "Company Logo",
                 });
 
                 expect(result.element).toBeDefined();
@@ -187,9 +165,7 @@ describe("tools/utils/element-selector", () => {
 
             it("should find another image by alt text", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "altText",
-                    queryValue: "Success icon",
+                    altText: "Success icon",
                 });
 
                 expect(result.element).toBeDefined();
@@ -201,9 +177,7 @@ describe("tools/utils/element-selector", () => {
         describe("getByTestId queries", () => {
             it("should find element by test id", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "testId",
-                    queryValue: "action-button",
+                    testId: "action-button",
                 });
 
                 expect(result.element).toBeDefined();
@@ -213,9 +187,7 @@ describe("tools/utils/element-selector", () => {
 
             it("should find container by test id", async () => {
                 const result = await findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "testId",
-                    queryValue: "widget-container",
+                    testId: "widget-container",
                 });
 
                 expect(result.element).toBeDefined();
@@ -228,7 +200,6 @@ describe("tools/utils/element-selector", () => {
     describe("CSS selector fallback", () => {
         it("should find element by CSS class selector", async () => {
             const result = await findElement(browser, {
-                strategy: LocatorStrategy.Wdio,
                 selector: ".custom-class-btn",
             });
 
@@ -239,7 +210,6 @@ describe("tools/utils/element-selector", () => {
 
         it("should find element by ID selector", async () => {
             const result = await findElement(browser, {
-                strategy: LocatorStrategy.Wdio,
                 selector: "#unique-element",
             });
 
@@ -250,7 +220,6 @@ describe("tools/utils/element-selector", () => {
 
         it("should find element by complex CSS selector", async () => {
             const result = await findElement(browser, {
-                strategy: LocatorStrategy.Wdio,
                 selector: "button.success-btn",
             });
 
@@ -261,54 +230,47 @@ describe("tools/utils/element-selector", () => {
     });
 
     describe("error handling", () => {
-        it("should reject when invalid strategy is provided", async () => {
+        it("should reject when both selector and testing-library query are provided", async () => {
             await expect(
-                findElement(
-                    browser,
-                    {
-                        strategy: "invalid-strategy",
-                        queryType: "role",
-                        queryValue: "button",
-                    } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-                ),
-            ).rejects.toThrow(/Provided locator.strategy is not supported/);
+                findElement(browser, {
+                    selector: "#unique-element",
+                    role: "button",
+                }),
+            ).rejects.toThrow(/Provide either 'selector' or a testing-library query field/);
+        });
+
+        it("should reject when multiple testing-library fields are provided", async () => {
+            await expect(
+                findElement(browser, {
+                    role: "button",
+                    testId: "action-button",
+                }),
+            ).rejects.toThrow(/Provide only one testing-library query field/);
         });
 
         it("should reject when neither semantic query nor selector is provided", async () => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            await expect(findElement(browser, {} as any)).rejects.toThrow(/Provided locator.strategy is not supported/);
+            await expect(findElement(browser, {})).rejects.toThrow(
+                /Provide a 'selector' or a testing-library query field/,
+            );
         });
 
         it("should handle element not found gracefully", async () => {
             await expect(
                 findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "role",
-                    queryValue: "button",
-                    queryOptions: { name: "Non-existent Button" },
+                    role: "button",
+                    name: "Non-existent Button",
                 }),
             ).rejects.toThrow("Unable to find element");
         });
 
         it("should handle invalid CSS selector gracefully", async () => {
             const result = await findElement(browser, {
-                strategy: LocatorStrategy.Wdio,
                 selector: ".non-existent-class",
             });
 
             expect(result.element).toBeDefined();
             expect((result.element as any).error).toBeDefined(); // eslint-disable-line @typescript-eslint/no-explicit-any
             expect((result.element as any).error.error).toBe("no such element"); // eslint-disable-line @typescript-eslint/no-explicit-any
-        });
-
-        it("should reject unsupported queryType", async () => {
-            await expect(
-                findElement(browser, {
-                    strategy: LocatorStrategy.TestingLibrary,
-                    queryType: "invalidType" as "role",
-                    queryValue: "button",
-                }),
-            ).rejects.toThrow("Unsupported queryType");
         });
     });
 });

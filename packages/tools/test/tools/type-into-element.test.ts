@@ -2,13 +2,12 @@ import { WdioBrowser } from "testplane";
 import { describe, it, expect, beforeAll, beforeEach, afterAll } from "vitest";
 
 import { typeIntoElement } from "../../src/tools/type-into-element.js";
-import { LocatorStrategy } from "../../src/schemas/element-selector.js";
 import { PlaygroundServer } from "../test-server.js";
 import { launchHeadlessBrowser, getTextContent } from "../setup.js";
 import { INTEGRATION_TEST_TIMEOUT } from "../constants.js";
 
 describe(
-    "tools/typeIntoElement",
+    "tools/type",
     () => {
         let browser: WdioBrowser;
         let playgroundUrl: string;
@@ -33,12 +32,8 @@ describe(
             it("should successfully type text into an element using semantic query", async () => {
                 const result = await typeIntoElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "labelText",
-                            queryValue: "Email Address",
-                        },
-                        text: "test@example.com",
+                        labelText: "Email Address",
+                        value: "test@example.com",
                     },
                     browser,
                 );
@@ -52,11 +47,8 @@ describe(
             it("should successfully type text into element using CSS selector", async () => {
                 const result = await typeIntoElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.Wdio,
-                            selector: "#username",
-                        },
-                        text: "john_doe",
+                        selector: "#username",
+                        value: "john_doe",
                     },
                     browser,
                 );
@@ -70,12 +62,8 @@ describe(
             it("should return correct testplane code for typed element", async () => {
                 const result = await typeIntoElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "placeholderText",
-                            queryValue: "Enter your name",
-                        },
-                        text: "John Smith",
+                        placeholderText: "Enter your name",
+                        value: "John Smith",
                     },
                     browser,
                 );
@@ -92,12 +80,8 @@ describe(
             it("should provide helpful error messages for element not found", async () => {
                 const result = await typeIntoElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "labelText",
-                            queryValue: "Non-existent Field",
-                        },
-                        text: "test",
+                        labelText: "Non-existent Field",
+                        value: "test",
                     },
                     browser,
                 );

@@ -2,14 +2,13 @@ import { WdioBrowser } from "testplane";
 import { describe, it, expect, beforeAll, beforeEach, afterAll } from "vitest";
 
 import { waitForElement } from "../../src/tools/wait-for-element.js";
-import { LocatorStrategy } from "../../src/schemas/element-selector.js";
 import { PlaygroundServer } from "../test-server.js";
 import { launchHeadlessBrowser, getTextContent } from "../setup.js";
 import { INTEGRATION_TEST_TIMEOUT } from "../constants.js";
 import { navigate } from "../../src/tools/navigate.js";
 
 describe(
-    "tools/waitForElement",
+    "tools/wait",
     () => {
         let browser: WdioBrowser;
         let slowLoadingUrl: string;
@@ -38,11 +37,7 @@ describe(
             it("should handle already visible elements", async () => {
                 const result = await waitForElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "testId",
-                            queryValue: "immediate-btn",
-                        },
+                        testId: "immediate-btn",
                     },
                     browser,
                 );
@@ -58,10 +53,7 @@ describe(
 
                 const result = await waitForElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.Wdio,
-                            selector: "#medium-button",
-                        },
+                        selector: "#medium-button",
                         timeout: 5000,
                     },
                     browser,
@@ -79,11 +71,7 @@ describe(
 
                 const result = await waitForElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "testId",
-                            queryValue: "medium-btn",
-                        },
+                        testId: "medium-btn",
                         timeout: 5000,
                     },
                     browser,
@@ -104,10 +92,7 @@ describe(
 
                 const result = await waitForElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.Wdio,
-                            selector: "#disappearing-content",
-                        },
+                        selector: "#disappearing-content",
                         disappear: true,
                         timeout: 5000,
                     },
@@ -126,11 +111,7 @@ describe(
 
                 const result = await waitForElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "testId",
-                            queryValue: "disappearing-btn",
-                        },
+                        testId: "disappearing-btn",
                         disappear: true,
                         timeout: 5000,
                     },
@@ -150,12 +131,8 @@ describe(
 
                 const result = await waitForElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "text",
-                            queryValue: "This content will disappear after 3 seconds",
-                            queryOptions: { exact: false },
-                        },
+                        text: "This content will disappear after 3 seconds",
+                        exact: false,
                         disappear: true,
                         timeout: 5000,
                     },
@@ -179,10 +156,7 @@ describe(
 
                 const result = await waitForElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.Wdio,
-                            selector: "#never-appears",
-                        },
+                        selector: "#never-appears",
                         disappear: false,
                         timeout: 1500,
                     },
@@ -204,11 +178,7 @@ describe(
 
                 const result = await waitForElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "testId",
-                            queryValue: "never-appears",
-                        },
+                        testId: "never-appears",
                         disappear: false,
                         timeout: 1500,
                     },
@@ -230,11 +200,7 @@ describe(
 
                 const result = await waitForElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "testId",
-                            queryValue: "immediate-btn",
-                        },
+                        testId: "immediate-btn",
                         disappear: true,
                         timeout: 1000,
                     },
@@ -256,11 +222,7 @@ describe(
             it("should not include page snapshot when includeSnapshotInResponse is false", async () => {
                 const result = await waitForElement.cb(
                     {
-                        locator: {
-                            strategy: LocatorStrategy.TestingLibrary,
-                            queryType: "testId",
-                            queryValue: "immediate-btn",
-                        },
+                        testId: "immediate-btn",
                         disappear: false,
                         timeout: 1000,
                         includeSnapshotInResponse: false,
