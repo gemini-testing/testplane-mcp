@@ -33,7 +33,7 @@ const clickOnElementCb: ActionTool<typeof elementClickSchema>["cb"] = async (arg
 };
 
 export const clickOnElement: ActionTool<typeof elementClickSchema> = {
-    name: "clickOnElement",
+    name: "click",
     description: "Click an element on the page.",
     schema: elementClickSchema,
     cb: clickOnElementCb,

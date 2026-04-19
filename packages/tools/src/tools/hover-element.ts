@@ -33,7 +33,7 @@ const hoverElementCb: ActionTool<typeof elementHoverSchema>["cb"] = async (args,
 };
 
 export const hoverElement: ActionTool<typeof elementHoverSchema> = {
-    name: "hoverElement",
+    name: "hover",
     description: "Hover an element on the page.",
     schema: elementHoverSchema,
     cb: hoverElementCb,

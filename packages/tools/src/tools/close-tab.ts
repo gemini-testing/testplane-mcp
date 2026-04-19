@@ -23,7 +23,7 @@ const closeTabCb: ActionTool<typeof closeTabSchema>["cb"] = async (args, browser
 
         if (windowHandles.length === 1) {
             return createErrorResponse(
-                'Cannot close tab — this is the last remaining tab. Use "closeBrowser" command to close the entire browser session.',
+                'Cannot close tab — this is the last remaining tab. Use "close-browser" command to close the entire browser session.',
             );
         }
 
@@ -72,7 +72,7 @@ const closeTabCb: ActionTool<typeof closeTabSchema>["cb"] = async (args, browser
 };
 
 export const closeTab: ActionTool<typeof closeTabSchema> = {
-    name: "closeTab",
+    name: "close-tab",
     description:
         "Close a specific browser tab by its number (1-based), or close the current tab if no number is provided",
     schema: closeTabSchema,

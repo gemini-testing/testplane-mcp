@@ -108,7 +108,7 @@ const launchBrowserCb: SessionOpenTool<typeof launchBrowserSchema>["cb"] = async
 };
 
 export const launchBrowser: SessionOpenTool<typeof launchBrowserSchema> = {
-    name: "launchBrowser",
+    name: "launch",
     description:
         "Launch a new browser session with custom desired capabilities. Avoid using this tool unless the user explicitly requests a custom browser configuration; browsers are launched automatically for commands like navigate to URL. Testplane MCP can ONLY download Chrome and Firefox automatically, for other browsers you MUST ensure that driver is launched and provide it as custom gridUrl.",
     schema: launchBrowserSchema,

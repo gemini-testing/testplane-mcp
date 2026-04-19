@@ -39,7 +39,7 @@ const takePageSnapshotCb: ActionTool<typeof takePageSnapshotSchema>["cb"] = asyn
 };
 
 export const takePageSnapshot: ActionTool<typeof takePageSnapshotSchema> = {
-    name: "takePageSnapshot",
+    name: "snapshot",
     description:
         "Capture a DOM snapshot of the current page. Note: by default, not useful tags and attributes are excluded (e.g. script, style, etc.). Prefer to use defaults. Response contains info as to what was omitted. If you need more info, request a snapshot with more tags and attributes.",
     schema: takePageSnapshotSchema,

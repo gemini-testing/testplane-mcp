@@ -102,7 +102,7 @@ const waitForElementCb: ActionTool<typeof waitForElementSchema>["cb"] = async (a
 };
 
 export const waitForElement: ActionTool<typeof waitForElementSchema> = {
-    name: "waitForElement",
+    name: "wait",
     description: `Wait for an element to appear or disappear on the page. Useful for waiting until page loads fully or loading spinners disappear.`,
     schema: waitForElementSchema,
     cb: waitForElementCb,

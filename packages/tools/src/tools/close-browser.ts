@@ -25,7 +25,7 @@ const closeBrowserCb: SessionCloseTool<typeof closeBrowserSchema>["cb"] = async 
 };
 
 export const closeBrowser: SessionCloseTool<typeof closeBrowserSchema> = {
-    name: "closeBrowser",
+    name: "close-browser",
     description: "Close the current browser session",
     schema: closeBrowserSchema,
     cb: closeBrowserCb,

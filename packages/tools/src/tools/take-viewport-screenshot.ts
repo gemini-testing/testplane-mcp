@@ -38,7 +38,7 @@ const takeViewportScreenshotCb: ActionTool<typeof takeViewportScreenshotSchema>[
 };
 
 export const takeViewportScreenshot: ActionTool<typeof takeViewportScreenshotSchema> = {
-    name: "takeViewportScreenshot",
+    name: "screenshot",
     description:
         "Capture a PNG screenshot of the current browser viewport. " +
         "Strongly prefer capturing text-based snapshots using takePageSnapshot tool. " +

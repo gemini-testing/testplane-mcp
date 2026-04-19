@@ -7,20 +7,20 @@ import { PlaygroundServer } from "./test-server.js";
 const EXPECTED_TOOL_NAMES = [
     // action tools
     "navigate",
-    "clickOnElement",
-    "hoverElement",
-    "typeIntoElement",
-    "waitForElement",
-    "takePageSnapshot",
-    "takeViewportScreenshot",
-    "listTabs",
-    "switchToTab",
-    "openNewTab",
-    "closeTab",
+    "click",
+    "hover",
+    "type",
+    "wait",
+    "snapshot",
+    "screenshot",
+    "list-tabs",
+    "switch-tab",
+    "new-tab",
+    "close-tab",
     // session tools
-    "launchBrowser",
-    "attachToBrowser",
-    "closeBrowser",
+    "launch",
+    "attach",
+    "close-browser",
 ];
 
 describe(
@@ -58,7 +58,7 @@ describe(
         });
 
         it("closeBrowser ends the session cleanly", async () => {
-            const result = await client.callTool({ name: "closeBrowser", arguments: {} });
+            const result = await client.callTool({ name: "close-browser", arguments: {} });
             expect(result.isError).toBe(false);
 
             const content = result.content as Array<{ type: string; text: string }>;
@@ -73,7 +73,7 @@ describe(
 
         it("surfaces tool-level errors as isError responses", async () => {
             const result = await client.callTool({
-                name: "clickOnElement",
+                name: "click",
                 arguments: {
                     locator: { strategy: "webdriverio", selector: "#does-not-exist-1234" },
                 },

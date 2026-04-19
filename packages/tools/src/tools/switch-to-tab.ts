@@ -53,7 +53,7 @@ await browser.switchToWindow(windowHandles[${arrayIndex}]);`,
 };
 
 export const switchToTab: ActionTool<typeof switchToTabSchema> = {
-    name: "switchToTab",
+    name: "switch-tab",
     description: "Switch to a specific browser tab by its number (starting from 1)",
     schema: switchToTabSchema,
     cb: switchToTabCb,

@@ -16,7 +16,7 @@ const listTabsCb: ActionTool<typeof listTabsSchema>["cb"] = async (_args, browse
 };
 
 export const listTabs: ActionTool<typeof listTabsSchema> = {
-    name: "listTabs",
+    name: "list-tabs",
     description: "Get a list of all currently opened browser tabs with their URLs, titles, and active status",
     schema: listTabsSchema,
     cb: listTabsCb,

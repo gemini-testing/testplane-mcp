@@ -39,7 +39,7 @@ const typeIntoElementCb: ActionTool<typeof typeIntoElementSchema>["cb"] = async 
 };
 
 export const typeIntoElement: ActionTool<typeof typeIntoElementSchema> = {
-    name: "typeIntoElement",
+    name: "type",
     description: "Type text into an element on the page.",
     schema: typeIntoElementSchema,
     cb: typeIntoElementCb,

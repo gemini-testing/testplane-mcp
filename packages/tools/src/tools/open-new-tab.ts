@@ -42,7 +42,7 @@ const openNewTabCb: ActionTool<typeof openNewTabSchema>["cb"] = async (args, bro
 };
 
 export const openNewTab: ActionTool<typeof openNewTabSchema> = {
-    name: "openNewTab",
+    name: "new-tab",
     description: "Open a new browser tab, optionally navigate to a URL, and automatically switch to it",
     schema: openNewTabSchema,
     cb: openNewTabCb,

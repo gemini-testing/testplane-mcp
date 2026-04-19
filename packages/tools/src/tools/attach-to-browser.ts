@@ -30,7 +30,7 @@ const attachToBrowserCb: SessionOpenTool<typeof attachToBrowserSchema>["cb"] = a
 };
 
 export const attachToBrowser: SessionOpenTool<typeof attachToBrowserSchema> = {
-    name: "attachToBrowser",
+    name: "attach",
     description: "Attach to existing browser session",
     schema: attachToBrowserSchema,
     cb: attachToBrowserCb,
