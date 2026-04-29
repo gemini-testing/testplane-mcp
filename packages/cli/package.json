@@ -1,0 +1,39 @@
+{
+  "name": "@testplane/cli",
+  "version": "0.0.1",
+  "description": "Daemon-backed CLI for Testplane browser-automation tools",
+  "main": "build/cli.js",
+  "type": "module",
+  "bin": {
+    "testplane-cli": "build/cli.js"
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "start": "node build/cli.js",
+    "dev": "npm run build && node build/cli.js",
+    "lint": "eslint .",
+    "test-unit": "vitest run",
+    "test": "npm run lint && npm run typecheck && npm run test-unit",
+    "prepack": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@testing-library/webdriverio": "^3.2.1",
+    "commander": "^14.0.3",
+    "debug": "^4.3.4",
+    "testplane": "^8.31.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@testplane/tools": "*",
+    "@types/debug": "^4.1.12",
+    "esbuild": "^0.24.0",
+    "serve-handler": "^6.1.6"
+  }
+}
