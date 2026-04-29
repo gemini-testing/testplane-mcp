@@ -1,6 +1,6 @@
 import { attachToBrowser as attachTestplaneBrowser } from "testplane/unstable";
 import type { SessionOptions } from "testplane";
-import { SessionOpenTool } from "../types.js";
+import { SessionOpenTool, ToolKind } from "../types.js";
 import { createSimpleResponse, createErrorResponse } from "../responses/index.js";
 import { attachToBrowserSchema } from "../schemas/attach-to-browser.js";
 
@@ -30,8 +30,10 @@ const attachToBrowserCb: SessionOpenTool<typeof attachToBrowserSchema>["cb"] = a
 };
 
 export const attachToBrowser: SessionOpenTool<typeof attachToBrowserSchema> = {
+    kind: ToolKind.SessionOpen,
     name: "attach",
     description: "Attach to existing browser session",
     schema: attachToBrowserSchema,
     cb: attachToBrowserCb,
+    cli: { section: "Session" },
 };

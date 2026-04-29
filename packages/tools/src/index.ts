@@ -1,4 +1,4 @@
-import { ActionTool, SessionOpenTool, SessionCloseTool } from "./types.js";
+import { Tool, ToolKind } from "./types.js";
 import { navigate } from "./tools/navigate.js";
 import { clickOnElement } from "./tools/click-on-element.js";
 import { hoverElement } from "./tools/hover-element.js";
@@ -14,8 +14,12 @@ import { launchBrowser, launchBrowserWithOptions } from "./tools/launch-browser.
 import { attachToBrowser } from "./tools/attach-to-browser.js";
 import { closeBrowser } from "./tools/close-browser.js";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const actionTools = [
+// This function just ensures that every item on a type level is a Tool<something>. AFAIK the only way to do this.
+const typeCheckedTools = <const T extends readonly unknown[]>(
+    tools: T & { [K in keyof T]: T[K] extends Tool<infer _S> ? T[K] : never },
+) => tools;
+
+export const tools = typeCheckedTools([
     navigate,
     clickOnElement,
     hoverElement,
@@ -27,16 +31,15 @@ export const actionTools = [
     switchToTab,
     openNewTab,
     closeTab,
-] as const satisfies ActionTool<any>[];
+    launchBrowser,
+    attachToBrowser,
+    closeBrowser,
+]);
 
-export const sessionOpenTools = [launchBrowser, attachToBrowser] as const satisfies SessionOpenTool<any>[];
-
-export const sessionCloseTools = [closeBrowser] as const satisfies SessionCloseTool<any>[];
-/* eslint-enable @typescript-eslint/no-explicit-any */
-
-export { launchBrowserWithOptions };
+export { launchBrowserWithOptions, ToolKind };
 
 export type {
+    Tool,
     ActionTool,
     SessionOpenTool,
     SessionCloseTool,

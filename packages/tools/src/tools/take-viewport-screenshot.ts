@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ActionTool } from "../types.js";
+import { ActionTool, ToolKind } from "../types.js";
 import { createBrowserStateResponse, createErrorResponse } from "../responses/index.js";
 import path from "path";
 import fs from "fs/promises";
@@ -38,6 +38,7 @@ const takeViewportScreenshotCb: ActionTool<typeof takeViewportScreenshotSchema>[
 };
 
 export const takeViewportScreenshot: ActionTool<typeof takeViewportScreenshotSchema> = {
+    kind: ToolKind.Action,
     name: "screenshot",
     description:
         "Capture a PNG screenshot of the current browser viewport. " +
@@ -45,5 +46,5 @@ export const takeViewportScreenshot: ActionTool<typeof takeViewportScreenshotSch
         "Only use to test for visual changes when text-based snapshots are not useful.",
     schema: takeViewportScreenshotSchema,
     cb: takeViewportScreenshotCb,
-    cli: { positional: ["filePath"] },
+    cli: { positional: ["filePath"], section: "Inspection" },
 };

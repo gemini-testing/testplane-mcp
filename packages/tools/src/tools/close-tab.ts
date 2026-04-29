@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ActionTool } from "../types.js";
+import { ActionTool, ToolKind } from "../types.js";
 import { createBrowserStateResponse, createErrorResponse } from "../responses/index.js";
 import { getBrowserTabs } from "../responses/browser-helpers.js";
 
@@ -72,10 +72,11 @@ const closeTabCb: ActionTool<typeof closeTabSchema>["cb"] = async (args, browser
 };
 
 export const closeTab: ActionTool<typeof closeTabSchema> = {
+    kind: ToolKind.Action,
     name: "close-tab",
     description:
         "Close a specific browser tab by its number (1-based), or close the current tab if no number is provided",
     schema: closeTabSchema,
     cb: closeTabCb,
-    cli: { positional: ["tabNumber"] },
+    cli: { positional: ["tabNumber"], section: "Tabs" },
 };

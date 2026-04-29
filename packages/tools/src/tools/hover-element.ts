@@ -1,4 +1,4 @@
-import { ActionTool } from "../types.js";
+import { ActionTool, ToolKind } from "../types.js";
 import { createElementStateResponse, createErrorResponse } from "../responses/index.js";
 import { elementSelectorShape } from "../schemas/element-selector.js";
 import { findElement } from "../utils/element-selector.js";
@@ -33,9 +33,10 @@ const hoverElementCb: ActionTool<typeof elementHoverSchema>["cb"] = async (args,
 };
 
 export const hoverElement: ActionTool<typeof elementHoverSchema> = {
+    kind: ToolKind.Action,
     name: "hover",
     description: "Hover an element on the page.",
     schema: elementHoverSchema,
     cb: hoverElementCb,
-    cli: { positional: ["selector"] },
+    cli: { positional: ["selector"], section: "Interaction" },
 };

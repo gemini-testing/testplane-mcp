@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ActionTool } from "../types.js";
+import { ActionTool, ToolKind } from "../types.js";
 import { createBrowserStateResponse, createErrorResponse } from "../responses/index.js";
 
 export const navigateSchema = {
@@ -24,9 +24,10 @@ const navigateCb: ActionTool<typeof navigateSchema>["cb"] = async (args, browser
 };
 
 export const navigate: ActionTool<typeof navigateSchema> = {
+    kind: ToolKind.Action,
     name: "navigate",
     description: "Open a URL in the browser",
     schema: navigateSchema,
     cb: navigateCb,
-    cli: { positional: ["url"] },
+    cli: { positional: ["url"], section: "Navigation" },
 };

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ActionTool } from "../types.js";
+import { ActionTool, ToolKind } from "../types.js";
 import { createElementStateResponse, createErrorResponse } from "../responses/index.js";
 import { elementSelectorShape } from "../schemas/element-selector.js";
 import { findElement } from "../utils/element-selector.js";
@@ -39,9 +39,10 @@ const typeIntoElementCb: ActionTool<typeof typeIntoElementSchema>["cb"] = async 
 };
 
 export const typeIntoElement: ActionTool<typeof typeIntoElementSchema> = {
+    kind: ToolKind.Action,
     name: "type",
     description: "Type text into an element on the page.",
     schema: typeIntoElementSchema,
     cb: typeIntoElementCb,
-    cli: { positional: ["selector"] },
+    cli: { positional: ["selector"], section: "Interaction" },
 };

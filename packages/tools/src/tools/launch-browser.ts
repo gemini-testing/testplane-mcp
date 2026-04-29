@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { launchBrowser as launchTestplaneBrowser } from "testplane/unstable";
-import { BrowserOptions, SessionOpenTool } from "../types.js";
+import { BrowserOptions, SessionOpenTool, ToolKind } from "../types.js";
 import { createSimpleResponse, createErrorResponse } from "../responses/index.js";
 import { getSandboxArgs, mergeSandboxArgs } from "../utils/sandbox-args.js";
 
@@ -108,11 +108,13 @@ const launchBrowserCb: SessionOpenTool<typeof launchBrowserSchema>["cb"] = async
 };
 
 export const launchBrowser: SessionOpenTool<typeof launchBrowserSchema> = {
+    kind: ToolKind.SessionOpen,
     name: "launch",
     description:
         "Launch a new browser session with custom desired capabilities. Avoid using this tool unless the user explicitly requests a custom browser configuration; browsers are launched automatically for commands like navigate to URL. Testplane MCP can ONLY download Chrome and Firefox automatically, for other browsers you MUST ensure that driver is launched and provide it as custom gridUrl.",
     schema: launchBrowserSchema,
     cb: launchBrowserCb,
+    cli: { section: "Session" },
 };
 
 // Convenience factory used by MCP's wrapper to launch a default browser without routing through the tool.

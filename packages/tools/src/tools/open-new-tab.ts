@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ActionTool } from "../types.js";
+import { ActionTool, ToolKind } from "../types.js";
 import { createBrowserStateResponse, createErrorResponse } from "../responses/index.js";
 
 export const openNewTabSchema = {
@@ -42,9 +42,10 @@ const openNewTabCb: ActionTool<typeof openNewTabSchema>["cb"] = async (args, bro
 };
 
 export const openNewTab: ActionTool<typeof openNewTabSchema> = {
+    kind: ToolKind.Action,
     name: "new-tab",
     description: "Open a new browser tab, optionally navigate to a URL, and automatically switch to it",
     schema: openNewTabSchema,
     cb: openNewTabCb,
-    cli: { positional: ["url"] },
+    cli: { positional: ["url"], section: "Tabs" },
 };

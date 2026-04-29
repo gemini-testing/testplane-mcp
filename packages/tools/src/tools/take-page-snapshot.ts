@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ActionTool } from "../types.js";
+import { ActionTool, ToolKind } from "../types.js";
 import { createBrowserStateResponse, createErrorResponse } from "../responses/index.js";
 
 export const takePageSnapshotSchema = {
@@ -39,9 +39,11 @@ const takePageSnapshotCb: ActionTool<typeof takePageSnapshotSchema>["cb"] = asyn
 };
 
 export const takePageSnapshot: ActionTool<typeof takePageSnapshotSchema> = {
+    kind: ToolKind.Action,
     name: "snapshot",
     description:
         "Capture a DOM snapshot of the current page. Note: by default, not useful tags and attributes are excluded (e.g. script, style, etc.). Prefer to use defaults. Response contains info as to what was omitted. If you need more info, request a snapshot with more tags and attributes.",
     schema: takePageSnapshotSchema,
     cb: takePageSnapshotCb,
+    cli: { section: "Inspection" },
 };

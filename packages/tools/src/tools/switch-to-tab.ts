@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ActionTool } from "../types.js";
+import { ActionTool, ToolKind } from "../types.js";
 import { createBrowserStateResponse, createErrorResponse } from "../responses/index.js";
 import { getBrowserTabs } from "../responses/browser-helpers.js";
 
@@ -53,9 +53,10 @@ await browser.switchToWindow(windowHandles[${arrayIndex}]);`,
 };
 
 export const switchToTab: ActionTool<typeof switchToTabSchema> = {
+    kind: ToolKind.Action,
     name: "switch-tab",
     description: "Switch to a specific browser tab by its number (starting from 1)",
     schema: switchToTabSchema,
     cb: switchToTabCb,
-    cli: { positional: ["tabNumber"] },
+    cli: { positional: ["tabNumber"], section: "Tabs" },
 };

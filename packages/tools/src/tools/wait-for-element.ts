@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ActionTool } from "../types.js";
+import { ActionTool, ToolKind } from "../types.js";
 import { createSimpleResponse, createErrorResponse, createBrowserStateResponse } from "../responses/index.js";
 import { elementSelectorShape, TESTING_LIBRARY_QUERY_FIELDS } from "../schemas/element-selector.js";
 import {
@@ -126,9 +126,10 @@ const waitForElementCb: ActionTool<typeof waitForElementSchema>["cb"] = async (a
 };
 
 export const waitForElement: ActionTool<typeof waitForElementSchema> = {
+    kind: ToolKind.Action,
     name: "wait",
     description: `Wait for an element to appear or disappear on the page. Useful for waiting until page loads fully or loading spinners disappear.`,
     schema: waitForElementSchema,
     cb: waitForElementCb,
-    cli: { positional: ["selector"] },
+    cli: { positional: ["selector"], section: "Interaction" },
 };
