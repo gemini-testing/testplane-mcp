@@ -3,9 +3,8 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import type { WdioBrowser } from "testplane";
 
 import {
-    actionTools,
-    sessionOpenTools,
-    sessionCloseTools,
+    tools,
+    ToolKind,
     launchBrowserWithOptions,
     type BrowserOptions,
 } from "@testplane/tools";
@@ -37,39 +36,36 @@ export async function startServer(serverOptions: ServerOptions = {}): Promise<Mc
     });
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    for (const tool of actionTools) {
+    for (const tool of tools) {
         server.tool(tool.name, tool.description, tool.schema, async (args: any) => {
-            if (!browser) {
-                browser = await launchBrowserWithOptions(options);
-            }
-            return tool.cb(args, browser);
-        });
-    }
-
-    for (const tool of sessionOpenTools) {
-        server.tool(tool.name, tool.description, tool.schema, async (args: any) => {
-            const result = await tool.cb(args, options);
-
-            if (result.browser) {
-                if (browser) {
-                    try {
-                        await browser.deleteSession();
-                    } catch (error) {
-                        console.error("Error closing existing browser before opening a new session:", error);
-                    }
-                    browser = null;
+            if (tool.kind === ToolKind.Action) {
+                if (!browser) {
+                    browser = await launchBrowserWithOptions(options);
                 }
 
-                browser = result.browser;
-                options = result.options;
+                return tool.cb(args, browser);
             }
 
-            return result.response;
-        });
-    }
+            if (tool.kind === ToolKind.SessionOpen) {
+                const result = await tool.cb(args, options);
 
-    for (const tool of sessionCloseTools) {
-        server.tool(tool.name, tool.description, tool.schema, async (args: any) => {
+                if (result.browser) {
+                    if (browser) {
+                        try {
+                            await browser.deleteSession();
+                        } catch (error) {
+                            console.error("Error closing existing browser before opening a new session:", error);
+                        }
+                        browser = null;
+                    }
+
+                    browser = result.browser;
+                    options = result.options;
+                }
+
+                return result.response;
+            }
+
             const response = await tool.cb(args, browser);
             browser = null;
             return response;
