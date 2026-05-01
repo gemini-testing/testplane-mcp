@@ -2,12 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { WdioBrowser } from "testplane";
 
-import {
-    tools,
-    ToolKind,
-    launchBrowserWithOptions,
-    type BrowserOptions,
-} from "@testplane/tools";
+import { tools, ToolKind, launchBrowserWithOptions, type BrowserOptions } from "@testplane/tools";
 
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
