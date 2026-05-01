@@ -3,7 +3,7 @@ import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import type { WdioBrowser } from "testplane";
 import type { StandaloneBrowserOptionsInput } from "testplane/unstable";
 
-export type ToolArgs<S extends ZodRawShape> = z.objectOutputType<S, z.ZodTypeAny>;
+export type ToolArgs<S extends ZodRawShape> = z.objectInputType<S, z.ZodTypeAny>;
 export type ToolResponse = CallToolResult;
 
 export interface BrowserOptions {
