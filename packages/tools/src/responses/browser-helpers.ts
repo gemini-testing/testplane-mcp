@@ -1,3 +1,6 @@
+import path from "path";
+import fs from "fs/promises";
+import os from "os";
 import { WdioBrowser } from "testplane";
 
 export interface BrowserTab {
@@ -43,13 +46,18 @@ export interface CaptureSnapshotOptions {
     maxTextLength?: number;
 }
 
-async function captureSnapshot(
-    browserOrElement: WebdriverIO.Element | WdioBrowser,
+interface CapturedPageSnapshotResult {
+    rawContent: string;
+    fenceLanguage: "yaml" | "html";
+    notes: string[];
+}
+
+async function capturePageSnapshot(
+    browser: WdioBrowser,
     options: CaptureSnapshotOptions = {},
-    context: { type: "browser" | "element"; fallbackMethod?: string },
-): Promise<string | null> {
+): Promise<CapturedPageSnapshotResult | null> {
     try {
-        const snapshotResult = await (browserOrElement as WdioBrowser).unstable_captureDomSnapshot(options);
+        const snapshotResult = await browser.unstable_captureDomSnapshot(options);
 
         const notes: string[] = [];
 
@@ -63,54 +71,100 @@ async function captureSnapshot(
 
         if (omittedParts.length > 0) {
             notes.push(
-                `# Note: ${omittedParts.join(" and ")} were omitted from this ${context.type} snapshot. If you need them, request the ${context.type} snapshot again and explicitly specify them as needed.`,
+                `${omittedParts.join(" and ")} were omitted from this browser snapshot. If you need them, request the browser snapshot again and explicitly specify them as needed.`,
             );
         }
 
         if (snapshotResult.textWasTruncated) {
             notes.push(
-                `# Note: some text contents/attribute values were truncated. If you need full text contents, request a snapshot with truncateText: false.`,
+                `some text contents/attribute values were truncated. If you need full text contents, request a snapshot with truncateText: false.`,
             );
         }
 
-        return "```yaml\n" + notes.join("\n") + "\n" + snapshotResult.snapshot + "\n```";
+        return {
+            rawContent: snapshotResult.snapshot,
+            fenceLanguage: "yaml",
+            notes,
+        };
     } catch (error) {
-        console.error(`Error getting ${context.type} snapshot:`, error);
+        console.error("Error getting browser snapshot:", error);
 
-        if (context.type === "browser" && browserOrElement.getPageSource) {
-            const pageSource = await browserOrElement.getPageSource();
-            return (
-                "```html\n" +
-                `<!-- Note: failed to get optimized ${context.type} snapshot, below is raw page source as a fallback. The error was: ${(error as Error)?.stack} -->\n\n` +
-                pageSource +
-                "\n```"
-            );
-        }
-
-        if (context.type === "element" && (browserOrElement as WebdriverIO.Element).getHTML) {
-            const elementHTML = await (browserOrElement as WebdriverIO.Element).getHTML();
-            return (
-                "```html\n" +
-                `<!-- Note: failed to get ${context.type} snapshot, below is element HTML as a fallback. The error was: ${(error as Error)?.message} -->\n\n` +
-                elementHTML +
-                "\n```"
-            );
+        if (browser.getPageSource) {
+            try {
+                const pageSource = await browser.getPageSource();
+                return {
+                    rawContent: pageSource,
+                    fenceLanguage: "html",
+                    notes: [
+                        `failed to get optimized browser snapshot, below is raw page source as a fallback. The error was: ${(error as Error)?.stack}`,
+                    ],
+                };
+            } catch (fallbackError) {
+                console.error("Error getting page source fallback:", fallbackError);
+            }
         }
     }
 
     return null;
 }
 
-export async function getCurrentTabSnapshot(
-    browser: WdioBrowser,
-    options: CaptureSnapshotOptions = {},
-): Promise<string | null> {
-    return captureSnapshot(browser, options, { type: "browser" });
+function formatNotesAsComments(notes: string[], fenceLanguage: "yaml" | "html"): string {
+    if (notes.length === 0) return "";
+
+    if (fenceLanguage === "html") {
+        return notes.map(note => `<!-- Note: ${note} -->`).join("\n") + "\n";
+    }
+
+    return (
+        notes
+            .map(note =>
+                note
+                    .split("\n")
+                    .map((line, index) => (index === 0 ? `# Note: ${line}` : `#   ${line}`))
+                    .join("\n"),
+            )
+            .join("\n") + "\n"
+    );
 }
 
-export async function getElementSnapshot(
-    element: WebdriverIO.Element,
+export interface PageSnapshotResult {
+    content: string;
+    fenceLanguage: "yaml" | "html";
+}
+
+export async function getPageSnapshot(
+    browser: WdioBrowser,
     options: CaptureSnapshotOptions = {},
-): Promise<string | null> {
-    return captureSnapshot(element, options, { type: "element" });
+): Promise<PageSnapshotResult | null> {
+    const result = await capturePageSnapshot(browser, options);
+    if (!result) return null;
+
+    const noteBlock = formatNotesAsComments(result.notes, result.fenceLanguage);
+    return {
+        content: noteBlock + result.rawContent,
+        fenceLanguage: result.fenceLanguage,
+    };
+}
+
+export interface SavedPageSnapshot {
+    filePath: string;
+}
+
+export async function savePageSnapshotToFile(
+    browser: WdioBrowser,
+    options: CaptureSnapshotOptions = {},
+): Promise<SavedPageSnapshot | null> {
+    const result = await getPageSnapshot(browser, options);
+    if (!result) return null;
+
+    const dir = path.join(os.tmpdir(), ".testplane", "snapshots");
+    await fs.mkdir(dir, { recursive: true });
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const extension = result.fenceLanguage === "html" ? "html" : "yml";
+    const filePath = path.join(dir, `${timestamp}.${extension}`);
+
+    await fs.writeFile(filePath, result.content, "utf8");
+
+    return { filePath };
 }

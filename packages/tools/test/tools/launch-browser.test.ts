@@ -4,7 +4,7 @@ import { describe, it, expect, beforeAll, afterEach, afterAll } from "vitest";
 import { launchBrowser } from "../../src/tools/launch-browser.js";
 import { navigate } from "../../src/tools/navigate.js";
 import { PlaygroundServer } from "../test-server.js";
-import { getTextContent } from "../setup.js";
+import { getTextContent, readSnapshotFromResponse } from "../setup.js";
 import { INTEGRATION_TEST_TIMEOUT } from "../constants.js";
 
 describe(
@@ -87,11 +87,11 @@ describe(
                 );
 
                 expect(navigateResult.isError).toBe(false);
-                const responseText = getTextContent(navigateResult);
+                const snapshot = await readSnapshotFromResponse(getTextContent(navigateResult));
 
-                expect(responseText).toContain("Viewport width: 375");
-                expect(responseText).toContain("Viewport height: 667");
-                expect(responseText).toContain("Device pixel ratio: 2");
+                expect(snapshot).toContain("Viewport width: 375");
+                expect(snapshot).toContain("Viewport height: 667");
+                expect(snapshot).toContain("Device pixel ratio: 2");
             });
         });
 
@@ -111,11 +111,11 @@ describe(
                 );
 
                 expect(navigateResult.isError).toBe(false);
-                const responseText = getTextContent(navigateResult);
+                const snapshot = await readSnapshotFromResponse(getTextContent(navigateResult));
 
-                expect(responseText).toContain("Viewport width: 1280");
+                expect(snapshot).toContain("Viewport width: 1280");
                 // Viewport height is less than window height due to browser chrome
-                expect(responseText).toContain("Viewport height: 577");
+                expect(snapshot).toContain("Viewport height: 577");
             });
 
             it("should launch browser with window size as string", async () => {
@@ -131,11 +131,11 @@ describe(
                 );
 
                 expect(navigateResult.isError).toBe(false);
-                const responseText = getTextContent(navigateResult);
+                const snapshot = await readSnapshotFromResponse(getTextContent(navigateResult));
 
-                expect(responseText).toContain("Viewport width: 1024");
+                expect(snapshot).toContain("Viewport width: 1024");
                 // Viewport height is less than window height due to browser chrome
-                expect(responseText).toContain("Viewport height: 625");
+                expect(snapshot).toContain("Viewport height: 625");
             });
 
             it("should launch browser with windowSize null to reset to default", async () => {

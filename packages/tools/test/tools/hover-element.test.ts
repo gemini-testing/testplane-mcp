@@ -41,7 +41,8 @@ describe(
                 expect(result.isError).toBe(false);
                 const text = getTextContent(result);
                 expect(text).toContain("Successfully hovered element");
-                expect(text).toContain("button#submit-btn[@hover]");
+                expect(text).toContain("## Current Tab Snapshot");
+                expect(text).toMatch(/Saved to: .+\.testplane\/snapshots\/.+\.(yml|html)/);
             });
 
             it("should hover an element using CSS selector", async () => {
@@ -55,7 +56,8 @@ describe(
                 expect(result.isError).toBe(false);
                 const text = getTextContent(result);
                 expect(text).toContain("Successfully hovered element");
-                expect(text).toContain("div#unique-element[@hover]");
+                expect(text).toContain("## Current Tab Snapshot");
+                expect(text).toMatch(/Saved to: .+\.testplane\/snapshots\/.+\.(yml|html)/);
             });
 
             it("should return correct testplane code for hovered element", async () => {

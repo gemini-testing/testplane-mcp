@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ActionTool, ToolKind } from "../types.js";
-import { createElementStateResponse, createErrorResponse } from "../responses/index.js";
+import { createBrowserStateResponse, createErrorResponse } from "../responses/index.js";
 import { elementSelectorShape } from "../schemas/element-selector.js";
 import { findElement } from "../utils/element-selector.js";
 
@@ -19,7 +19,7 @@ const typeIntoElementCb: ActionTool<typeof typeIntoElementSchema>["cb"] = async 
 
         console.error(`Successfully typed "${value}" into element with ${queryDescription}`);
 
-        return await createElementStateResponse(element, {
+        return await createBrowserStateResponse(browser, {
             action: `Successfully typed "${value}" into element found by ${queryDescription}`,
             testplaneCode: testplaneCode.startsWith("await")
                 ? `await (${testplaneCode}).setValue("${value}");`

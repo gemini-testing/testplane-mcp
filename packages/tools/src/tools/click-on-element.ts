@@ -1,5 +1,5 @@
 import { ActionTool, ToolKind } from "../types.js";
-import { createElementStateResponse, createErrorResponse } from "../responses/index.js";
+import { createBrowserStateResponse, createErrorResponse } from "../responses/index.js";
 import { elementSelectorShape } from "../schemas/element-selector.js";
 import { findElement } from "../utils/element-selector.js";
 
@@ -13,7 +13,7 @@ const clickOnElementCb: ActionTool<typeof elementClickSchema>["cb"] = async (arg
 
         console.error(`Successfully clicked element with ${queryDescription}`);
 
-        return await createElementStateResponse(element, {
+        return await createBrowserStateResponse(browser, {
             action: `Successfully clicked element found by ${queryDescription}`,
             testplaneCode: testplaneCode.startsWith("await")
                 ? `await (${testplaneCode}).click();`

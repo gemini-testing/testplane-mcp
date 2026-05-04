@@ -123,7 +123,11 @@ describe("daemon e2e", () => {
         const r = await runCli(["navigate", playgroundUrl], extraEnv);
         expect(r.code).toBe(0);
         expect(r.stdout).toContain(`Successfully navigated to ${playgroundUrl}`);
-        expect(r.stdout).toContain("e2e-ok");
+
+        const snapshotPathMatch = r.stdout.match(/Saved to: (\S+\.(?:yml|html))/);
+        expect(snapshotPathMatch, "navigate response should reference a saved snapshot file").not.toBeNull();
+        const snapshotContent = fs.readFileSync(snapshotPathMatch![1], "utf8");
+        expect(snapshotContent).toContain("e2e-ok");
     });
 
     it("clicks an element by CSS selector", async () => {

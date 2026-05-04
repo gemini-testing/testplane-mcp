@@ -1,11 +1,6 @@
 import { WdioBrowser } from "testplane";
 import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import {
-    CaptureSnapshotOptions,
-    getBrowserTabs,
-    getCurrentTabSnapshot,
-    getElementSnapshot,
-} from "./browser-helpers.js";
+import { CaptureSnapshotOptions, getPageSnapshot, getBrowserTabs, savePageSnapshotToFile } from "./browser-helpers.js";
 
 export type ToolResponse = CallToolResult;
 
@@ -15,13 +10,7 @@ export interface BrowserResponseOptions {
     additionalInfo?: string;
     snapshotOptions?: CaptureSnapshotOptions;
     isSnapshotNeeded?: boolean;
-}
-
-export interface ElementResponseOptions {
-    action?: string;
-    testplaneCode?: string;
-    additionalInfo?: string;
-    snapshotOptions?: CaptureSnapshotOptions;
+    inlineSnapshot?: boolean;
 }
 
 export function createSimpleResponse(message: string, isError = false): ToolResponse {
@@ -66,10 +55,21 @@ export async function createBrowserStateResponse(
     }
 
     if (options.isSnapshotNeeded !== false) {
-        const snapshot = await getCurrentTabSnapshot(browser, options.snapshotOptions);
-        if (snapshot) {
-            sections.push("## Current Tab Snapshot");
-            sections.push(snapshot);
+        if (options.inlineSnapshot) {
+            const snapshot = await getPageSnapshot(browser, options.snapshotOptions);
+            if (snapshot) {
+                sections.push("## Current Tab Snapshot");
+                sections.push("```" + snapshot.fenceLanguage + "\n" + snapshot.content + "\n```");
+            }
+        } else {
+            const saved = await savePageSnapshotToFile(browser, options.snapshotOptions);
+            if (saved) {
+                sections.push("## Current Tab Snapshot");
+                sections.push(
+                    `Saved to: ${saved.filePath}\n` +
+                        `Note: some tags/attributes may be omitted and text may be truncated — see the comments at the top of the file for details.`,
+                );
+            }
         }
     }
 
@@ -93,35 +93,4 @@ export function createErrorResponse(message: string, error?: Error): ToolRespons
         ],
         isError: true,
     };
-}
-
-export async function createElementStateResponse(
-    element: WebdriverIO.Element,
-    options: ElementResponseOptions,
-): Promise<ToolResponse> {
-    const sections: string[] = [];
-
-    if (options.action) {
-        sections.push(`✅ ${options.action}`);
-    }
-
-    if (options.testplaneCode) {
-        sections.push("## Testplane Code");
-        sections.push("```javascript");
-        sections.push(options.testplaneCode);
-        sections.push("```");
-    }
-
-    const elementSnapshot = await getElementSnapshot(element, options.snapshotOptions);
-    if (elementSnapshot) {
-        sections.push("## Element Snapshot");
-        sections.push(elementSnapshot);
-    }
-
-    if (options.additionalInfo) {
-        sections.push("## Additional Information");
-        sections.push(options.additionalInfo);
-    }
-
-    return createSimpleResponse(sections.join("\n\n"));
 }

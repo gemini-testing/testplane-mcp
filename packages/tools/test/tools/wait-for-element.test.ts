@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll, beforeEach, afterAll } from "vitest";
 
 import { waitForElement } from "../../src/tools/wait-for-element.js";
 import { PlaygroundServer } from "../test-server.js";
-import { launchHeadlessBrowser, getTextContent } from "../setup.js";
+import { launchHeadlessBrowser, getTextContent, readSnapshotFromResponse } from "../setup.js";
 import { INTEGRATION_TEST_TIMEOUT } from "../constants.js";
 import { navigate } from "../../src/tools/navigate.js";
 
@@ -26,11 +26,11 @@ describe(
             if (testServer) await testServer.stop();
         });
 
-        let navigateResponse: string;
+        let navigateSnapshot: string;
 
         beforeEach(async () => {
             const navigateResult = await navigate.cb({ url: slowLoadingUrl }, browser);
-            navigateResponse = getTextContent(navigateResult);
+            navigateSnapshot = await readSnapshotFromResponse(getTextContent(navigateResult));
         });
 
         describe("waiting for elements to appear", () => {
@@ -45,11 +45,12 @@ describe(
                 expect(result.isError).toBe(false);
                 const text = getTextContent(result);
                 expect(text).toContain("Successfully waited for element");
-                expect(text).toContain("[data-testid=immediate-btn]");
+                const snapshot = await readSnapshotFromResponse(text);
+                expect(snapshot).toContain("[data-testid=immediate-btn]");
             });
 
             it("should wait for content to appear using CSS selector", async () => {
-                expect(navigateResponse).not.toContain("[data-testid=medium-btn]");
+                expect(navigateSnapshot).not.toContain("[data-testid=medium-btn]");
 
                 const result = await waitForElement.cb(
                     {
@@ -67,7 +68,7 @@ describe(
             });
 
             it("should wait for content to appear using testing-library testId query", async () => {
-                expect(navigateResponse).not.toContain("[data-testid=medium-btn]");
+                expect(navigateSnapshot).not.toContain("[data-testid=medium-btn]");
 
                 const result = await waitForElement.cb(
                     {
@@ -82,13 +83,14 @@ describe(
                 expect(text).toContain("Successfully waited for element");
                 expect(text).toContain("to appear");
                 expect(text).toContain('await browser.queryByTestId("medium-btn")');
-                expect(text).toContain("[data-testid=medium-btn]");
+                const snapshot = await readSnapshotFromResponse(text);
+                expect(snapshot).toContain("[data-testid=medium-btn]");
             });
         });
 
         describe("waiting for elements to disappear", () => {
             it("should wait for disappearing content using CSS selector", async () => {
-                expect(navigateResponse).toContain("[data-testid=disappearing-btn]");
+                expect(navigateSnapshot).toContain("[data-testid=disappearing-btn]");
 
                 const result = await waitForElement.cb(
                     {
@@ -103,11 +105,12 @@ describe(
                 const text = getTextContent(result);
                 expect(text).toContain("Successfully waited for element");
                 expect(text).toContain("to disappear");
-                expect(text).not.toContain("[data-testid=disappearing-btn]");
+                const snapshot = await readSnapshotFromResponse(text);
+                expect(snapshot).not.toContain("[data-testid=disappearing-btn]");
             });
 
             it("should wait for disappearing content using testId", async () => {
-                expect(navigateResponse).toContain("[data-testid=disappearing-btn]");
+                expect(navigateSnapshot).toContain("[data-testid=disappearing-btn]");
 
                 const result = await waitForElement.cb(
                     {
@@ -123,11 +126,12 @@ describe(
                 expect(text).toContain("Successfully waited for element");
                 expect(text).toContain("to disappear");
                 expect(text).toContain('await browser.queryByTestId("disappearing-btn")');
-                expect(text).not.toContain("[data-testid=disappearing-btn]");
+                const snapshot = await readSnapshotFromResponse(text);
+                expect(snapshot).not.toContain("[data-testid=disappearing-btn]");
             });
 
             it("should wait for text content to disappear", async () => {
-                expect(navigateResponse).toContain('p "This content will disappear after 3 seconds');
+                expect(navigateSnapshot).toContain('p "This content will disappear after 3 seconds');
 
                 const result = await waitForElement.cb(
                     {
@@ -146,7 +150,8 @@ describe(
                 expect(text).toContain(
                     'await browser.queryByText("This content will disappear after 3 seconds", {"exact":false})',
                 );
-                expect(text).toContain('p[@hidden] "This content will disappear after 3 seconds');
+                const snapshot = await readSnapshotFromResponse(text);
+                expect(snapshot).toContain('p[@hidden] "This content will disappear after 3 seconds');
             });
         });
 
