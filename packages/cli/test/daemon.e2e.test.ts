@@ -161,6 +161,24 @@ describe("daemon e2e", () => {
         expect(fs.existsSync(socketPath)).toBe(true);
     });
 
+    it("expires a browser session after a configurable inactivity timeout", async () => {
+        const sessionEnv = {
+            ...extraEnv,
+            TESTPLANE_CLI_SOCKET_OVERRIDE: path.join(path.dirname(socketPath), "session-timeout.sock"),
+            TESTPLANE_CLI_SESSION_TTL_MS: "1000",
+        };
+
+        const navigateResp = await runCli(["navigate", playgroundUrl], sessionEnv);
+        expect(navigateResp.code).toBe(0);
+        expect(navigateResp.stdout).toContain(`Successfully navigated to ${playgroundUrl}`);
+
+        await sleep(1500);
+
+        const closeResp = await runCli(["close-browser"], sessionEnv);
+        expect(closeResp.code).toBe(0);
+        expect(closeResp.stdout).toContain("No active browser session to close");
+    });
+
     it("exits after idle TTL when attached browser dies externally", async () => {
         let externalBrowser: BrowserWithDriverPid | null = null;
 

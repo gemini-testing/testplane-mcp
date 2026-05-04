@@ -45,7 +45,7 @@ export const launchBrowserSchema = {
         .string()
         .default("local")
         .describe(
-            'WebDriver endpoint to connect to. "local" (default) lets Testplane MCP manage Chrome and Firefox automatically; set a Selenium grid URL only when you need other browsers.',
+            'WebDriver endpoint to connect to. "local" (default) lets Testplane manage Chrome and Firefox automatically; set a Selenium grid URL only when you need other browsers.',
         ),
     windowSize: windowSizeSchema,
 };
@@ -111,7 +111,7 @@ export const launchBrowser: SessionOpenTool<typeof launchBrowserSchema> = {
     kind: ToolKind.SessionOpen,
     name: "launch",
     description:
-        "Launch a new browser session with custom desired capabilities. Avoid using this tool unless the user explicitly requests a custom browser configuration; browsers are launched automatically for commands like navigate to URL. Testplane MCP can ONLY download Chrome and Firefox automatically, for other browsers you MUST ensure that driver is launched and provide it as custom gridUrl.",
+        "Launch a new browser session with custom desired capabilities. Avoid using this tool unless the user explicitly requests a custom browser configuration; browsers are launched automatically for commands like navigate to URL. Testplane can ONLY download Chrome and Firefox automatically, for other browsers you MUST ensure that driver is launched and provide it as custom gridUrl.",
     schema: launchBrowserSchema,
     cb: launchBrowserCb,
     cli: { section: "Session" },
