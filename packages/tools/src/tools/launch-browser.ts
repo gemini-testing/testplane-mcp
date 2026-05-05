@@ -40,6 +40,12 @@ const windowSizeSchema = z
     );
 
 export const launchBrowserSchema = {
+    headless: z
+        .boolean()
+        .optional()
+        .describe(
+            'Whether to run browser in headless mode. When omitted, preserves the current session mode (CLI defaults to headless on first launch; use "--headless false" for headful mode).',
+        ),
     desiredCapabilities: desiredCapabilitiesSchema.optional(),
     gridUrl: z
         .string()
@@ -52,11 +58,16 @@ export const launchBrowserSchema = {
 
 const launchBrowserCb: SessionOpenTool<typeof launchBrowserSchema>["cb"] = async (args, previousOptions) => {
     try {
+        const headless = args.headless;
         const desiredCapabilities = args.desiredCapabilities as BrowserOptions["desiredCapabilities"];
         const gridUrl = args.gridUrl ?? "local";
         const windowSizeInput = args.windowSize;
 
         const updatedOptions: BrowserOptions = { ...previousOptions };
+
+        if (Object.prototype.hasOwnProperty.call(args, "headless")) {
+            updatedOptions.headless = headless;
+        }
 
         if (Object.prototype.hasOwnProperty.call(args, "desiredCapabilities")) {
             updatedOptions.desiredCapabilities = desiredCapabilities;

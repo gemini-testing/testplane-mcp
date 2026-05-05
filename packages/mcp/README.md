@@ -141,6 +141,8 @@ Close the current browser session.
 Launch a new browser session with custom configuration options.
 
 - **Parameters:**
+  - `headless` (boolean, optional): Whether to run browser in headless mode. When omitted, current session/server mode is preserved.
+
   - `desiredCapabilities` (object, optional): WebDriver [desired capabilities](https://www.selenium.dev/documentation/webdriver/capabilities/) to forward to the Testplane launcher. Example:
 
     ```json

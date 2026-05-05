@@ -119,9 +119,23 @@ export function registerFlag(cmd: Command, name: string, meta: ZodFieldMeta): vo
 
     let opt: Option;
     switch (meta.kind) {
-        case "boolean":
-            opt = new Option(meta.defaultValue === true ? `--no-${kebabCase(name)}` : flag, desc);
+        case "boolean": {
+            const key = kebabCase(name);
+            if (meta.optional && meta.defaultValue === undefined) {
+                opt = new Option(`--${key} <value>`, desc).argParser(raw => {
+                    if (raw === "true" || raw === "1") {
+                        return true;
+                    }
+                    if (raw === "false" || raw === "0") {
+                        return false;
+                    }
+                    throw new Error(`--${key} must be boolean ("true" or "false"), got "${raw}"`);
+                });
+                break;
+            }
+            opt = new Option(meta.defaultValue === true ? `--no-${key}` : flag, desc);
             break;
+        }
         case "number":
             opt = new Option(`${flag} <value>`, desc).argParser(raw => {
                 const n = Number(raw);
