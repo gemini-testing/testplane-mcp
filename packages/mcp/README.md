@@ -363,4 +363,11 @@ Capture a PNG screenshot of the current browser viewport.
 
 **Note:** Screenshots are saved as PNG files. If no filePath is provided, the screenshot will be saved to the system's temporary directory with a filePath like `viewport-{timestamp}.png`.
 
+### `console`
+Get unseen browser-side console messages exposed by the current Chromium-based browser session.
+
+- **Parameters:** None
+
+**Note:** This command uses Chromium browser logs exposed through WebDriver, only works with Chromium-based browsers, and returns only messages not returned by the previous `getLogs` call in the current session.
+
 </details>

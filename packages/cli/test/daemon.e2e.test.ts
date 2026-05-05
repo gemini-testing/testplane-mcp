@@ -147,6 +147,25 @@ describe("daemon e2e", () => {
         expect(snapshotContent).toContain("selected:jp");
     });
 
+    it("returns browser-side console messages from a real page", async () => {
+        const navigateResp = await runCli(["navigate", `${playgroundUrl}/console.html`], extraEnv);
+        expect(navigateResp.code).toBe(0);
+        expect(navigateResp.stdout).toContain(`Successfully navigated to ${playgroundUrl}/console.html`);
+
+        const r = await runCli(["console"], extraEnv);
+        expect(r.code).toBe(0);
+        expect(r.stdout).toContain("Retrieved");
+        expect(r.stdout).toContain('const consoleMessages = await browser.getLogs("browser");');
+        expect(r.stdout).toContain("testplane-console-e2e warning");
+        expect(r.stdout).toContain("testplane-console-e2e error");
+    });
+
+    it("states the Chromium browser limitation in console help", async () => {
+        const r = await runCli(["console", "--help"], extraEnv);
+        expect(r.code).toBe(0);
+        expect(r.stdout).toContain("Chromium-based");
+    });
+
     it("shows select examples in help", async () => {
         const r = await runCli(["select", "--help"], extraEnv);
         expect(r.code).toBe(0);
