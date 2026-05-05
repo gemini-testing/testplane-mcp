@@ -16,6 +16,19 @@
         <label for="field">Search</label>
         <input id="field" placeholder="type here" />
 
+        <!-- Scenario: select native option -->
+        <label for="country">Country</label>
+        <select
+            id="country"
+            onchange="document.getElementById('selected-country').textContent='selected:' + this.value"
+        >
+            <option value="">Choose country</option>
+            <option value="fr">France</option>
+            <option value="de">Germany</option>
+            <option value="jp">Japan</option>
+        </select>
+        <span id="selected-country"></span>
+
         <!-- Scenario: second page link -->
         <a href="/page2.html" id="link2">Go to page 2</a>
     </body>

@@ -53,6 +53,12 @@
                 border: 1px solid #ddd;
                 border-radius: 4px;
             }
+            select {
+                padding: 8px;
+                margin: 5px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
             .form-group {
                 margin: 15px 0;
             }
@@ -189,6 +195,21 @@
                 onclick="showClicked('feedback-placeholder-clicked')"
             ></textarea>
             <span id="feedback-placeholder-clicked" class="clicked-indicator">✓ Clicked!</span>
+        </div>
+
+        <!-- Select elements -->
+        <div class="section">
+            <h2>Select Elements</h2>
+
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select id="country" name="country">
+                    <option value="">Choose country</option>
+                    <option value="fr">France</option>
+                    <option value="de">Germany</option>
+                    <option value="jp">Japan</option>
+                </select>
+            </div>
         </div>
 
         <!-- Alt text elements -->

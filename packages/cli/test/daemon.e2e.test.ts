@@ -136,6 +136,27 @@ describe("daemon e2e", () => {
         expect(r.stdout).toContain("Successfully clicked element");
     });
 
+    it("selects a native option by value", async () => {
+        const r = await runCli(["select", "#country", "--value", "jp"], extraEnv);
+        expect(r.code).toBe(0);
+        expect(r.stdout).toContain('Successfully selected option by value "jp"');
+
+        const snapshotPathMatch = r.stdout.match(/Saved to: (\S+\.(?:yml|html))/);
+        expect(snapshotPathMatch, "select response should reference a saved snapshot file").not.toBeNull();
+        const snapshotContent = fs.readFileSync(snapshotPathMatch![1], "utf8");
+        expect(snapshotContent).toContain("selected:jp");
+    });
+
+    it("shows select examples in help", async () => {
+        const r = await runCli(["select", "--help"], extraEnv);
+        expect(r.code).toBe(0);
+        expect(r.stdout).toContain("Examples:");
+        expect(r.stdout).toContain('testplane-cli select "#country" --visible-text "Germany"');
+        expect(r.stdout).toContain("--visible-text <value>");
+        expect(r.stdout).toContain("--index <value>");
+        expect(r.stdout).toContain("--value <value>");
+    });
+
     it("returns exit 1 and error text for a missing element", async () => {
         const r = await runCli(["click", "#no-such-element-xyz"], extraEnv);
         expect(r.code).toBe(1);

@@ -22,6 +22,10 @@ export interface CliHints<S extends ZodRawShape = ZodRawShape> {
     positional?: (keyof S & string)[];
     /** Section name for grouping this tool in the CLI help output. Tools without a section appear under "Other". */
     section?: string;
+    /** Custom command usage string for CLI help. */
+    usage?: string;
+    /** Example invocations shown in CLI help. */
+    examples?: string[];
 }
 
 export enum ToolKind {

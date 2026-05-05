@@ -3,6 +3,7 @@ import { navigate } from "./tools/navigate.js";
 import { clickOnElement } from "./tools/click-on-element.js";
 import { hoverElement } from "./tools/hover-element.js";
 import { typeIntoElement } from "./tools/type-into-element.js";
+import { selectOption } from "./tools/select-option.js";
 import { waitForElement } from "./tools/wait-for-element.js";
 import { takePageSnapshot } from "./tools/take-page-snapshot.js";
 import { takeViewportScreenshot } from "./tools/take-viewport-screenshot.js";
@@ -24,6 +25,7 @@ export const tools = typeCheckedTools([
     clickOnElement,
     hoverElement,
     typeIntoElement,
+    selectOption,
     waitForElement,
     takePageSnapshot,
     takeViewportScreenshot,

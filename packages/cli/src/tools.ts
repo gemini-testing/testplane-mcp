@@ -17,6 +17,8 @@ interface ToolToRegister {
     cli?: {
         section?: string;
         positional?: string[];
+        usage?: string;
+        examples?: string[];
     };
 }
 
@@ -27,6 +29,12 @@ function registerTool(program: Command, tool: ToolToRegister, getSessionName: ()
 
     if (tool.cli?.section) {
         cmd.helpGroup(tool.cli.section);
+    }
+    if (tool.cli?.usage) {
+        cmd.usage(tool.cli.usage);
+    }
+    if (tool.cli?.examples?.length) {
+        cmd.addHelpText("after", `\nExamples:\n${tool.cli.examples.map(example => `  ${example}`).join("\n")}`);
     }
 
     const positionalNames: string[] = (tool.cli?.positional ?? []) as string[];
