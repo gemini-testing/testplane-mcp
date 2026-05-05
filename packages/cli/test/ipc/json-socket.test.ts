@@ -132,17 +132,15 @@ describe("ipc/JsonSocket", () => {
     });
 
     it("send() writes one JSON line to the underlying socket", () => {
-        const ok = conn.send({ id: 7, kind: "result", result: { content: [{ type: "text", text: "done" }] } });
+        const ok = conn.send({ id: 7, kind: "result", content: [{ type: "text", text: "done" }] });
         expect(ok).toBe(true);
-        expect(mock.writes).toEqual([
-            '{"id":7,"kind":"result","result":{"content":[{"type":"text","text":"done"}]}}\n',
-        ]);
+        expect(mock.writes).toEqual(['{"id":7,"kind":"result","content":[{"type":"text","text":"done"}]}\n']);
     });
 
     it("send() returns false after close", () => {
         mock.emit("close");
         expect(conn.isClosed).toBe(true);
-        const ok = conn.send({ id: 1, kind: "result" });
+        const ok = conn.send({ id: 1, kind: "result", content: [] });
         expect(ok).toBe(false);
         expect(mock.writes).toEqual([]);
     });
@@ -196,11 +194,11 @@ describe("ipc/JsonSocket", () => {
         right.on("message", m => rightReceived.push(m));
 
         left.send({ id: 1, kind: "call", tool: "click", sessionName: "default", args: { selector: "#x" } });
-        right.send({ id: 1, kind: "result", result: { content: [{ type: "text", text: "ok" }] } });
+        right.send({ id: 1, kind: "result", content: [{ type: "text", text: "ok" }] });
 
         expect(rightReceived).toEqual([
             { id: 1, kind: "call", tool: "click", sessionName: "default", args: { selector: "#x" } },
         ]);
-        expect(leftReceived).toEqual([{ id: 1, kind: "result", result: { content: [{ type: "text", text: "ok" }] } }]);
+        expect(leftReceived).toEqual([{ id: 1, kind: "result", content: [{ type: "text", text: "ok" }] }]);
     });
 });
