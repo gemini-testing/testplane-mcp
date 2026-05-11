@@ -20,6 +20,8 @@ const EXPECTED_TOOL_NAMES = [
     "switch-tab",
     "new-tab",
     "close-tab",
+    // report tools
+    "test-results",
     // session tools
     "launch",
     "attach",

@@ -15,7 +15,7 @@ const shared = {
     format: "esm",
     target: "node20",
     sourcemap: true,
-    external: ["testplane", "@testplane/testing-library", "commander", "debug", "zod"],
+    external: ["testplane", "@testplane/testing-library", "commander", "debug", "html-reporter", "zod"],
     logLevel: "info",
 };
 

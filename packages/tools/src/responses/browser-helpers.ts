@@ -1,6 +1,7 @@
 import path from "path";
 import fs from "fs/promises";
 import os from "os";
+import { randomUUID } from "node:crypto";
 import { WdioBrowser } from "testplane";
 
 export interface BrowserTab {
@@ -162,7 +163,7 @@ export async function savePageSnapshotToFile(
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const extension = result.fenceLanguage === "html" ? "html" : "yml";
-    const filePath = path.join(dir, `${timestamp}.${extension}`);
+    const filePath = path.join(dir, `${timestamp}-${randomUUID()}.${extension}`);
 
     await fs.writeFile(filePath, result.content, "utf8");
 
