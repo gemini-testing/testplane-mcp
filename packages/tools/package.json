@@ -28,7 +28,7 @@
   "license": "ISC",
   "dependencies": {
     "@testplane/testing-library": "^1.0.5",
-    "html-reporter": "^11.10.0-rc.1",
+    "html-reporter": "^11.10.0-rc.2",
     "lodash.escaperegexp": "^4.1.2",
     "testplane": "^8.44.1-rc.1",
     "zod": "^3.22.4"
