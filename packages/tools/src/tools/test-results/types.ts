@@ -1,17 +1,18 @@
-import type { ReporterTestResult } from "html-reporter/experimental/sdk";
+import type { TestResultField, TestResultView } from "../../utils/test-result-view.js";
+
+export {
+    TEST_RESULT_VIEW_FIELDS as TEST_RESULT_FIELDS,
+    DETAILED_TEST_RESULT_FIELDS,
+} from "../../utils/test-result-view.js";
+export type {
+    DetailedTestResultField,
+    ReporterImageInfo,
+    TestResultField,
+    TestResultView,
+    TestStepView,
+} from "../../utils/test-result-view.js";
 
 export const TEST_RESULT_STATUSES = ["passed", "failed", "muted", "retried", "skipped"] as const;
-export const TEST_RESULT_FIELDS = [
-    "status",
-    "browser",
-    "attempt",
-    "duration",
-    "file",
-    "name",
-    "error",
-    "meta",
-    "skipOrMuteReason",
-] as const;
 export const DEFAULT_TEST_RESULT_FIELDS = [
     "status",
     "browser",
@@ -22,9 +23,7 @@ export const DEFAULT_TEST_RESULT_FIELDS = [
     "error",
 ] as const;
 
-export type ReporterImageInfo = NonNullable<ReporterTestResult["imagesInfo"]>[number];
 export type TestResultStatus = (typeof TEST_RESULT_STATUSES)[number];
-export type TestResultField = (typeof TEST_RESULT_FIELDS)[number];
 export type StatusCounts = Record<TestResultStatus, number>;
 
 export interface RegexFilter {
@@ -63,18 +62,6 @@ export interface FilterOptions {
 export interface PaginationOptions {
     limit: number;
     offset: number;
-}
-
-export interface TestResultView {
-    status?: string;
-    browser?: string;
-    attempt?: number;
-    duration?: number | null;
-    file?: string | null;
-    name?: string;
-    error?: string | null;
-    meta?: unknown | null;
-    skipOrMuteReason?: string | null;
 }
 
 export interface TestResultsCounts {

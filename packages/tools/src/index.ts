@@ -15,6 +15,7 @@ import { closeTab } from "./tools/close-tab.js";
 import { launchBrowser, launchBrowserWithOptions } from "./tools/launch-browser.js";
 import { attachToBrowser } from "./tools/attach-to-browser.js";
 import { closeBrowser } from "./tools/close-browser.js";
+import { inspectResult } from "./tools/inspect-result/index.js";
 import { testResults } from "./tools/test-results/index.js";
 
 // This function just ensures that every item on a type level is a Tool<something>. AFAIK the only way to do this.
@@ -40,6 +41,7 @@ export const tools = typeCheckedTools([
     attachToBrowser,
     closeBrowser,
     testResults,
+    inspectResult,
 ]);
 
 export { launchBrowserWithOptions, ToolKind };

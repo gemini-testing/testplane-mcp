@@ -1,6 +1,6 @@
 import { downloadReport, type ReporterTestResult } from "html-reporter/experimental/sdk";
 import { DEFAULT_REMOTE_RESOURCE_CACHE_ROOT, resolveCachedRemoteResource } from "./remote-resource-cache.js";
-import type { ReporterImageInfo } from "../tools/test-results/types.js";
+import type { ReporterImageInfo } from "./test-result-view.js";
 
 const DATABASE_URLS_FILE = "databaseUrls.json";
 

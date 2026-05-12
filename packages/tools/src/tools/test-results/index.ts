@@ -3,12 +3,12 @@ import { randomUUID } from "node:crypto";
 import { mkdir, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { stripVTControlCharacters } from "node:util";
 import { StandaloneTool, ToolKind } from "../../types.js";
 import { createErrorResponse, createSimpleResponse } from "../../responses/index.js";
-import { getImageError, getImageStateName, isMutedResult, downloadReportIfNeeded } from "../../utils/html-report.js";
-import { formatDuration, formatError, formatFileSize, formatTimestamp } from "../../utils/formatters.js";
+import { downloadReportIfNeeded } from "../../utils/html-report.js";
+import { formatDuration, formatFileSize, formatTimestamp } from "../../utils/formatters.js";
 import { stringify } from "../../utils/strings.js";
+import { toTestResultView } from "../../utils/test-result-view.js";
 import { filterTestResults, getResultStatusTags } from "./filters.js";
 import { testResultsSchema } from "./schema.js";
 import {
@@ -61,25 +61,6 @@ function getStatusCounts(results: readonly ReporterTestResult[]): StatusCounts {
     return statusCounts;
 }
 
-function getFailedImageInfo(result: ReporterTestResult): string | null {
-    const failedImage = result.imagesInfo?.find(imageInfo => {
-        const status = imageInfo.status;
-
-        return status === "error" || status === "fail";
-    });
-
-    if (!failedImage) {
-        return null;
-    }
-
-    const stateName = getImageStateName(failedImage);
-    const state = stateName ? `state: ${stateName}` : null;
-    const error = formatError(getImageError(failedImage));
-    const message = [state, error].filter((part): part is string => part !== null).join("; ");
-
-    return message || null;
-}
-
 function formatStatusCounts(statusCounts: StatusCounts): string {
     return TEST_RESULT_STATUSES.map(status => [status, statusCounts[status]] as const)
         .map(([status, count]) => `${status}: ${count}`)
@@ -98,56 +79,6 @@ function formatActiveFilters(filters: FilterOptions): string | null {
     ].filter((filter): filter is string => filter !== null);
 
     return activeFilters.length ? activeFilters.join("; ") : null;
-}
-
-function getErrorLine(result: ReporterTestResult): string | null {
-    const status = result.status;
-    const shouldMentionMissingError = status === "error" || status === "fail" || isMutedResult(result);
-
-    const error = formatError(result.error) ?? getFailedImageInfo(result);
-
-    return error ?? (shouldMentionMissingError ? "No error message" : null);
-}
-
-/** Picks fields from a test result and returns a view object */
-export function toTestResultView(result: ReporterTestResult, fields: TestResultField[]): TestResultView {
-    const view: TestResultView = {};
-
-    for (const field of fields) {
-        switch (field) {
-            case "name":
-                view.name = result.fullName;
-                break;
-            case "status":
-                view.status = isMutedResult(result) ? "muted" : result.status;
-                break;
-            case "browser":
-                view.browser = result.browserId;
-                break;
-            case "attempt":
-                view.attempt = result.attempt;
-                break;
-            case "duration":
-                view.duration = result.duration ?? null;
-                break;
-            case "file":
-                view.file = result.file ?? null;
-                break;
-            case "error": {
-                const errorLine = getErrorLine(result);
-                view.error = errorLine === null ? null : stripVTControlCharacters(errorLine);
-                break;
-            }
-            case "meta":
-                view.meta = result.meta ?? null;
-                break;
-            case "skipOrMuteReason":
-                view.skipOrMuteReason = result.skipReason ?? null;
-                break;
-        }
-    }
-
-    return view;
 }
 
 function formatTestResultField(result: TestResultView, field: TestResultField): string | null {
@@ -182,7 +113,7 @@ function formatTestResult(result: TestResultView, index: number, fields: readonl
         .filter(Boolean)
         .join(" | ");
     const title = fields.includes("name") ? (result.name ?? null) : null;
-    const errorLine = fields.includes("error") ? result.error : null;
+    const errorLine = fields.includes("error") && typeof result.error === "string" ? result.error : null;
     const firstLine = details || title || errorLine || "(no output fields)";
 
     return [`${index}. ${firstLine}`, details && title ? `   ${title}` : null, errorLine ? `   ${errorLine}` : null]
@@ -298,7 +229,9 @@ const testResultsCb: StandaloneTool<typeof testResultsSchema>["cb"] = async args
         const matchedResults = filterTestResults(finalResults, args);
 
         const counts = getTestResultsCounts(results.length, finalResults, matchedResults);
-        const resultViews = matchedResults.map(result => toTestResultView(result, args.fields));
+        const resultViews = matchedResults.map(result =>
+            toTestResultView(result, args.fields, { errorFormat: "line" }),
+        );
 
         if (args.saveJson) {
             const savedReport = await saveTestResultsJsonReport(args.report, counts, args.fields, resultViews);

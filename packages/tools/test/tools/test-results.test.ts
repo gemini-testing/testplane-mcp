@@ -6,8 +6,9 @@ import { readResultsFromReport, type ReporterTestResult } from "html-reporter/ex
 import { describe, expect, it, beforeAll } from "vitest";
 import { z } from "zod";
 
-import { testResults, getFinalTestResults, toTestResultView } from "../../src/tools/test-results/index.js";
+import { testResults, getFinalTestResults } from "../../src/tools/test-results/index.js";
 import { testResultsObjectSchema } from "../../src/tools/test-results/schema.js";
+import { toTestResultView } from "../../src/utils/test-result-view.js";
 
 const SAMPLE_REPORT = fileURLToPath(new URL("../fixtures/sample-html-report", import.meta.url));
 const EXPECTED_COUNTS_LINE = "Total tests: 9; total attempts: 17; matched tests:";
