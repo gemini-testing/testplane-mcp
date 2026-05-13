@@ -7,19 +7,6 @@ import { inspectResultSchema } from "./schema.js";
 
 export { inspectResultSchema } from "./schema.js";
 
-function getLatestAttempt<T extends ReporterTestResult>(results: readonly T[]): T {
-    return results.reduce((latest, result) => {
-        if (
-            result.attempt > latest.attempt ||
-            (result.attempt === latest.attempt && (result.timestamp ?? 0) >= (latest.timestamp ?? 0))
-        ) {
-            return result;
-        }
-
-        return latest;
-    });
-}
-
 function getInspectResultSelectionError(
     results: readonly ReporterTestResult[],
     args: { name: string; browser: string; attempt?: number },
@@ -37,20 +24,35 @@ function getInspectResultSelectionError(
         return `No test result found with name "${args.name}" in browser "${args.browser}". Available browsers: ${availableBrowsers.join(", ")}.`;
     }
 
-    const availableAttempts = [...new Set(results.map(result => result.attempt))].sort();
+    const availableAttempts = [...new Set(resultsWithMatchingBrowser.map(result => result.attempt))].sort();
 
     return `No attempt ${args.attempt} found for test "${args.name}" in browser "${args.browser}". Available attempts: ${availableAttempts.join(", ")}.`;
 }
 
-function findTestResult(
+function sortAttempts<T extends ReporterTestResult>(results: readonly T[]): T[] {
+    return [...results].sort((left, right) => {
+        if (left.attempt !== right.attempt) {
+            return left.attempt - right.attempt;
+        }
+
+        return (left.timestamp ?? 0) - (right.timestamp ?? 0);
+    });
+}
+
+function findTestResults(
     results: readonly ReporterTestResult[],
     args: { name: string; browser: string; attempt?: number },
-): ReporterTestResult {
+): ReporterTestResult[] {
     const matchingAttempts = results.filter(
         result => result.fullName === args.name && result.browserId === args.browser,
     );
+
+    if (!matchingAttempts.length) {
+        throw new Error(getInspectResultSelectionError(results, args));
+    }
+
     if (args.attempt === undefined) {
-        return getLatestAttempt(matchingAttempts);
+        return sortAttempts(matchingAttempts);
     }
 
     const matchingAttempt = matchingAttempts.find(result => result.attempt === args.attempt);
@@ -59,15 +61,18 @@ function findTestResult(
         throw new Error(getInspectResultSelectionError(results, args));
     }
 
-    return matchingAttempt;
+    return [matchingAttempt];
 }
 
 const inspectResultCb: StandaloneTool<typeof inspectResultSchema>["cb"] = async args => {
     try {
         const reportPath = await downloadReportIfNeeded(args.report);
         const results = await readResultsFromReport(reportPath);
-        const result = findTestResult(results, args);
-        const view = toTestResultView(result, undefined, { includeBase64: args.includeBase64 });
+        const selectedResults = findTestResults(results, args);
+        const views = selectedResults.map(result =>
+            toTestResultView(result, undefined, { includeBase64: args.includeBase64 }),
+        );
+        const view = args.attempt === undefined ? views : views[0];
 
         return createSimpleResponse(JSON.stringify(view, null, args.pretty ? 2 : undefined));
     } catch (error) {
@@ -83,7 +88,7 @@ const inspectResultCb: StandaloneTool<typeof inspectResultSchema>["cb"] = async 
 export const inspectResult: StandaloneTool<typeof inspectResultSchema> = {
     kind: ToolKind.Standalone,
     name: "inspect-result",
-    description: "Read a Testplane HTML report and inspect one test result attempt as JSON",
+    description: "Read a Testplane HTML report and inspect test result attempt details as JSON",
     schema: inspectResultSchema,
     cb: inspectResultCb,
     cli: {

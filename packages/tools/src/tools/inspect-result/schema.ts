@@ -21,7 +21,9 @@ export const inspectResultSchema = {
         .int()
         .min(0, "--attempt must be >= 0")
         .optional()
-        .describe("Attempt index to inspect. Defaults to the latest attempt for the selected test and browser"),
+        .describe(
+            "Attempt index to inspect. When omitted, all attempts for the selected test and browser are returned",
+        ),
     pretty: z.boolean().default(true).describe("Pretty-print JSON output. Use --no-pretty for compact JSON"),
     includeBase64: z
         .boolean()

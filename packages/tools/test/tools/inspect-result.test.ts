@@ -27,14 +27,16 @@ function parseInspectResultArgs(args: Partial<InspectResultInput> = {}) {
 }
 
 describe("tools/inspect-result", () => {
-    it("prints detailed JSON for the latest selected test result attempt", async () => {
+    it("prints detailed JSON for all selected test result attempts by default", async () => {
         const result = await inspectResult.cb(parseInspectResultArgs());
         const text = getTextContent(result);
         const details = JSON.parse(text);
 
         expect(result.isError).toBeFalsy();
-        expect(text).toContain('\n  "status": "fail"');
-        expect(details).toMatchObject({
+        expect(text).toContain('\n    "status": "fail"');
+        expect(details).toHaveLength(2);
+        expect(details.map((attempt: { attempt: number }) => attempt.attempt)).toEqual([0, 1]);
+        expect(details[1]).toMatchObject({
             name: "failed describe test with image comparison diff",
             status: "fail",
             browser: "chrome",
@@ -45,23 +47,23 @@ describe("tools/inspect-result", () => {
                 message: "image comparison failed",
             },
         });
-        expect(details.error.stack).toContain("TestRunner.finishRun");
-        expect(details.steps[0]).toMatchObject({
+        expect(details[1].error.stack).toContain("TestRunner.finishRun");
+        expect(details[1].steps[0]).toMatchObject({
             name: "setWindowSize",
             args: ["1280", "1024"],
         });
-        expect(details.images[0]).toMatchObject({
+        expect(details[1].images[0]).toMatchObject({
             status: "fail",
             stateName: "header",
             differentPixels: 25730,
         });
-        expect(details.attachments.map((attachment: { type: string }) => attachment.type)).toEqual([
+        expect(details[1].attachments.map((attachment: { type: string }) => attachment.type)).toEqual([
             "tags",
             "snapshot",
             "badges",
         ]);
-        expect(details).not.toHaveProperty("history");
-        expect(details).not.toHaveProperty("imagesInfo");
+        expect(details[1]).not.toHaveProperty("history");
+        expect(details[1]).not.toHaveProperty("imagesInfo");
     });
 
     it("prints compact JSON and honors an explicit attempt", async () => {
