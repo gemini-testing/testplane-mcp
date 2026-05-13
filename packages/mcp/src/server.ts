@@ -14,6 +14,18 @@ interface PackageJson {
     version: string;
 }
 
+function createNoActiveBrowserResponse(toolName: string) {
+    return {
+        content: [
+            {
+                type: "text",
+                text: `❌ No active browser session. Run "navigate" to auto-start one, or run "launch" before "${toolName}".`,
+            },
+        ],
+        isError: true,
+    };
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const packageJson: PackageJson = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
@@ -24,7 +36,8 @@ export interface ServerOptions {
 
 export async function startServer(serverOptions: ServerOptions = {}): Promise<McpServer> {
     let browser: WdioBrowser | null = null;
-    let options: BrowserOptions = { headless: serverOptions.headless ?? false };
+    const defaultOptions: BrowserOptions = { headless: serverOptions.headless ?? false };
+    let sessionOptions: BrowserOptions = { ...defaultOptions };
 
     const server = new McpServer({
         name: packageJson.name,
@@ -44,14 +57,18 @@ export async function startServer(serverOptions: ServerOptions = {}): Promise<Mc
 
                 if (tool.kind === ToolKind.Action) {
                     if (!browser) {
-                        browser = await launchBrowserWithOptions(options);
+                        if (!tool.autoLaunchBrowser) {
+                            return createNoActiveBrowserResponse(tool.name);
+                        }
+
+                        browser = await launchBrowserWithOptions(defaultOptions);
                     }
 
                     return tool.cb(args, browser);
                 }
 
                 if (tool.kind === ToolKind.SessionOpen) {
-                    const result = await tool.cb(args, options);
+                    const result = await tool.cb(args, sessionOptions);
 
                     if (result.browser) {
                         if (browser) {
@@ -64,7 +81,7 @@ export async function startServer(serverOptions: ServerOptions = {}): Promise<Mc
                         }
 
                         browser = result.browser;
-                        options = result.options;
+                        sessionOptions = result.options;
                     }
 
                     return result.response;

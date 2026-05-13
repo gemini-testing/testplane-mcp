@@ -7,6 +7,7 @@ const debug = makeDebug("testplane-cli:daemon:session-registry");
 
 export interface SessionState {
     browser: WdioBrowser | null;
+    defaultOptions: BrowserOptions;
     options: BrowserOptions;
     activeInteractions: number;
     expirationTimer: NodeJS.Timeout | null;
@@ -39,6 +40,7 @@ export class SessionRegistry {
         if (!state) {
             state = {
                 browser: null,
+                defaultOptions: { ...this._defaultOptions },
                 options: { ...this._defaultOptions },
                 activeInteractions: 0,
                 expirationTimer: null,

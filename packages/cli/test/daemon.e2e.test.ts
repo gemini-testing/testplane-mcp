@@ -147,6 +147,12 @@ describe("daemon e2e", () => {
         }
     });
 
+    it("does not auto-launch browser for non-navigate actions", async () => {
+        const r = await runCli(["--session-name", "no-auto-launch", "click", "#btn"], extraEnv);
+        expect(r.code).toBe(1);
+        expect(r.stdout).toContain("No active browser session");
+    });
+
     it("navigates to the playground page", async () => {
         const r = await runCli(["navigate", playgroundUrl], extraEnv);
         expect(r.code).toBe(0);

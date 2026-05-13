@@ -45,6 +45,7 @@ interface ToolBase<S extends ZodRawShape> {
 
 export interface ActionTool<S extends ZodRawShape> extends ToolBase<S> {
     kind: ToolKind.Action;
+    autoLaunchBrowser?: boolean;
     cb: (args: ToolArgs<S>, browser: WdioBrowser) => Promise<ToolResponse>;
 }
 

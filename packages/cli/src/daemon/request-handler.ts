@@ -2,10 +2,19 @@ import makeDebug from "debug";
 import { z, type ZodRawShape } from "zod";
 import { launchBrowserWithOptions, ToolKind, tools } from "@testplane/tools";
 import { SessionRegistry } from "./session-registry.js";
-import type { Request, Response } from "../ipc/protocol.js";
+import type { Request, Response, ResponseResult } from "../ipc/protocol.js";
 import { formatError } from "../utils/error.js";
 
 const debug = makeDebug("testplane-cli:daemon:request-handler");
+
+function createNoActiveBrowserResponse(toolName: string): ResponseResult["content"] {
+    return [
+        {
+            type: "text",
+            text: `❌ No active browser session. Run "navigate <url>" to auto-start one, or run "launch" before "${toolName}".`,
+        },
+    ];
+}
 
 /**
  * Handles requests from clients, executing tools in sessions as needed.
@@ -66,8 +75,19 @@ export class RequestHandler {
         try {
             if (tool.kind === ToolKind.Action) {
                 if (!state.browser) {
-                    debug("Auto-launching browser: session=%s", req.sessionName);
-                    state.browser = await launchBrowserWithOptions(state.options);
+                    if (!tool.autoLaunchBrowser) {
+                        debug("Action requires an active browser: session=%s tool=%s", req.sessionName, req.tool);
+
+                        return {
+                            id: req.id,
+                            kind: "result",
+                            content: createNoActiveBrowserResponse(tool.name),
+                            isError: true,
+                        };
+                    }
+
+                    debug("Auto-launching browser: session=%s tool=%s", req.sessionName, req.tool);
+                    state.browser = await launchBrowserWithOptions(state.defaultOptions);
                 }
 
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
