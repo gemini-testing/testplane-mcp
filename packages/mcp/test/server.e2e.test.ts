@@ -28,6 +28,8 @@ const EXPECTED_TOOL_NAMES = [
     "launch",
     "attach",
     "close-browser",
+    // advanced tools
+    "run-code",
 ];
 
 describe(

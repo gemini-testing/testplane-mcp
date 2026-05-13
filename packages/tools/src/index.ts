@@ -15,6 +15,7 @@ import { closeTab } from "./tools/close-tab.js";
 import { launchBrowser, launchBrowserWithOptions } from "./tools/launch-browser.js";
 import { attachToBrowser } from "./tools/attach-to-browser.js";
 import { closeBrowser } from "./tools/close-browser.js";
+import { runCode } from "./tools/run-code.js";
 import { inspectResult } from "./tools/inspect-result/index.js";
 import { testResults } from "./tools/test-results/index.js";
 import { timeTravelSnapshot } from "./tools/time-travel-snapshot/index.js";
@@ -41,6 +42,7 @@ export const tools = typeCheckedTools([
     launchBrowser,
     attachToBrowser,
     closeBrowser,
+    runCode,
     testResults,
     inspectResult,
     timeTravelSnapshot,
