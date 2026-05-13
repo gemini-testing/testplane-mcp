@@ -42,7 +42,7 @@ describe(
                 const text = getTextContent(result);
                 expect(text).toContain("Successfully clicked element");
                 expect(text).toContain("## Current Tab Snapshot");
-                expect(text).toMatch(/Saved to: .+\.testplane\/snapshots\/.+\.(yml|html)/);
+                expect(text).toMatch(/The snapshot was saved to: .+\.testplane\/snapshots\/.+\.(yml|html)/);
             });
 
             it("should click an element using CSS selector", async () => {
@@ -57,7 +57,7 @@ describe(
                 const text = getTextContent(result);
                 expect(text).toContain("Successfully clicked element");
                 expect(text).toContain("## Current Tab Snapshot");
-                expect(text).toMatch(/Saved to: .+\.testplane\/snapshots\/.+\.(yml|html)/);
+                expect(text).toMatch(/The snapshot was saved to: .+\.testplane\/snapshots\/.+\.(yml|html)/);
             });
 
             it("should return correct testplane code for clicked element", async () => {

@@ -18,7 +18,7 @@ export function getTextContent(result: { content: unknown }): string {
     return content.map(item => item.text).join("\n");
 }
 
-const SAVED_SNAPSHOT_PATH_RE = /Saved to: (\S+\.(?:yml|html))/;
+const SAVED_SNAPSHOT_PATH_RE = /(?:Saved to:|The snapshot was saved to:) (\S+\.(?:yml|html|diff))/;
 
 export function extractSnapshotPath(responseText: string): string {
     const match = responseText.match(SAVED_SNAPSHOT_PATH_RE);

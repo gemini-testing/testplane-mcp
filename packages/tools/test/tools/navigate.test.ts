@@ -44,7 +44,7 @@ describe(
             const text = getTextContent(result);
             expect(text).toContain("## Browser Tabs");
             expect(text).toContain("## Current Tab Snapshot");
-            expect(text).toMatch(/Saved to: .+\.testplane\/snapshots\/.+\.(yml|html)/);
+            expect(text).toMatch(/The snapshot was saved to: .+\.testplane\/snapshots\/.+\.(yml|html)/);
         });
 
         describe("timeout behavior", () => {
