@@ -20,6 +20,8 @@ const EXPECTED_TOOL_NAMES = [
     "switch-tab",
     "new-tab",
     "close-tab",
+    "save-state",
+    "restore-state",
     // report tools
     "test-results",
     "inspect-result",
