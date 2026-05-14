@@ -45,6 +45,7 @@ export const openNewTab: ActionTool<typeof openNewTabSchema> = {
     kind: ToolKind.Action,
     name: "new-tab",
     description: "Open a new browser tab, optionally navigate to a URL, and automatically switch to it",
+    supportedTransports: ["launch-browser"],
     schema: openNewTabSchema,
     cb: openNewTabCb,
     cli: { positional: ["url"], section: "Tabs" },

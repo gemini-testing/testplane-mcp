@@ -14,6 +14,7 @@ import { openNewTab } from "./tools/open-new-tab.js";
 import { closeTab } from "./tools/close-tab.js";
 import { launchBrowser, launchBrowserWithOptions } from "./tools/launch-browser.js";
 import { attachToBrowser } from "./tools/attach-to-browser.js";
+import { attachRepl } from "./tools/attach-repl.js";
 import { closeBrowser } from "./tools/close-browser.js";
 import { runCode } from "./tools/run-code.js";
 import { inspectResult } from "./tools/inspect-result/index.js";
@@ -41,6 +42,7 @@ export const tools = typeCheckedTools([
     closeTab,
     launchBrowser,
     attachToBrowser,
+    attachRepl,
     closeBrowser,
     runCode,
     testResults,
@@ -58,6 +60,11 @@ export type {
     SessionCloseTool,
     SessionOpenResult,
     BrowserOptions,
+    TransportKind,
     ToolArgs,
     ToolResponse,
 } from "./types.js";
+
+export type { BrowserAdapter, BrowserSession, CaptureSnapshotOptions } from "./browser/types.js";
+export { ReplBrowser } from "./browser/repl-browser.js";
+export { ReplConnection } from "./browser/repl-connection.js";

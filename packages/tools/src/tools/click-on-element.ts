@@ -36,6 +36,7 @@ export const clickOnElement: ActionTool<typeof elementClickSchema> = {
     kind: ToolKind.Action,
     name: "click",
     description: "Click an element on the page.",
+    supportedTransports: ["launch-browser"],
     schema: elementClickSchema,
     cb: clickOnElementCb,
     cli: { positional: ["selector"], section: "Interaction" },

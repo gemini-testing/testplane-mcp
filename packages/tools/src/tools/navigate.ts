@@ -54,6 +54,7 @@ export const navigate: ActionTool<typeof navigateSchema> = {
     autoLaunchBrowser: true,
     name: "navigate",
     description: "Open a URL in the browser",
+    supportedTransports: ["launch-browser"],
     schema: navigateSchema,
     cb: navigateCb,
     cli: { positional: ["url"], section: "Navigation" },

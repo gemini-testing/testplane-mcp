@@ -17,6 +17,7 @@ const attachToBrowserCb: SessionOpenTool<typeof attachToBrowserSchema>["cb"] = a
         return {
             browser,
             options: previousOptions,
+            transport: "launch-browser" as const,
             response: createSimpleResponse("Successfully attached to existing browser session"),
         };
     } catch (error) {

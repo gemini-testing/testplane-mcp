@@ -2,9 +2,11 @@ import { z, ZodRawShape } from "zod";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import type { WdioBrowser } from "testplane";
 import type { StandaloneBrowserOptionsInput } from "testplane/unstable";
+import type { BrowserSession } from "./browser/types.js";
 
 export type ToolArgs<S extends ZodRawShape> = z.objectOutputType<S, z.ZodTypeAny>;
 export type ToolResponse = CallToolResult;
+export type TransportKind = "launch-browser" | "attach-repl";
 
 export interface BrowserOptions {
     headless?: boolean;
@@ -43,10 +45,11 @@ interface ToolBase<S extends ZodRawShape> {
     cli?: CliHints<S>;
 }
 
-export interface ActionTool<S extends ZodRawShape> extends ToolBase<S> {
+export interface ActionTool<S extends ZodRawShape, B = WdioBrowser> extends ToolBase<S> {
     kind: ToolKind.Action;
     autoLaunchBrowser?: boolean;
-    cb: (args: ToolArgs<S>, browser: WdioBrowser) => Promise<ToolResponse>;
+    supportedTransports: readonly TransportKind[];
+    cb: (args: ToolArgs<S>, browser: B) => Promise<ToolResponse>;
 }
 
 export interface StandaloneTool<S extends ZodRawShape> extends ToolBase<S> {
@@ -55,8 +58,9 @@ export interface StandaloneTool<S extends ZodRawShape> extends ToolBase<S> {
 }
 
 export interface SessionOpenResult {
-    browser: WdioBrowser | null;
+    browser: BrowserSession | null;
     options: BrowserOptions;
+    transport?: TransportKind;
     response: ToolResponse;
 }
 
@@ -67,7 +71,11 @@ export interface SessionOpenTool<S extends ZodRawShape> extends ToolBase<S> {
 
 export interface SessionCloseTool<S extends ZodRawShape> extends ToolBase<S> {
     kind: ToolKind.SessionClose;
-    cb: (args: ToolArgs<S>, browser: WdioBrowser | null) => Promise<ToolResponse>;
+    cb: (args: ToolArgs<S>, browser: BrowserSession | null) => Promise<ToolResponse>;
 }
 
-export type Tool<S extends ZodRawShape> = StandaloneTool<S> | ActionTool<S> | SessionOpenTool<S> | SessionCloseTool<S>;
+export type Tool<S extends ZodRawShape> =
+    | StandaloneTool<S>
+    | ActionTool<S, never>
+    | SessionOpenTool<S>
+    | SessionCloseTool<S>;

@@ -1,11 +1,7 @@
-import { WdioBrowser } from "testplane";
 import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import {
-    CaptureSnapshotOptions,
-    getPageSnapshot,
-    getBrowserTabs,
-    convertSnapshotToResponse,
-} from "./browser-helpers.js";
+import type { BrowserAdapter } from "../browser/types.js";
+import type { CaptureSnapshotOptions } from "./browser-helpers.js";
+import { getPageSnapshot, getBrowserTabs, convertSnapshotToResponse } from "./browser-helpers.js";
 
 export type ToolResponse = CallToolResult;
 
@@ -31,7 +27,7 @@ export function createSimpleResponse(message: string, isError = false): ToolResp
 }
 
 export async function createBrowserStateResponse(
-    browser: WdioBrowser,
+    browser: BrowserAdapter,
     options: BrowserResponseOptions,
 ): Promise<ToolResponse> {
     const sections: string[] = [];

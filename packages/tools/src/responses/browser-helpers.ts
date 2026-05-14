@@ -2,8 +2,10 @@ import path from "path";
 import fs from "fs/promises";
 import os from "os";
 import { randomUUID } from "node:crypto";
-import { WdioBrowser } from "testplane";
+import type { BrowserAdapter, CaptureSnapshotOptions } from "../browser/types.js";
 import { formatTimestamp } from "../utils/formatters.js";
+
+export type { CaptureSnapshotOptions } from "../browser/types.js";
 
 export interface BrowserTab {
     title: string;
@@ -11,7 +13,7 @@ export interface BrowserTab {
     isActive: boolean;
 }
 
-export async function getBrowserTabs(browser: WdioBrowser): Promise<BrowserTab[]> {
+export async function getBrowserTabs(browser: BrowserAdapter): Promise<BrowserTab[]> {
     try {
         const windowHandles = await browser.getWindowHandles();
         const currentHandle = await browser.getWindowHandle();
@@ -39,15 +41,6 @@ export async function getBrowserTabs(browser: WdioBrowser): Promise<BrowserTab[]
     }
 }
 
-export interface CaptureSnapshotOptions {
-    includeTags?: string[];
-    includeAttrs?: string[];
-    excludeTags?: string[];
-    excludeAttrs?: string[];
-    truncateText?: boolean;
-    maxTextLength?: number;
-}
-
 interface CapturedPageSnapshotResult {
     rawContent: string;
     fenceLanguage: "yaml" | "html";
@@ -55,7 +48,7 @@ interface CapturedPageSnapshotResult {
 }
 
 async function capturePageSnapshot(
-    browser: WdioBrowser,
+    browser: BrowserAdapter,
     options: CaptureSnapshotOptions = {},
 ): Promise<CapturedPageSnapshotResult | null> {
     try {
@@ -141,7 +134,7 @@ export function isPageSnapshotTooLargeForInline(snapshot: PageSnapshotResult): b
 }
 
 export async function getPageSnapshot(
-    browser: WdioBrowser,
+    browser: BrowserAdapter,
     options: CaptureSnapshotOptions = {},
 ): Promise<PageSnapshotResult | null> {
     const result = await capturePageSnapshot(browser, options);

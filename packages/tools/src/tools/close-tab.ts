@@ -76,6 +76,7 @@ export const closeTab: ActionTool<typeof closeTabSchema> = {
     name: "close-tab",
     description:
         "Close a specific browser tab by its number (1-based), or close the current tab if no number is provided",
+    supportedTransports: ["launch-browser"],
     schema: closeTabSchema,
     cb: closeTabCb,
     cli: { positional: ["tabNumber"], section: "Tabs" },

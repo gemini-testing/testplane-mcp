@@ -42,6 +42,7 @@ export const typeIntoElement: ActionTool<typeof typeIntoElementSchema> = {
     kind: ToolKind.Action,
     name: "type",
     description: "Type text into an element on the page.",
+    supportedTransports: ["launch-browser"],
     schema: typeIntoElementSchema,
     cb: typeIntoElementCb,
     cli: { positional: ["selector"], section: "Interaction" },

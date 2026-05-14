@@ -16,6 +16,21 @@ function createNoActiveBrowserResponse(toolName: string): ResponseResult["conten
     ];
 }
 
+function createUnsupportedReplToolResponse(toolName: string): ResponseResult["content"] {
+    return [
+        {
+            type: "text",
+            text: `Tool '${toolName}' is not yet supported with REPL sessions. Currently supported in REPL mode: snapshot, run-code.`,
+        },
+    ];
+}
+
+async function closeBrowserSession(
+    browser: NonNullable<ReturnType<SessionRegistry["getOrCreate"]>["browser"]>,
+): Promise<void> {
+    await browser.deleteSession();
+}
+
 /**
  * Handles requests from clients, executing tools in sessions as needed.
  */
@@ -88,10 +103,29 @@ export class RequestHandler {
 
                     debug("Auto-launching browser: session=%s tool=%s", req.sessionName, req.tool);
                     state.browser = await launchBrowserWithOptions(state.defaultOptions);
+                    state.transport = "launch-browser";
+                }
+
+                const supportedTransports = tool.supportedTransports ?? ["launch-browser"];
+                const transport = state.transport ?? "launch-browser";
+                if (!supportedTransports.includes(transport)) {
+                    debug(
+                        "Action is not supported with current transport: session=%s tool=%s transport=%s",
+                        req.sessionName,
+                        req.tool,
+                        transport,
+                    );
+
+                    return {
+                        id: req.id,
+                        kind: "result",
+                        content: createUnsupportedReplToolResponse(tool.name),
+                        isError: true,
+                    };
                 }
 
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const result = await tool.cb(parsedArgs as any, state.browser);
+                const result = await tool.cb(parsedArgs as any, state.browser as never);
 
                 return { id: req.id, kind: "result", content: result.content, isError: result.isError };
             }
@@ -101,7 +135,7 @@ export class RequestHandler {
                     debug("Replacing existing browser session: session=%s", req.sessionName);
 
                     try {
-                        await state.browser.deleteSession();
+                        await closeBrowserSession(state.browser);
                     } catch (error) {
                         debug(
                             "Error closing previous session: session=%s message=%s",
@@ -111,12 +145,14 @@ export class RequestHandler {
                     }
 
                     state.browser = null;
+                    state.transport = null;
                 }
 
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const openResult = await tool.cb(parsedArgs as any, state.options);
                 if (openResult.browser) {
                     state.browser = openResult.browser;
+                    state.transport = openResult.transport ?? "launch-browser";
                     state.options = openResult.options;
                 }
 
