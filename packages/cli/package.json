@@ -29,8 +29,8 @@
     "@rrweb/replay": "^2.0.0-alpha.18",
     "commander": "^14.0.3",
     "debug": "^4.3.4",
-    "html-reporter": "^11.10.0-rc.2",
-    "testplane": "^8.44.1-rc.1",
+    "html-reporter": "^11.9.4",
+    "testplane": "^8.44.2-rc.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
