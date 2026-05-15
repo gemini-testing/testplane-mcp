@@ -1,6 +1,6 @@
 {
   "name": "@testplane/cli",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Daemon-backed CLI for Testplane browser-automation tools",
   "main": "build/cli.js",
   "type": "module",
@@ -29,8 +29,8 @@
     "@rrweb/replay": "^2.0.0-alpha.18",
     "commander": "^14.0.3",
     "debug": "^4.3.4",
-    "html-reporter": "^11.9.4",
-    "testplane": "^8.44.2-rc.1",
+    "html-reporter": "11.9.4",
+    "testplane": "8.44.2-rc.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {

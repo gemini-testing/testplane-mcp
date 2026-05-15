@@ -1,6 +1,6 @@
 {
   "name": "@testplane/mcp",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "MCP server for Testplane tool",
   "main": "build/cli.js",
   "type": "module",
@@ -29,8 +29,8 @@
     "@testplane/testing-library": "^1.0.5",
     "@rrweb/replay": "^2.0.0-alpha.18",
     "commander": "^13.1.0",
-    "html-reporter": "^11.9.4",
-    "testplane": "^8.44.2-rc.1",
+    "html-reporter": "11.9.4",
+    "testplane": "8.44.2-rc.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
