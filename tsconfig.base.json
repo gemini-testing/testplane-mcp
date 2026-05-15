@@ -5,10 +5,8 @@
         "moduleResolution": "NodeNext",
         "esModuleInterop": true,
         "strict": true,
-        "outDir": "build",
         "declaration": true,
         "skipLibCheck": true,
         "resolveJsonModule": true
-    },
-    "include": ["src/**/*"]
+    }
 }

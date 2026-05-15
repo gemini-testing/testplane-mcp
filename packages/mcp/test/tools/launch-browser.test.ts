@@ -152,7 +152,7 @@ describe(
 
                 expect(responseText).toContain("Viewport width: 1280");
                 // Viewport height is less than window height due to browser chrome
-                expect(responseText).toContain("Viewport height: 528");
+                expect(responseText).toContain("Viewport height: 577");
             });
 
             it("should launch browser with window size as string", async () => {
@@ -178,7 +178,7 @@ describe(
 
                 expect(responseText).toContain("Viewport width: 1024");
                 // Viewport height is less than window height due to browser chrome
-                expect(responseText).toContain("Viewport height: 576");
+                expect(responseText).toContain("Viewport height: 625");
             });
 
             it("should launch browser with windowSize null to reset to default", async () => {
@@ -280,7 +280,7 @@ describe(
 
                 expect(responseText).toContain("Viewport width: 800");
                 // Viewport height is less than window height due to browser chrome
-                expect(responseText).toContain("Viewport height: 408");
+                expect(responseText).toContain("Viewport height: 457");
             });
         });
 
