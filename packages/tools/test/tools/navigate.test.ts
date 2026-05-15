@@ -84,7 +84,9 @@ describe(
                     expect(result.isError).toBe(true);
                     const text = getTextContent(result);
                     expect(text).toContain("Failed to load http://localhost");
-                    expect(text).toContain("in 1500ms. You can increase the wait time by setting a higher timeout value when calling this tool");
+                    expect(text).toContain(
+                        "in 1500ms. You can increase the wait time by setting a higher timeout value when calling this tool",
+                    );
 
                     expect(elapsedTime).toBeGreaterThan(1400);
                     expect(elapsedTime).toBeLessThan(7000);
