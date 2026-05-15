@@ -28,7 +28,7 @@
     "@testplane/testing-library": "^1.0.5",
     "commander": "^14.0.3",
     "debug": "^4.3.4",
-    "testplane": "^8.31.0",
+    "testplane": "^8.44.1-rc.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {

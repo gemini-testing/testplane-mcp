@@ -1,3 +1,6 @@
+import http from "http";
+import { AddressInfo } from "net";
+
 import { WdioBrowser } from "testplane";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
@@ -41,6 +44,56 @@ describe(
             const text = getTextContent(result);
             expect(text).toContain("## Browser Tabs");
             expect(text).toContain("## Current Tab Snapshot");
+        });
+
+        describe("timeout behavior", () => {
+            it("should omit timeout from generated testplane code when not provided", async () => {
+                const result = await navigate.cb({ url: playgroundUrl }, browser);
+
+                expect(result.isError).toBe(false);
+                const text = getTextContent(result);
+                expect(text).toContain(`await browser.openAndWait("${playgroundUrl}");`);
+                expect(text).not.toContain('"timeout"');
+            });
+
+            it("should include timeout in generated testplane code when provided", async () => {
+                const result = await navigate.cb({ url: playgroundUrl, timeout: 5000 }, browser);
+
+                expect(result.isError).toBe(false);
+                const text = getTextContent(result);
+                expect(text).toContain(`await browser.openAndWait("${playgroundUrl}", {"timeout":5000});`);
+            });
+
+            it("should respect custom timeout when the page never finishes loading", async () => {
+                const slowServer = http.createServer((_req, res) => {
+                    // Hold the response open — never finish so the navigation hits timeout.
+                    res.writeHead(200, { "Content-Type": "text/html" });
+                    res.write("<!doctype html><html><head><title>slow</title></head><body>");
+                    // Intentionally do NOT call res.end() so the response stays pending.
+                });
+
+                await new Promise<void>(resolve => slowServer.listen(0, resolve));
+                const port = (slowServer.address() as AddressInfo).port;
+                const slowUrl = `http://localhost:${port}/`;
+
+                try {
+                    const startTime = Date.now();
+                    const result = await navigate.cb({ url: slowUrl, timeout: 1500 }, browser);
+                    const elapsedTime = Date.now() - startTime;
+
+                    expect(result.isError).toBe(true);
+                    const text = getTextContent(result);
+                    expect(text).toContain("Failed to load http://localhost");
+                    expect(text).toContain(
+                        "in 1500ms. You can increase the wait time by setting a higher timeout value when calling this tool",
+                    );
+
+                    expect(elapsedTime).toBeGreaterThan(1400);
+                    expect(elapsedTime).toBeLessThan(7000);
+                } finally {
+                    await new Promise<void>(resolve => slowServer.close(() => resolve()));
+                }
+            });
         });
     },
     INTEGRATION_TEST_TIMEOUT,

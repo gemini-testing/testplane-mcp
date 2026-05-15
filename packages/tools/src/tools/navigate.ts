@@ -4,22 +4,42 @@ import { createBrowserStateResponse, createErrorResponse } from "../responses/in
 
 export const navigateSchema = {
     url: z.string().url("Invalid URL format").describe("The URL to navigate to"),
+    timeout: z.number().optional().default(30000).describe("Maximum time to wait in milliseconds. Default: 30000"),
 };
 
 const navigateCb: ActionTool<typeof navigateSchema>["cb"] = async (args, browser) => {
     try {
-        const { url } = args;
+        const { url, timeout } = args;
+
+        const openOptions: { timeout?: number } = {};
+        if (timeout !== undefined) {
+            const browserConfig = await browser.getConfig();
+            browserConfig.urlHttpTimeout = timeout;
+
+            openOptions.timeout = timeout;
+        }
 
         console.error(`Navigating to: ${url}`);
-        await browser.openAndWait(url);
+        await browser.openAndWait(url, openOptions);
+
+        const optionsCode = Object.keys(openOptions).length > 0 ? `, ${JSON.stringify(openOptions)}` : "";
 
         return await createBrowserStateResponse(browser, {
             action: `Successfully navigated to ${url}`,
-            testplaneCode: `await browser.openAndWait("${url}");`,
+            testplaneCode: `await browser.openAndWait("${url}"${optionsCode});`,
         });
     } catch (error) {
         console.error("Error navigating to URL:", error);
-        return createErrorResponse("Error navigating to URL", error instanceof Error ? error : undefined);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        if (/timeout|timed out/i.test(errorMessage)) {
+            return createErrorResponse(
+                `Failed to load ${args.url} in ${args.timeout}ms. You can increase the wait time by setting a higher timeout value when calling this tool.\n\nOriginal error`,
+                error instanceof Error ? error : undefined,
+            );
+        }
+
+        return createErrorResponse(`Error navigating to ${args.url}`, error instanceof Error ? error : undefined);
     }
 };
 
