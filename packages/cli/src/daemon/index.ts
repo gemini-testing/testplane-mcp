@@ -16,7 +16,13 @@ const IDLE_TTL_MS = Number(process.env.TESTPLANE_CLI_DAEMON_IDLE_MS ?? 30000);
 const LOG_MAX_BYTES = 5 * 1024 * 1024;
 const DEFAULT_HEADLESS = !/^(0|false|no)$/i.test(process.env.TESTPLANE_CLI_HEADLESS ?? "");
 
-function prepareRuntimeFiles(dir: string, socketPath: string, logPath: string): void {
+function errorCode(error: unknown): string | undefined {
+    return typeof error === "object" && error !== null && "code" in error
+        ? String((error as NodeJS.ErrnoException).code)
+        : undefined;
+}
+
+function prepareRuntimeFiles(dir: string, logPath: string): void {
     fs.mkdirSync(dir, { recursive: true });
 
     try {
@@ -27,15 +33,14 @@ function prepareRuntimeFiles(dir: string, socketPath: string, logPath: string): 
     } catch {
         // The log file does not exist yet.
     }
-
-    fs.rmSync(socketPath, { force: true });
 }
 
 export async function startDaemon(): Promise<void> {
     const sessions = new SessionRegistry({ headless: DEFAULT_HEADLESS });
     const requestDispatcher = new RequestHandler();
     const { dir, socket: socketPath, log: logPath } = socketPathFor(findProjectRoot());
-    prepareRuntimeFiles(dir, socketPath, logPath);
+    prepareRuntimeFiles(dir, logPath);
+    let boundSocket: { dev: number; ino: number } | null = null;
 
     const watchdog = new IdleWatchdog({
         idleTtlMs: IDLE_TTL_MS,
@@ -97,11 +102,7 @@ export async function startDaemon(): Promise<void> {
             debug("Session cleanup error: %s", formatError(error));
         }
 
-        try {
-            fs.rmSync(socketPath, { force: true });
-        } catch (error) {
-            debug("Socket removal error: %s", formatError(error));
-        }
+        removeBoundSocket();
 
         debug("Shutdown complete: reason=%s", reason);
         process.exit(0);
@@ -142,6 +143,29 @@ export async function startDaemon(): Promise<void> {
         });
     });
 
+    function removeBoundSocket(): void {
+        if (!boundSocket) {
+            debug("Skipping socket removal: daemon did not record a bound socket");
+
+            return;
+        }
+
+        try {
+            const stats = fs.statSync(socketPath);
+            if (stats.dev !== boundSocket.dev || stats.ino !== boundSocket.ino) {
+                debug("Skipping socket removal: path is now owned by another daemon");
+
+                return;
+            }
+
+            fs.rmSync(socketPath, { force: true });
+        } catch (error) {
+            if (errorCode(error) !== "ENOENT") {
+                debug("Socket removal error: %s", formatError(error));
+            }
+        }
+    }
+
     server.on("error", error => {
         const code = (error as NodeJS.ErrnoException).code;
         if (code === "EADDRINUSE") {
@@ -154,6 +178,13 @@ export async function startDaemon(): Promise<void> {
     });
 
     server.listen(socketPath, () => {
+        try {
+            const stats = fs.statSync(socketPath);
+            boundSocket = { dev: stats.dev, ino: stats.ino };
+        } catch (error) {
+            debug("Socket stat error: %s", formatError(error));
+        }
+
         debug("Daemon started: pid=%d socketPath=%s", process.pid, socketPath);
         watchdog.start();
     });

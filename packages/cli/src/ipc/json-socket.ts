@@ -1,4 +1,5 @@
 import type { Socket } from "net";
+import { StringDecoder } from "string_decoder";
 
 type EventMap<In> = {
     message: (msg: In) => void;
@@ -9,6 +10,7 @@ type EventMap<In> = {
 
 export class JsonSocket<In = unknown, Out = unknown> {
     private readonly _socket: Socket;
+    private readonly _decoder = new StringDecoder("utf8");
     private _buffer = "";
     private _closed = false;
     private readonly _listeners: { [K in keyof EventMap<In>]: Array<EventMap<In>[K]> } = {
@@ -54,7 +56,7 @@ export class JsonSocket<In = unknown, Out = unknown> {
     }
 
     private _handleData = (chunk: Buffer | string): void => {
-        this._buffer += typeof chunk === "string" ? chunk : chunk.toString("utf8");
+        this._buffer += typeof chunk === "string" ? chunk : this._decoder.write(chunk);
 
         let nl = this._buffer.indexOf("\n");
 

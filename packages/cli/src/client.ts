@@ -14,6 +14,88 @@ const debug = makeDebug("testplane-cli:client");
 const CONNECT_TIMEOUT_MS = 2000;
 const SPAWN_WAIT_MS = 10000;
 const SPAWN_POLL_INTERVAL_MS = 50;
+const SPAWN_LOCK_WAIT_MS = SPAWN_WAIT_MS * 3;
+const SPAWN_LOCK_STALE_MS = SPAWN_WAIT_MS * 2;
+
+interface SpawnLock {
+    path: string;
+    token: string;
+}
+
+function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function errorCode(error: unknown): string | undefined {
+    return typeof error === "object" && error !== null && "code" in error
+        ? String((error as NodeJS.ErrnoException).code)
+        : undefined;
+}
+
+function spawnLockPath(socketPath: string): string {
+    return `${socketPath}.spawn.lock`;
+}
+
+function tryRemoveStaleSpawnLock(lockPath: string): void {
+    try {
+        const stats = fs.statSync(lockPath);
+        const ageMs = Date.now() - stats.mtimeMs;
+        if (ageMs < SPAWN_LOCK_STALE_MS) {
+            return;
+        }
+
+        debug("Removing stale daemon spawn lock: path=%s ageMs=%d", lockPath, ageMs);
+        fs.rmSync(lockPath, { force: true });
+    } catch (err) {
+        if (errorCode(err) !== "ENOENT") {
+            throw err;
+        }
+    }
+}
+
+async function acquireSpawnLock(lockPath: string, timeoutMs: number): Promise<SpawnLock> {
+    const deadline = Date.now() + timeoutMs;
+    const token = `${process.pid}:${Date.now()}:${Math.random()}`;
+
+    while (Date.now() < deadline) {
+        try {
+            const fd = fs.openSync(lockPath, "wx");
+            try {
+                fs.writeSync(fd, token);
+            } catch (err) {
+                fs.rmSync(lockPath, { force: true });
+                throw err;
+            } finally {
+                fs.closeSync(fd);
+            }
+
+            return { path: lockPath, token };
+        } catch (err) {
+            if (errorCode(err) !== "EEXIST") {
+                throw err;
+            }
+
+            tryRemoveStaleSpawnLock(lockPath);
+            await sleep(SPAWN_POLL_INTERVAL_MS);
+        }
+    }
+
+    throw new Error(`daemon spawn lock was not acquired within ${timeoutMs}ms`);
+}
+
+function releaseSpawnLock(lock: SpawnLock): void {
+    try {
+        if (fs.readFileSync(lock.path, "utf8") !== lock.token) {
+            return;
+        }
+
+        fs.rmSync(lock.path, { force: true });
+    } catch (err) {
+        if (errorCode(err) !== "ENOENT") {
+            debug("Daemon spawn lock release failed: %s", err instanceof Error ? err.message : String(err));
+        }
+    }
+}
 
 function attemptConnect(socketPath: string, timeoutMs: number): Promise<Socket> {
     return new Promise((resolve, reject) => {
@@ -77,7 +159,7 @@ async function waitUntilConnected(socketPath: string, timeoutMs: number): Promis
             return await attemptConnect(socketPath, 500);
         } catch (err) {
             lastErr = err;
-            await new Promise(r => setTimeout(r, SPAWN_POLL_INTERVAL_MS));
+            await sleep(SPAWN_POLL_INTERVAL_MS);
         }
     }
     throw new Error(
@@ -95,13 +177,31 @@ async function connectOrSpawn(paths: SocketPaths): Promise<Socket> {
         debug("Initial connect failed (%s), spawning daemon", err instanceof Error ? err.message : String(err));
     }
 
-    fs.rmSync(paths.socket, { force: true });
+    fs.mkdirSync(paths.dir, { recursive: true });
+    const spawnLock = await acquireSpawnLock(spawnLockPath(paths.socket), SPAWN_LOCK_WAIT_MS);
+    try {
+        try {
+            const sock = await attemptConnect(paths.socket, CONNECT_TIMEOUT_MS);
+            debug("Connected to daemon started by another process");
 
-    spawnDaemon(paths.log);
-    const sock = await waitUntilConnected(paths.socket, SPAWN_WAIT_MS);
-    debug("Connected after spawn");
+            return sock;
+        } catch (err) {
+            debug(
+                "Connect under spawn lock failed (%s), spawning daemon",
+                err instanceof Error ? err.message : String(err),
+            );
+        }
 
-    return sock;
+        fs.rmSync(paths.socket, { force: true });
+
+        spawnDaemon(paths.log);
+        const sock = await waitUntilConnected(paths.socket, SPAWN_WAIT_MS);
+        debug("Connected after spawn");
+
+        return sock;
+    } finally {
+        releaseSpawnLock(spawnLock);
+    }
 }
 
 export async function sendRequest(req: Request): Promise<Response> {

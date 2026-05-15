@@ -86,6 +86,30 @@ describe("ipc/JsonSocket", () => {
         expect(messages[0].tool).toBe("navigate");
     });
 
+    it("preserves multibyte UTF-8 characters split across chunks", () => {
+        const messages: Request[] = [];
+        const smile = String.fromCodePoint(0x1f600);
+        conn.on("message", msg => messages.push(msg));
+
+        const line =
+            JSON.stringify({
+                id: 1,
+                kind: "call",
+                tool: "type",
+                sessionName: "default",
+                args: { text: smile },
+            }) + "\n";
+        const bytes = Buffer.from(line, "utf8");
+        const smileStart = bytes.indexOf(Buffer.from(smile, "utf8"));
+        expect(smileStart).toBeGreaterThanOrEqual(0);
+
+        mock.emit("data", bytes.subarray(0, smileStart + 2));
+        mock.emit("data", bytes.subarray(smileStart + 2));
+
+        expect(messages).toHaveLength(1);
+        expect(messages[0].args).toEqual({ text: smile });
+    });
+
     it("emits an error for malformed JSON but keeps processing subsequent lines", () => {
         const messages: Request[] = [];
         const errors: Error[] = [];
