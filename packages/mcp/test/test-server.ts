@@ -17,7 +17,7 @@ export class PlaygroundServer {
     }
 
     async start(): Promise<string> {
-        this.server = launchServer(this.port, this.playgroundPath);
+        this.server = await launchServer(this.port, this.playgroundPath);
         return `http://localhost:${this.port}`;
     }
 

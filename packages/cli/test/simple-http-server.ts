@@ -1,4 +1,5 @@
 import http from "http";
+import { AddressInfo } from "net";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import handler from "serve-handler";
@@ -11,6 +12,11 @@ export function launchServer(port: number, rootDir = join(__dirname, "playground
             return handler(req, res, { public: rootDir });
         });
         server.once("error", reject);
-        server.listen(port, () => resolve(server));
+        server.once("listening", () => {
+            const boundPort = (server.address() as AddressInfo).port;
+            console.log(`Running at http://localhost:${boundPort}`);
+            resolve(server);
+        });
+        server.listen(port);
     });
 }

@@ -31,6 +31,7 @@ const takePageSnapshotCb: ActionTool<typeof takePageSnapshotSchema>["cb"] = asyn
             action: "Page snapshot captured successfully",
             testplaneCode,
             snapshotOptions,
+            inlineSnapshot: true,
         });
     } catch (error) {
         console.error("Error taking page snapshot:", error);
