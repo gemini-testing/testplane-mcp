@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
@@ -54,7 +55,11 @@ describe(
             const content = result.content as Array<{ type: string; text: string }>;
             const text = content.map(c => c.text).join("\n");
             expect(text).toContain(`Successfully navigated to ${playgroundUrl}`);
-            expect(text).toContain("server-wiring-ok");
+
+            const snapshotPathMatch = text.match(/(?:Saved to:|The snapshot was saved to:) (\S+\.(?:yml|html))/);
+            expect(snapshotPathMatch, "navigate response should reference a saved snapshot file").not.toBeNull();
+            const snapshotContent = fs.readFileSync(snapshotPathMatch![1], "utf8");
+            expect(snapshotContent).toContain("server-wiring-ok");
         });
 
         it("closeBrowser ends the session cleanly", async () => {
