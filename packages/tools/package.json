@@ -1,0 +1,38 @@
+{
+  "name": "@testplane/tools",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Testplane MCP tools — browser automation tool implementations",
+  "type": "module",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    }
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "lint": "eslint .",
+    "test-unit": "vitest run",
+    "test": "npm run lint && npm run test-unit",
+    "prepack": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@testing-library/webdriverio": "^3.2.1",
+    "testplane": "^8.31.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.2",
+    "serve-handler": "^6.1.6"
+  }
+}
