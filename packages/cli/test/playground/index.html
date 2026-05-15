@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>CLI E2E Playground</title>
+    </head>
+    <body>
+        <h1 id="heading">CLI E2E Playground</h1>
+        <p id="marker">e2e-ok</p>
+
+        <!-- Scenario: click by role -->
+        <button id="btn" onclick="document.getElementById('status').textContent='clicked'">Submit order</button>
+        <span id="status"></span>
+
+        <!-- Scenario: type into field -->
+        <label for="field">Search</label>
+        <input id="field" placeholder="type here" />
+
+        <!-- Scenario: second page link -->
+        <a href="/page2.html" id="link2">Go to page 2</a>
+    </body>
+</html>

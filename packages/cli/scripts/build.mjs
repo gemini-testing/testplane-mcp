@@ -9,14 +9,24 @@ const outdir = resolve(pkgRoot, "build");
 
 await rm(outdir, { recursive: true, force: true });
 
-await build({
-    entryPoints: [resolve(pkgRoot, "src/cli.ts")],
-    outfile: resolve(outdir, "cli.js"),
+const shared = {
     bundle: true,
     platform: "node",
     format: "esm",
     target: "node20",
     sourcemap: true,
-    external: ["testplane", "@testplane/testing-library", "@modelcontextprotocol/sdk", "commander", "zod"],
+    external: ["testplane", "@testplane/testing-library", "commander", "debug", "zod"],
     logLevel: "info",
+};
+
+await build({
+    ...shared,
+    entryPoints: [resolve(pkgRoot, "src/cli.ts")],
+    outfile: resolve(outdir, "cli.js"),
+});
+
+await build({
+    ...shared,
+    entryPoints: [resolve(pkgRoot, "src/daemon.ts")],
+    outfile: resolve(outdir, "daemon.js"),
 });

@@ -27,7 +27,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@testing-library/webdriverio": "^3.2.1",
+    "@testplane/testing-library": "^1.0.5",
     "testplane": "^8.31.0",
     "zod": "^3.22.4"
   },

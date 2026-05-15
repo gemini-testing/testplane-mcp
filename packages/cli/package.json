@@ -1,11 +1,11 @@
 {
-  "name": "@testplane/mcp",
-  "version": "0.6.0",
-  "description": "MCP server for Testplane tool",
+  "name": "@testplane/cli",
+  "version": "0.0.1",
+  "description": "Daemon-backed CLI for Testplane browser-automation tools",
   "main": "build/cli.js",
   "type": "module",
   "bin": {
-    "testplane-mcp-server": "build/cli.js"
+    "testplane-cli": "build/cli.js"
   },
   "files": [
     "build"
@@ -25,14 +25,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.11.2",
     "@testplane/testing-library": "^1.0.5",
-    "commander": "^13.1.0",
+    "commander": "^14.0.3",
+    "debug": "^4.3.4",
     "testplane": "^8.31.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@testplane/tools": "*",
+    "@types/debug": "^4.1.12",
     "esbuild": "^0.24.0",
     "serve-handler": "^6.1.6"
   }

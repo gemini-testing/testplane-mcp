@@ -1,5 +1,5 @@
 import { WdioBrowser } from "testplane";
-import { setupBrowser } from "@testing-library/webdriverio";
+import { setupBrowser } from "@testplane/testing-library";
 import {
     ElementSelector,
     TESTING_LIBRARY_QUERY_FIELDS,
