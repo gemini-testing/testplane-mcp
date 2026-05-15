@@ -15,7 +15,7 @@ const shared = {
     format: "esm",
     target: "node20",
     sourcemap: true,
-    external: ["testplane", "@testing-library/webdriverio", "commander", "debug", "zod"],
+    external: ["testplane", "@testplane/testing-library", "commander", "debug", "zod"],
     logLevel: "info",
 };
 

@@ -16,7 +16,7 @@ import { closeBrowser } from "./tools/close-browser.js";
 
 // This function just ensures that every item on a type level is a Tool<something>. AFAIK the only way to do this.
 const typeCheckedTools = <const T extends readonly unknown[]>(
-    tools: T & { [K in keyof T]: T[K] extends Tool<infer _S> ? T[K] : never },
+    tools: T & { [K in keyof T]: T[K] extends Tool<infer _S> ? T[K] : never }, // eslint-disable-line @typescript-eslint/no-unused-vars
 ) => tools;
 
 export const tools = typeCheckedTools([

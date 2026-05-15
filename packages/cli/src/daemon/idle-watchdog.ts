@@ -60,8 +60,8 @@ export class IdleWatchdog {
             return;
         }
 
-        debug("Idle timer canceled");
         clearTimeout(this._idleTimer);
+        debug("Idle timer canceled");
         this._idleTimer = null;
     }
 

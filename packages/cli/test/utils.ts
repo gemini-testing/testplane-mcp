@@ -4,7 +4,6 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const CLI_JS = path.join(__dirname, "../build/cli.js");
-export const E2E_TIMEOUT = 60_000;
 
 export interface CliResult {
     stdout: string;

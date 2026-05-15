@@ -17,6 +17,6 @@ await build({
     format: "esm",
     target: "node20",
     sourcemap: true,
-    external: ["testplane", "@testing-library/webdriverio", "@modelcontextprotocol/sdk", "commander", "zod"],
+    external: ["testplane", "@testplane/testing-library", "@modelcontextprotocol/sdk", "commander", "zod"],
     logLevel: "info",
 });
