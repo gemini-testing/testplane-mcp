@@ -33,6 +33,14 @@ describe("CLI user scenarios", () => {
         if (testServer) await testServer.stop();
     });
 
+    it("should expose headless override option in launch command help", async () => {
+        const help = await cli("launch", "--help");
+
+        expect(help.code).toBe(0);
+        expect(help.out).toContain("--headless <value>");
+        expect(help.out).not.toContain("--no-headless");
+    });
+
     it("should navigate and inspect the page via DOM snapshot", async () => {
         const nav = await cli("navigate", playgroundUrl);
         expect(nav.code).toBe(0);
