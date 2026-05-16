@@ -4,6 +4,7 @@ import { createBrowserStateResponse, createErrorResponse } from "../responses/in
 import path from "path";
 import fs from "fs/promises";
 import os from "os";
+import { formatTimestamp } from "../utils/formatters.js";
 
 export const takeViewportScreenshotSchema = {
     filePath: z.string().optional().describe("Path to save the screenshot (defaults to tmp directory)"),
@@ -11,7 +12,7 @@ export const takeViewportScreenshotSchema = {
 
 const takeViewportScreenshotCb: ActionTool<typeof takeViewportScreenshotSchema>["cb"] = async (args, browser) => {
     try {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const timestamp = formatTimestamp();
         const defaultFilePath = path.join(os.tmpdir(), `viewport-${timestamp}.png`);
         const filePath = args.filePath || defaultFilePath;
 

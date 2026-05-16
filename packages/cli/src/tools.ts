@@ -1,7 +1,7 @@
 import { Command } from "commander";
-import type { ZodRawShape, ZodTypeAny } from "zod";
+import type { ZodTypeAny } from "zod";
 
-import { tools, Tool } from "@testplane/tools";
+import { tools } from "@testplane/tools";
 
 import makeDebug from "debug";
 import { sendRequest } from "./client.js";
@@ -11,9 +11,9 @@ import { describeZodField, registerFlag, registerPositional } from "./zod-to-com
 const debug = makeDebug("testplane-cli:tools");
 
 interface ToolToRegister {
-    name: Tool<ZodRawShape>["name"];
-    description: Tool<ZodRawShape>["description"];
-    schema: Tool<ZodRawShape>["schema"];
+    name: string;
+    description: string;
+    schema: Record<string, unknown>;
     cli?: {
         section?: string;
         positional?: string[];

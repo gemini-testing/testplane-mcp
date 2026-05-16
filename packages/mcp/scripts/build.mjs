@@ -17,6 +17,13 @@ await build({
     format: "esm",
     target: "node20",
     sourcemap: true,
-    external: ["testplane", "@testplane/testing-library", "@modelcontextprotocol/sdk", "commander", "zod"],
+    external: [
+        "testplane",
+        "@testplane/testing-library",
+        "@modelcontextprotocol/sdk",
+        "commander",
+        "html-reporter",
+        "zod",
+    ],
     logLevel: "info",
 });

@@ -1,5 +1,5 @@
 import makeDebug from "debug";
-import { z } from "zod";
+import { z, type ZodRawShape } from "zod";
 import { launchBrowserWithOptions, ToolKind, tools } from "@testplane/tools";
 import { SessionRegistry } from "./session-registry.js";
 import type { Request, Response } from "../ipc/protocol.js";
@@ -39,12 +39,26 @@ export class RequestHandler {
 
         let parsedArgs: unknown;
         try {
-            parsedArgs = z.object(tool.schema).parse(req.args);
+            parsedArgs = z.object(tool.schema as unknown as ZodRawShape).parse(req.args);
         } catch (error) {
             const message = formatError(error);
             debug("Invalid arguments: id=%d tool=%s message=%s", req.id, req.tool, message);
 
             return { id: req.id, kind: "error", code: "INVALID_ARGS", message };
+        }
+
+        if (tool.kind === ToolKind.Standalone) {
+            try {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const result = await tool.cb(parsedArgs as any);
+
+                return { id: req.id, kind: "result", content: result.content, isError: result.isError };
+            } catch (error) {
+                const message = formatError(error);
+                debug("Tool error: id=%d tool=%s message=%s", req.id, req.tool, message);
+
+                return { id: req.id, kind: "error", code: "TOOL_ERROR", message };
+            }
         }
 
         const state = sessions.beginInteraction(req.sessionName);

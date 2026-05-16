@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import type { ZodRawShape } from "zod";
 import type { WdioBrowser } from "testplane";
 
 import { tools, ToolKind, launchBrowserWithOptions, type BrowserOptions } from "@testplane/tools";
@@ -32,39 +33,48 @@ export async function startServer(serverOptions: ServerOptions = {}): Promise<Mc
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
     for (const tool of tools) {
-        server.tool(tool.name, tool.description, tool.schema, async (args: any) => {
-            if (tool.kind === ToolKind.Action) {
-                if (!browser) {
-                    browser = await launchBrowserWithOptions(options);
+        server.tool(
+            tool.name,
+            tool.description,
+            tool.schema as unknown as ZodRawShape,
+            async (args: any): Promise<any> => {
+                if (tool.kind === ToolKind.Standalone) {
+                    return tool.cb(args);
                 }
 
-                return tool.cb(args, browser);
-            }
-
-            if (tool.kind === ToolKind.SessionOpen) {
-                const result = await tool.cb(args, options);
-
-                if (result.browser) {
-                    if (browser) {
-                        try {
-                            await browser.deleteSession();
-                        } catch (error) {
-                            console.error("Error closing existing browser before opening a new session:", error);
-                        }
-                        browser = null;
+                if (tool.kind === ToolKind.Action) {
+                    if (!browser) {
+                        browser = await launchBrowserWithOptions(options);
                     }
 
-                    browser = result.browser;
-                    options = result.options;
+                    return tool.cb(args, browser);
                 }
 
-                return result.response;
-            }
+                if (tool.kind === ToolKind.SessionOpen) {
+                    const result = await tool.cb(args, options);
 
-            const response = await tool.cb(args, browser);
-            browser = null;
-            return response;
-        });
+                    if (result.browser) {
+                        if (browser) {
+                            try {
+                                await browser.deleteSession();
+                            } catch (error) {
+                                console.error("Error closing existing browser before opening a new session:", error);
+                            }
+                            browser = null;
+                        }
+
+                        browser = result.browser;
+                        options = result.options;
+                    }
+
+                    return result.response;
+                }
+
+                const response = await tool.cb(args, browser);
+                browser = null;
+                return response;
+            },
+        );
     }
     /* eslint-enable @typescript-eslint/no-explicit-any */
 
