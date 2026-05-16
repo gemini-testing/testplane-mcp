@@ -2,11 +2,11 @@ import { readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { readResultsFromReport } from "html-reporter/experimental/sdk";
+import { readResultsFromReport, type ReporterTestResult } from "html-reporter/experimental/sdk";
 import { describe, expect, it, beforeAll } from "vitest";
 import { z } from "zod";
 
-import { testResults, getFinalTestResults } from "../../src/tools/test-results/index.js";
+import { testResults, getFinalTestResults, toTestResultView } from "../../src/tools/test-results/index.js";
 import { testResultsObjectSchema } from "../../src/tools/test-results/schema.js";
 
 const SAMPLE_REPORT = fileURLToPath(new URL("../fixtures/sample-html-report", import.meta.url));
@@ -138,6 +138,23 @@ describe("tools/test-results", () => {
         expect(text).toContain(`${EXPECTED_COUNTS_LINE} 1`);
         expect(text).toContain("failed describe test skipped");
         expect(text).toContain("mute/skip reason: Skipped by mocha interface");
+    });
+
+    it("uses null for requested view fields without source values", () => {
+        const result = {
+            fullName: "suite test",
+            status: "success",
+            browserId: "chrome",
+            attempt: 0,
+        } as ReporterTestResult;
+
+        expect(toTestResultView(result, ["duration", "file", "error", "meta", "skipOrMuteReason"])).toEqual({
+            duration: null,
+            file: null,
+            error: null,
+            meta: null,
+            skipOrMuteReason: null,
+        });
     });
 
     it("saves the whole filtered report as prepared JSON with selected fields", async () => {

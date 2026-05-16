@@ -73,7 +73,7 @@ export interface TestResultView {
     file?: string | null;
     name?: string;
     error?: string | null;
-    meta?: unknown;
+    meta?: unknown | null;
     skipOrMuteReason?: string | null;
 }
 

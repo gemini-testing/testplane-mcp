@@ -23,24 +23,24 @@ function matchesDuration(duration: number | undefined, filter: DurationFilter): 
     }
 }
 
-export function getResultStatusTags(result: ReporterTestResult): Set<string> {
+export function getResultStatusTags(result: ReporterTestResult): string[] {
     const status = result.status;
-    const tags = new Set<string>([status]);
+    const tags: string[] = [status];
 
     if (status === "success") {
-        tags.add("passed");
+        tags.push("passed");
     }
     if (status === "error" || status.includes("fail")) {
-        tags.add("failed");
+        tags.push("failed");
     }
     if (status === "skipped") {
-        tags.add("skipped");
+        tags.push("skipped");
     }
     if (isMutedResult(result)) {
-        tags.add("muted");
+        tags.push("muted");
     }
     if (result.attempt > 0) {
-        tags.add("retried");
+        tags.push("retried");
     }
 
     return tags;
@@ -53,7 +53,7 @@ function matchesStatus(result: ReporterTestResult, statuses: readonly TestResult
 
     const tags = getResultStatusTags(result);
 
-    return statuses.some(status => tags.has(status));
+    return statuses.some(status => tags.includes(status));
 }
 
 function getErrorText(result: ReporterTestResult): string {

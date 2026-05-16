@@ -14,7 +14,7 @@ describe("utils/error", () => {
 
         expect(result.success).toBe(false);
         if (!result.success) {
-            expect(formatError(result.error)).toBe("--limit must be in 1..1000; --offset must be >= 0");
+            expect(formatError(result.error)).toBe("--limit must be in 1..1000;\n--offset must be >= 0");
         }
     });
 });

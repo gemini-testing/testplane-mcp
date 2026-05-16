@@ -59,8 +59,9 @@ export async function readRemoteResourceCacheInfo(
 ): Promise<RemoteResourceCacheInfo | null> {
     try {
         const cacheDir = getCacheDir(resourceUrl, cacheRoot);
+        const cacheInfo = await readFile(path.join(cacheDir, CACHE_INFO_FILE), "utf8");
 
-        return JSON.parse(await readFile(path.join(cacheDir, CACHE_INFO_FILE), "utf8")) as RemoteResourceCacheInfo;
+        return JSON.parse(cacheInfo) as RemoteResourceCacheInfo;
     } catch {
         return null;
     }
@@ -74,7 +75,10 @@ async function writeCacheInfo(cacheDir: string, resourceUrl: string, saveTime: n
         },
     };
 
-    await writeFile(path.join(cacheDir, CACHE_INFO_FILE), `${JSON.stringify(cacheInfo, null, 2)}\n`);
+    const cacheInfoFilePath = path.join(cacheDir, CACHE_INFO_FILE);
+    const cacheInfoContent = `${JSON.stringify(cacheInfo, null, 2)}\n`;
+
+    await writeFile(cacheInfoFilePath, cacheInfoContent, "utf8");
 }
 
 export async function isRemoteResourceCached(
@@ -88,12 +92,13 @@ export async function isRemoteResourceCached(
     const saveTime = getSaveTimeMs(cacheInfo?.saveTime);
     const cacheDir = getCacheDir(resourceUrl, cacheRoot);
 
-    return Boolean(
-        cacheInfo?.labels?.resourceUrl === resourceUrl &&
-            saveTime !== null &&
-            now - saveTime <= ttlMs &&
-            (await Promise.all(requiredFiles.map(file => pathExists(path.join(cacheDir, file))))).every(Boolean),
-    );
+    if (cacheInfo?.labels?.resourceUrl !== resourceUrl || saveTime === null || now - saveTime > ttlMs) {
+        return false;
+    }
+
+    const requiredFilesExist = await Promise.all(requiredFiles.map(file => pathExists(path.join(cacheDir, file))));
+
+    return requiredFilesExist.every(Boolean);
 }
 
 async function cleanupExpiredRemoteResourceCaches(
@@ -113,9 +118,8 @@ async function cleanupExpiredRemoteResourceCaches(
                 let saveTime: number | null = null;
 
                 try {
-                    const cacheInfo = JSON.parse(
-                        await readFile(path.join(cacheDir, CACHE_INFO_FILE), "utf8"),
-                    ) as RemoteResourceCacheInfo;
+                    const cacheInfoContent = await readFile(path.join(cacheDir, CACHE_INFO_FILE), "utf8");
+                    const cacheInfo = JSON.parse(cacheInfoContent) as RemoteResourceCacheInfo;
                     saveTime = getSaveTimeMs(cacheInfo.saveTime);
                 } catch {
                     saveTime = null;

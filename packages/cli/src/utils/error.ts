@@ -13,7 +13,7 @@ export function formatError(error: unknown): string {
 
                 return `${field}: ${issue.message}`;
             })
-            .join("; ");
+            .join(";\n");
     }
 
     if (error instanceof Error) {

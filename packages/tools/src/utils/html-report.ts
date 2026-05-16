@@ -33,12 +33,12 @@ export async function downloadReportIfNeeded(
     });
 }
 
-export function getImageStateName(imageInfo: ReporterImageInfo): string | undefined {
-    return "stateName" in imageInfo ? imageInfo.stateName : undefined;
+export function getImageStateName(imageInfo: ReporterImageInfo): string | null {
+    return "stateName" in imageInfo ? (imageInfo.stateName ?? null) : null;
 }
 
-export function getImageError(imageInfo: ReporterImageInfo): Partial<Error> | undefined {
-    return "error" in imageInfo ? imageInfo.error : undefined;
+export function getImageError(imageInfo: ReporterImageInfo): Partial<Error> | null {
+    return "error" in imageInfo ? (imageInfo.error ?? null) : null;
 }
 
 export function isMutedResult(result: ReporterTestResult): boolean {

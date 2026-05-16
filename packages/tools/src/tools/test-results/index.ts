@@ -7,7 +7,7 @@ import { stripVTControlCharacters } from "node:util";
 import { StandaloneTool, ToolKind } from "../../types.js";
 import { createErrorResponse, createSimpleResponse } from "../../responses/index.js";
 import { getImageError, getImageStateName, isMutedResult, downloadReportIfNeeded } from "../../utils/html-report.js";
-import { formatDuration, formatError, formatFileSize } from "../../utils/formatters.js";
+import { formatDuration, formatError, formatFileSize, formatTimestamp } from "../../utils/formatters.js";
 import { stringify } from "../../utils/strings.js";
 import { filterTestResults, getResultStatusTags } from "./filters.js";
 import { testResultsSchema } from "./schema.js";
@@ -52,7 +52,7 @@ function getStatusCounts(results: readonly ReporterTestResult[]): StatusCounts {
         const tags = getResultStatusTags(result);
 
         for (const status of TEST_RESULT_STATUSES) {
-            if (tags.has(status)) {
+            if (tags.includes(status)) {
                 statusCounts[status] += 1;
             }
         }
@@ -61,7 +61,7 @@ function getStatusCounts(results: readonly ReporterTestResult[]): StatusCounts {
     return statusCounts;
 }
 
-function getFailedImageInfo(result: ReporterTestResult): string | undefined {
+function getFailedImageInfo(result: ReporterTestResult): string | null {
     const failedImage = result.imagesInfo?.find(imageInfo => {
         const status = imageInfo.status;
 
@@ -69,14 +69,15 @@ function getFailedImageInfo(result: ReporterTestResult): string | undefined {
     });
 
     if (!failedImage) {
-        return undefined;
+        return null;
     }
 
     const stateName = getImageStateName(failedImage);
-    const state = stateName ? `state: ${stateName}` : undefined;
+    const state = stateName ? `state: ${stateName}` : null;
     const error = formatError(getImageError(failedImage));
+    const message = [state, error].filter((part): part is string => part !== null).join("; ");
 
-    return [state, error].filter(Boolean).join("; ") || undefined;
+    return message || null;
 }
 
 function formatStatusCounts(statusCounts: StatusCounts): string {
@@ -85,27 +86,27 @@ function formatStatusCounts(statusCounts: StatusCounts): string {
         .join(", ");
 }
 
-function formatActiveFilters(filters: FilterOptions): string | undefined {
+function formatActiveFilters(filters: FilterOptions): string | null {
     const activeFilters = [
-        filters.grep ? `grep=${filters.grep.source}` : undefined,
-        filters.status.length ? `status=${filters.status.join(",")}` : undefined,
-        filters.browser.length ? `browser=${filters.browser.join(",")}` : undefined,
-        filters.duration ? `duration=${filters.duration.source}` : undefined,
-        filters.grepError ? `grep-error=${filters.grepError.source}` : undefined,
-        filters.meta.length ? `meta=${filters.meta.map(filter => filter.source).join(",")}` : undefined,
-        filters.file.length ? `file=${filters.file.map(file => file.source).join(",")}` : undefined,
-    ].filter(Boolean);
+        filters.grep ? `grep=${filters.grep.source}` : null,
+        filters.status.length ? `status=${filters.status.join(",")}` : null,
+        filters.browser.length ? `browser=${filters.browser.join(",")}` : null,
+        filters.duration ? `duration=${filters.duration.source}` : null,
+        filters.grepError ? `grep-error=${filters.grepError.source}` : null,
+        filters.meta.length ? `meta=${filters.meta.map(filter => filter.source).join(",")}` : null,
+        filters.file.length ? `file=${filters.file.map(file => file.source).join(",")}` : null,
+    ].filter((filter): filter is string => filter !== null);
 
-    return activeFilters.length ? activeFilters.join("; ") : undefined;
+    return activeFilters.length ? activeFilters.join("; ") : null;
 }
 
-function getErrorLine(result: ReporterTestResult): string | undefined {
+function getErrorLine(result: ReporterTestResult): string | null {
     const status = result.status;
     const shouldMentionMissingError = status === "error" || status === "fail" || isMutedResult(result);
 
     const error = formatError(result.error) ?? getFailedImageInfo(result);
 
-    return error ?? (shouldMentionMissingError ? "No error message" : undefined);
+    return error ?? (shouldMentionMissingError ? "No error message" : null);
 }
 
 /** Picks fields from a test result and returns a view object */
@@ -132,14 +133,16 @@ export function toTestResultView(result: ReporterTestResult, fields: TestResultF
             case "file":
                 view.file = result.file ?? null;
                 break;
-            case "error":
-                view.error = getErrorLine(result) ? stripVTControlCharacters(getErrorLine(result)!) : null;
+            case "error": {
+                const errorLine = getErrorLine(result);
+                view.error = errorLine === null ? null : stripVTControlCharacters(errorLine);
                 break;
+            }
             case "meta":
-                view.meta = result.meta ?? {};
+                view.meta = result.meta ?? null;
                 break;
             case "skipOrMuteReason":
-                view.skipOrMuteReason = result.skipReason;
+                view.skipOrMuteReason = result.skipReason ?? null;
                 break;
         }
     }
@@ -147,29 +150,29 @@ export function toTestResultView(result: ReporterTestResult, fields: TestResultF
     return view;
 }
 
-function formatTestResultField(result: TestResultView, field: TestResultField): string | undefined {
+function formatTestResultField(result: TestResultView, field: TestResultField): string | null {
     switch (field) {
         case "skipOrMuteReason":
-            return result.skipOrMuteReason ? `mute/skip reason: ${result.skipOrMuteReason}` : undefined;
+            return result.skipOrMuteReason ? `mute/skip reason: ${result.skipOrMuteReason}` : null;
         case "status":
-            return result.status;
+            return result.status ?? null;
         case "browser":
-            return result.browser;
+            return result.browser ?? null;
         case "attempt":
             return result.attempt === undefined
-                ? undefined
+                ? null
                 : result.attempt > 0
                   ? `attempt ${result.attempt} (retried)`
                   : `attempt ${result.attempt}`;
         case "duration":
-            return typeof result.duration === "number" ? formatDuration(result.duration) : undefined;
+            return formatDuration(result.duration);
         case "file":
             return result.file ?? "unknown file";
         case "meta":
-            return result.meta === undefined ? undefined : stringify(result.meta);
+            return result.meta === undefined || result.meta === null ? null : stringify(result.meta);
         case "name":
         case "error":
-            return undefined;
+            return null;
     }
 }
 
@@ -178,15 +181,11 @@ function formatTestResult(result: TestResultView, index: number, fields: readonl
         .map(field => formatTestResultField(result, field))
         .filter(Boolean)
         .join(" | ");
-    const title = fields.includes("name") ? result.name : undefined;
-    const errorLine = fields.includes("error") ? (result.error ?? undefined) : undefined;
+    const title = fields.includes("name") ? (result.name ?? null) : null;
+    const errorLine = fields.includes("error") ? result.error : null;
     const firstLine = details || title || errorLine || "(no output fields)";
 
-    return [
-        `${index}. ${firstLine}`,
-        details && title ? `   ${title}` : undefined,
-        errorLine ? `   ${errorLine}` : undefined,
-    ]
+    return [`${index}. ${firstLine}`, details && title ? `   ${title}` : null, errorLine ? `   ${errorLine}` : null]
         .filter(Boolean)
         .join("\n");
 }
@@ -214,10 +213,9 @@ export function formatTestResultsReport(
 ): string {
     const sections: string[] = [
         `Total tests: ${counts.totalTests}; total attempts: ${counts.totalAttempts}; matched tests: ${counts.matchedTests}`,
+        `Total tests counts: ${formatStatusCounts(counts.testsByStatus)}`,
+        `Matched tests counts: ${formatStatusCounts(counts.matchedTestsByStatus)}`,
     ];
-
-    sections.push(`Total tests counts: ${formatStatusCounts(counts.testsByStatus)}`);
-    sections.push(`Matched tests counts: ${formatStatusCounts(counts.matchedTestsByStatus)}`);
 
     const activeFilters = formatActiveFilters(filters);
     if (activeFilters) {
@@ -270,7 +268,7 @@ export async function saveTestResultsJsonReport(
         matchedTestCounts: counts.matchedTestsByStatus,
         results: [...results],
     };
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const timestamp = formatTimestamp();
     const filePath = path.join(SAVED_JSON_DIR, `test-results-${timestamp}-${randomUUID()}.json`);
     const jsonExample = JSON.stringify(
         {

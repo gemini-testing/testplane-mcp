@@ -3,6 +3,7 @@ import fs from "fs/promises";
 import os from "os";
 import { randomUUID } from "node:crypto";
 import { WdioBrowser } from "testplane";
+import { formatTimestamp } from "../utils/formatters.js";
 
 export interface BrowserTab {
     title: string;
@@ -161,7 +162,7 @@ export async function savePageSnapshotToFile(
     const dir = path.join(os.tmpdir(), ".testplane", "snapshots");
     await fs.mkdir(dir, { recursive: true });
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const timestamp = formatTimestamp();
     const extension = result.fenceLanguage === "html" ? "html" : "yml";
     const filePath = path.join(dir, `${timestamp}-${randomUUID()}.${extension}`);
 
