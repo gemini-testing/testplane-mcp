@@ -47,7 +47,7 @@ export class RequestHandler {
             return { id: req.id, kind: "error", code: "INVALID_ARGS", message };
         }
 
-        const state = sessions.getOrCreate(req.sessionName);
+        const state = sessions.beginInteraction(req.sessionName);
 
         try {
             if (tool.kind === ToolKind.Action) {
@@ -96,7 +96,7 @@ export class RequestHandler {
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const closeResult = await tool.cb(parsedArgs as any, state.browser);
-            state.browser = null;
+            sessions.clearBrowser(req.sessionName, state);
 
             return { id: req.id, kind: "result", content: closeResult.content, isError: closeResult.isError };
         } catch (error) {
@@ -104,6 +104,8 @@ export class RequestHandler {
             debug("Tool error: id=%d tool=%s message=%s", req.id, req.tool, message);
 
             return { id: req.id, kind: "error", code: "TOOL_ERROR", message };
+        } finally {
+            sessions.endInteraction(req.sessionName, state);
         }
     }
 }

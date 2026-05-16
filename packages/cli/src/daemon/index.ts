@@ -9,10 +9,12 @@ import { IdleWatchdog } from "./idle-watchdog.js";
 import { SessionRegistry } from "./session-registry.js";
 import { formatError } from "../utils/error.js";
 import { RequestHandler } from "./request-handler.js";
+import { parseSessionTtlMs, SESSION_TTL_ENV } from "../utils/session-timeout.js";
 
 const debug = makeDebug("testplane-cli:daemon");
 
 const IDLE_TTL_MS = Number(process.env.TESTPLANE_CLI_DAEMON_IDLE_MS ?? 30000);
+const SESSION_TTL_MS = parseSessionTtlMs(process.env[SESSION_TTL_ENV]);
 const LOG_MAX_BYTES = 5 * 1024 * 1024;
 const DEFAULT_HEADLESS = !/^(0|false|no)$/i.test(process.env.TESTPLANE_CLI_HEADLESS ?? "");
 
@@ -36,7 +38,7 @@ function prepareRuntimeFiles(dir: string, logPath: string): void {
 }
 
 export async function startDaemon(): Promise<void> {
-    const sessions = new SessionRegistry({ headless: DEFAULT_HEADLESS });
+    const sessions = new SessionRegistry({ headless: DEFAULT_HEADLESS }, { sessionTtlMs: SESSION_TTL_MS });
     const requestDispatcher = new RequestHandler();
     const { dir, socket: socketPath, log: logPath } = socketPathFor(findProjectRoot());
     prepareRuntimeFiles(dir, logPath);
