@@ -7,6 +7,7 @@ import { selectOption } from "./tools/select-option.js";
 import { waitForElement } from "./tools/wait-for-element.js";
 import { takePageSnapshot } from "./tools/take-page-snapshot.js";
 import { takeViewportScreenshot } from "./tools/take-viewport-screenshot.js";
+import { browserConsole } from "./tools/browser-console.js";
 import { listTabs } from "./tools/list-tabs.js";
 import { switchToTab } from "./tools/switch-to-tab.js";
 import { openNewTab } from "./tools/open-new-tab.js";
@@ -29,6 +30,7 @@ export const tools = typeCheckedTools([
     waitForElement,
     takePageSnapshot,
     takeViewportScreenshot,
+    browserConsole,
     listTabs,
     switchToTab,
     openNewTab,

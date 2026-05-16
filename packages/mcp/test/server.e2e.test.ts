@@ -15,6 +15,7 @@ const EXPECTED_TOOL_NAMES = [
     "wait",
     "snapshot",
     "screenshot",
+    "console",
     "list-tabs",
     "switch-tab",
     "new-tab",
@@ -75,6 +76,22 @@ describe(
         it("re-auto-launches after a closeBrowser", async () => {
             const result = await client.callTool({ name: "navigate", arguments: { url: playgroundUrl } });
             expect(result.isError).toBe(false);
+        });
+
+        it("returns browser-side console messages from a real page", async () => {
+            const consolePageUrl = `${playgroundUrl}/console.html`;
+            const navigateResult = await client.callTool({ name: "navigate", arguments: { url: consolePageUrl } });
+            expect(navigateResult.isError).toBe(false);
+
+            const result = await client.callTool({ name: "console", arguments: {} });
+            expect(result.isError).toBe(false);
+
+            const content = result.content as Array<{ type: string; text: string }>;
+            const text = content.map(c => c.text).join("\n");
+            expect(text).toContain("Retrieved");
+            expect(text).toContain('const consoleMessages = await browser.getLogs("browser");');
+            expect(text).toContain("testplane-mcp-console-e2e warning");
+            expect(text).toContain("testplane-mcp-console-e2e error");
         });
 
         it("surfaces tool-level errors as isError responses", async () => {
