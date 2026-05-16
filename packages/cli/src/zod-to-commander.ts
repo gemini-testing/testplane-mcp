@@ -129,7 +129,7 @@ export function registerFlag(cmd: Command, name: string, meta: ZodFieldMeta): vo
                     if (raw === "false" || raw === "0") {
                         return false;
                     }
-                    throw new Error(`--${key} must be boolean ("true" or "false"), got "${raw}"`);
+                    throw new Error(`--${key} must be boolean ("true" / 1 or "false" / 0), got "${raw}"`);
                 });
                 break;
             }
