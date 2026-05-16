@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import type { WdioBrowser } from "testplane";
 
 import { SessionRegistry } from "../../src/daemon/session-registry.js";
-import { DEFAULT_SESSION_TTL_MS, parseSessionTtlMs } from "../../src/session-timeout.js";
+import { DEFAULT_SESSION_TTL_MS, parseSessionTtlMs } from "../../src/utils/session-timeout.js";
 
 function createBrowser(): WdioBrowser & { deleteSession: ReturnType<typeof vi.fn> } {
     return {
