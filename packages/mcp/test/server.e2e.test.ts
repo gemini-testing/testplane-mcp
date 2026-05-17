@@ -22,6 +22,7 @@ const EXPECTED_TOOL_NAMES = [
     "close-tab",
     // report tools
     "test-results",
+    "inspect-result",
     // session tools
     "launch",
     "attach",
