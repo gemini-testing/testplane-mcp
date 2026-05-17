@@ -22,8 +22,14 @@ A collection of AI integrations for Testplane, which enables agents to interact 
 - AI Agents no longer have to take guesses as to how your app works — they can truly see what's happening inside a browser and write quality tests for you
 - Let LLMs use text-based or visual-based snapshots, depending on what works better for your app
 
+### Testplane CLI
+
+Testplane CLI is a command line interface for inspecting and controlling a browser from your terminal. It makes possible to perform any browser interactions, inspect HTML Reports and Time Travel snapshots, use REPL mode to debug failing tests and more.
+
+Read [full documentation](./packages/cli/README.md) to learn more.
+
 ### Testplane MCP
 
-Testplane MCP is a [Model Context Protocol server](https://modelcontextprotocol.io/quickstart/user) for Testplane, which enables LLMs to "see" and interact with any web app.
+Testplane MCP is a [Model Context Protocol server](https://modelcontextprotocol.io/quickstart/user) for Testplane, which has the same capabilities as Testplane CLI and allows LLMs to "see" and interact with any web app.
 
 Read [full documentation](./packages/mcp/README.md) to learn more.
