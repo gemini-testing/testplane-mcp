@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { ActionTool, ToolKind } from "../types.js";
 import { createSimpleResponse } from "../responses/index.js";
+import { isReplCodeRunner } from "../browser/repl-browser.js";
 
 const FUNCTION_NODE_TYPES = new Set(["ArrowFunctionExpression", "FunctionExpression", "FunctionDeclaration"]);
 
@@ -187,9 +188,15 @@ async function getSource(args: { code?: string; file?: string }): Promise<string
     return readFile(filePath, "utf8");
 }
 
-const runCodeCb: ActionTool<typeof runCodeSchema>["cb"] = async (args, browser) => {
+const runCodeCb: ActionTool<typeof runCodeSchema, unknown>["cb"] = async (args, browser) => {
     try {
         const source = await getSource(args);
+        if (isReplCodeRunner(browser)) {
+            const result = await browser.runCodeInRepl(source);
+
+            return createSimpleResponse(json({ result }));
+        }
+
         const result = await executeSource(source, browser);
 
         return createSimpleResponse(json({ result }));
@@ -198,12 +205,13 @@ const runCodeCb: ActionTool<typeof runCodeSchema>["cb"] = async (args, browser) 
     }
 };
 
-export const runCode: ActionTool<typeof runCodeSchema> = {
+export const runCode: ActionTool<typeof runCodeSchema, unknown> = {
     kind: ToolKind.Action,
     name: "run-code",
     description:
         "Run arbitrary Testplane script using the current browser, useful when other tools don't provide the functionality you need. " +
-        "Inline input may be code or a function that receives browser as its only argument.",
+        "Inline input may be code or a function that receives browser as its only argument. In REPL sessions, the code is passed directly to the Testplane REPL.",
+    supportedTransports: ["launch-browser", "attach-repl"],
     schema: runCodeSchema,
     cb: runCodeCb,
     cli: {

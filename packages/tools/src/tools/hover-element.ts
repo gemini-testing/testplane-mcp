@@ -36,6 +36,7 @@ export const hoverElement: ActionTool<typeof elementHoverSchema> = {
     kind: ToolKind.Action,
     name: "hover",
     description: "Hover an element on the page.",
+    supportedTransports: ["launch-browser"],
     schema: elementHoverSchema,
     cb: hoverElementCb,
     cli: { positional: ["selector"], section: "Interaction" },

@@ -19,6 +19,7 @@ export const listTabs: ActionTool<typeof listTabsSchema> = {
     kind: ToolKind.Action,
     name: "list-tabs",
     description: "Get a list of all currently opened browser tabs with their URLs, titles, and active status",
+    supportedTransports: ["launch-browser"],
     schema: listTabsSchema,
     cb: listTabsCb,
     cli: { section: "Tabs" },

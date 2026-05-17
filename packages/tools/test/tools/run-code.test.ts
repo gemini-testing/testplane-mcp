@@ -2,9 +2,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import type { WdioBrowser } from "testplane";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { runCode } from "../../src/tools/run-code.js";
+import type { ReplCodeRunner } from "../../src/browser/repl-browser.js";
 import { getTextContent } from "../setup.js";
 
 function parseResponse(result: { content: unknown }): { result?: unknown; error?: { message?: string } } {
@@ -16,6 +17,12 @@ function createBrowser(): WdioBrowser {
         getUrl: async () => "https://example.test/page",
         getTitle: async () => "Example",
     } as unknown as WdioBrowser;
+}
+
+function createReplBrowser(): ReplCodeRunner & { runCodeInRepl: ReturnType<typeof vi.fn> } {
+    return {
+        runCodeInRepl: vi.fn().mockResolvedValue("https://example.test/page"),
+    };
 }
 
 describe("tools/run-code", () => {
@@ -56,6 +63,17 @@ describe("tools/run-code", () => {
         } finally {
             await fs.rm(tmpDir, { recursive: true, force: true });
         }
+    });
+
+    it("passes source directly to the REPL runner when attached through REPL", async () => {
+        const browser = createReplBrowser();
+        const code = 'const url = await browser.getUrl(); url.replace("/page", "/done")';
+
+        const result = await runCode.cb({ code }, browser);
+
+        expect(result.isError).toBeFalsy();
+        expect(browser.runCodeInRepl).toHaveBeenCalledWith(code);
+        expect(parseResponse(result).result).toBe("https://example.test/page");
     });
 
     it("prints thrown errors as json", async () => {

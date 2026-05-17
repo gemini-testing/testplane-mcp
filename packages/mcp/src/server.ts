@@ -1,9 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import type { ZodRawShape } from "zod";
-import type { WdioBrowser } from "testplane";
 
-import { tools, ToolKind, launchBrowserWithOptions, type BrowserOptions } from "@testplane/tools";
+import { tools, ToolKind, launchBrowserWithOptions, type BrowserOptions, type BrowserSession } from "@testplane/tools";
 
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
@@ -35,7 +34,7 @@ export interface ServerOptions {
 }
 
 export async function startServer(serverOptions: ServerOptions = {}): Promise<McpServer> {
-    let browser: WdioBrowser | null = null;
+    let browser: BrowserSession | null = null;
     const defaultOptions: BrowserOptions = { headless: serverOptions.headless ?? false };
     let sessionOptions: BrowserOptions = { ...defaultOptions };
 
@@ -64,7 +63,7 @@ export async function startServer(serverOptions: ServerOptions = {}): Promise<Mc
                         browser = await launchBrowserWithOptions(defaultOptions);
                     }
 
-                    return tool.cb(args, browser);
+                    return tool.cb(args, browser as never);
                 }
 
                 if (tool.kind === ToolKind.SessionOpen) {

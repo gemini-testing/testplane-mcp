@@ -45,6 +45,7 @@ export const takeViewportScreenshot: ActionTool<typeof takeViewportScreenshotSch
         "Capture a PNG screenshot of the current browser viewport. " +
         "Strongly prefer capturing text-based snapshots using takePageSnapshot tool. " +
         "Only use to test for visual changes when text-based snapshots are not useful.",
+    supportedTransports: ["launch-browser"],
     schema: takeViewportScreenshotSchema,
     cb: takeViewportScreenshotCb,
     cli: { positional: ["filePath"], section: "Inspection" },

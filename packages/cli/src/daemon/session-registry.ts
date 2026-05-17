@@ -1,12 +1,12 @@
-import type { WdioBrowser } from "testplane";
-import type { BrowserOptions } from "@testplane/tools";
+import type { BrowserOptions, BrowserSession, TransportKind } from "@testplane/tools";
 
 import makeDebug from "debug";
 
 const debug = makeDebug("testplane-cli:daemon:session-registry");
 
 export interface SessionState {
-    browser: WdioBrowser | null;
+    browser: BrowserSession | null;
+    transport: TransportKind | null;
     defaultOptions: BrowserOptions;
     options: BrowserOptions;
     activeInteractions: number;
@@ -40,6 +40,7 @@ export class SessionRegistry {
         if (!state) {
             state = {
                 browser: null,
+                transport: null,
                 defaultOptions: { ...this._defaultOptions },
                 options: { ...this._defaultOptions },
                 activeInteractions: 0,
@@ -67,6 +68,7 @@ export class SessionRegistry {
 
     public clearBrowser(sessionName: string, state: SessionState): void {
         state.browser = null;
+        state.transport = null;
         this._cancelExpirationTimer(sessionName, state);
     }
 
@@ -99,7 +101,7 @@ export class SessionRegistry {
             debug("Stale session detected, clearing: session=%s", sessionName);
 
             try {
-                await browser.deleteSession();
+                await this._closeBrowserSession(browser);
             } catch (error) {
                 debug("Stale session cleanup error: session=%s message=%s", sessionName, formatError(error));
             }
@@ -119,7 +121,7 @@ export class SessionRegistry {
             debug("Closing session: session=%s", sessionName);
 
             try {
-                await state.browser.deleteSession();
+                await this._closeBrowserSession(state.browser);
             } catch (error) {
                 debug("Session cleanup error: session=%s message=%s", sessionName, formatError(error));
             }
@@ -152,7 +154,11 @@ export class SessionRegistry {
         state.expirationTimer = null;
     }
 
-    private async _expireSession(sessionName: string, state: SessionState, browser: WdioBrowser | null): Promise<void> {
+    private async _expireSession(
+        sessionName: string,
+        state: SessionState,
+        browser: BrowserSession | null,
+    ): Promise<void> {
         state.expirationTimer = null;
 
         if (!browser || state.browser !== browser || state.activeInteractions > 0) {
@@ -165,13 +171,13 @@ export class SessionRegistry {
         state.browser = null;
 
         try {
-            await browser.deleteSession();
+            await this._closeBrowserSession(browser);
         } catch (error) {
             debug("Session expiration cleanup error: session=%s message=%s", sessionName, formatError(error));
         }
     }
 
-    private async _isSessionAlive(sessionName: string, browser: WdioBrowser): Promise<boolean> {
+    private async _isSessionAlive(sessionName: string, browser: BrowserSession): Promise<boolean> {
         try {
             await browser.getUrl();
         } catch (error) {
@@ -181,5 +187,9 @@ export class SessionRegistry {
         }
 
         return true;
+    }
+
+    private async _closeBrowserSession(browser: BrowserSession): Promise<void> {
+        await browser.deleteSession();
     }
 }

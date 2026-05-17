@@ -129,6 +129,7 @@ export const waitForElement: ActionTool<typeof waitForElementSchema> = {
     kind: ToolKind.Action,
     name: "wait",
     description: `Wait for an element to appear or disappear on the page. Useful for waiting until page loads fully or loading spinners disappear.`,
+    supportedTransports: ["launch-browser"],
     schema: waitForElementSchema,
     cb: waitForElementCb,
     cli: { positional: ["selector"], section: "Interaction" },

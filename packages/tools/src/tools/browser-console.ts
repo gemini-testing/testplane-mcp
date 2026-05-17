@@ -93,6 +93,7 @@ export const browserConsole: ActionTool<typeof browserConsoleSchema> = {
         "Get browser-side console messages. " +
         "This command only works with Chromium-based browsers " +
         'and returns only "unseen" messages - those that were not returned by the previous getLogs call in the current session.',
+    supportedTransports: ["launch-browser"],
     schema: browserConsoleSchema,
     cb: browserConsoleCb,
     cli: { section: "Inspection" },

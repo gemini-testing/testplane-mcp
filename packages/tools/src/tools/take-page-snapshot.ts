@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ActionTool, ToolKind } from "../types.js";
 import { createBrowserStateResponse, createErrorResponse } from "../responses/index.js";
+import type { BrowserAdapter } from "../browser/types.js";
 
 export const takePageSnapshotSchema = {
     includeTags: z.array(z.string()).optional().describe("HTML tags to include in the snapshot besides defaults"),
@@ -14,7 +15,7 @@ export const takePageSnapshotSchema = {
     maxTextLength: z.number().positive().optional().describe("Maximum length of text content before truncation"),
 };
 
-const takePageSnapshotCb: ActionTool<typeof takePageSnapshotSchema>["cb"] = async (args, browser) => {
+const takePageSnapshotCb: ActionTool<typeof takePageSnapshotSchema, BrowserAdapter>["cb"] = async (args, browser) => {
     try {
         const snapshotOptions = {
             includeTags: args.includeTags,
@@ -39,11 +40,12 @@ const takePageSnapshotCb: ActionTool<typeof takePageSnapshotSchema>["cb"] = asyn
     }
 };
 
-export const takePageSnapshot: ActionTool<typeof takePageSnapshotSchema> = {
+export const takePageSnapshot: ActionTool<typeof takePageSnapshotSchema, BrowserAdapter> = {
     kind: ToolKind.Action,
     name: "snapshot",
     description:
         "Capture a DOM snapshot of the current page. Note: by default, not useful tags and attributes are excluded (e.g. script, style, etc.). Prefer to use defaults. Response contains info as to what was omitted. If you need more info, request a snapshot with more tags and attributes.",
+    supportedTransports: ["launch-browser", "attach-repl"],
     schema: takePageSnapshotSchema,
     cb: takePageSnapshotCb,
     cli: { section: "Inspection" },

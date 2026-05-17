@@ -27,6 +27,7 @@ const EXPECTED_TOOL_NAMES = [
     // session tools
     "launch",
     "attach",
+    "attach-repl",
     "close-browser",
     // advanced tools
     "run-code",

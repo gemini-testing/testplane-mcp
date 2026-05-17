@@ -150,6 +150,7 @@ export const selectOption: ActionTool<typeof selectOptionSchema> = {
     kind: ToolKind.Action,
     name: "select",
     description: "Select an option in a native <select> element.",
+    supportedTransports: ["launch-browser"],
     schema: selectOptionSchema,
     cb: selectOptionCb,
     cli: {

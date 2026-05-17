@@ -106,6 +106,7 @@ const launchBrowserCb: SessionOpenTool<typeof launchBrowserSchema>["cb"] = async
         return {
             browser,
             options: updatedOptions,
+            transport: "launch-browser" as const,
             response: createSimpleResponse("Successfully launched browser session"),
         };
     } catch (error) {
