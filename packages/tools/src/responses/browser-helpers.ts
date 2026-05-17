@@ -131,7 +131,13 @@ function formatNotesAsComments(notes: string[], fenceLanguage: "yaml" | "html"):
 
 export interface PageSnapshotResult {
     content: string;
-    fenceLanguage: "yaml" | "html";
+    fenceLanguage: "yaml" | "html" | "diff";
+}
+
+export const INLINE_SNAPSHOT_MAX_LENGTH = 32_000;
+
+export function isPageSnapshotTooLargeForInline(snapshot: PageSnapshotResult): boolean {
+    return snapshot.content.length > INLINE_SNAPSHOT_MAX_LENGTH;
 }
 
 export async function getPageSnapshot(
@@ -152,21 +158,34 @@ export interface SavedPageSnapshot {
     filePath: string;
 }
 
-export async function savePageSnapshotToFile(
-    browser: WdioBrowser,
-    options: CaptureSnapshotOptions = {},
-): Promise<SavedPageSnapshot | null> {
-    const result = await getPageSnapshot(browser, options);
-    if (!result) return null;
-
+async function savePageSnapshotToFile(snapshot: PageSnapshotResult): Promise<SavedPageSnapshot> {
     const dir = path.join(os.tmpdir(), ".testplane", "snapshots");
     await fs.mkdir(dir, { recursive: true });
 
     const timestamp = formatTimestamp();
-    const extension = result.fenceLanguage === "html" ? "html" : "yml";
+    const extension = snapshot.fenceLanguage === "html" ? "html" : snapshot.fenceLanguage === "diff" ? "diff" : "yml";
     const filePath = path.join(dir, `${timestamp}-${randomUUID()}.${extension}`);
 
-    await fs.writeFile(filePath, result.content, "utf8");
+    await fs.writeFile(filePath, snapshot.content, "utf8");
 
     return { filePath };
+}
+
+/** Format a snapshot as a response string, optionally saving it to a file if it is too large for inline display. */
+export async function convertSnapshotToResponse(
+    snapshot: PageSnapshotResult,
+    { forceSaveToFile = false }: { forceSaveToFile?: boolean } = {},
+): Promise<string> {
+    if (forceSaveToFile) {
+        const saved = await savePageSnapshotToFile(snapshot);
+        return `The snapshot was saved to: ${saved.filePath}`;
+    }
+
+    if (!isPageSnapshotTooLargeForInline(snapshot)) {
+        return "```" + snapshot.fenceLanguage + "\n" + snapshot.content + "\n```";
+    }
+
+    const saved = await savePageSnapshotToFile(snapshot);
+
+    return `The snapshot is too large to include inline (${snapshot.content.length} characters; limit ${INLINE_SNAPSHOT_MAX_LENGTH}), so it was saved to: ${saved.filePath}`;
 }

@@ -124,7 +124,7 @@ describe("daemon e2e", () => {
         expect(r.code).toBe(0);
         expect(r.stdout).toContain(`Successfully navigated to ${playgroundUrl}`);
 
-        const snapshotPathMatch = r.stdout.match(/Saved to: (\S+\.(?:yml|html))/);
+        const snapshotPathMatch = r.stdout.match(/The snapshot was saved to: (\S+\.(?:yml|html))/);
         expect(snapshotPathMatch, "navigate response should reference a saved snapshot file").not.toBeNull();
         const snapshotContent = fs.readFileSync(snapshotPathMatch![1], "utf8");
         expect(snapshotContent).toContain("e2e-ok");
@@ -141,7 +141,7 @@ describe("daemon e2e", () => {
         expect(r.code).toBe(0);
         expect(r.stdout).toContain('Successfully selected option by value "jp"');
 
-        const snapshotPathMatch = r.stdout.match(/Saved to: (\S+\.(?:yml|html))/);
+        const snapshotPathMatch = r.stdout.match(/The snapshot was saved to: (\S+\.(?:yml|html))/);
         expect(snapshotPathMatch, "select response should reference a saved snapshot file").not.toBeNull();
         const snapshotContent = fs.readFileSync(snapshotPathMatch![1], "utf8");
         expect(snapshotContent).toContain("selected:jp");

@@ -23,6 +23,7 @@ const EXPECTED_TOOL_NAMES = [
     // report tools
     "test-results",
     "inspect-result",
+    "time-travel-snapshot",
     // session tools
     "launch",
     "attach",
@@ -61,7 +62,7 @@ describe(
             const text = content.map(c => c.text).join("\n");
             expect(text).toContain(`Successfully navigated to ${playgroundUrl}`);
 
-            const snapshotPathMatch = text.match(/Saved to: (\S+\.(?:yml|html))/);
+            const snapshotPathMatch = text.match(/(?:Saved to:|The snapshot was saved to:) (\S+\.(?:yml|html))/);
             expect(snapshotPathMatch, "navigate response should reference a saved snapshot file").not.toBeNull();
             const snapshotContent = fs.readFileSync(snapshotPathMatch![1], "utf8");
             expect(snapshotContent).toContain("server-wiring-ok");

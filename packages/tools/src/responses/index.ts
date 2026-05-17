@@ -1,6 +1,11 @@
 import { WdioBrowser } from "testplane";
 import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { CaptureSnapshotOptions, getPageSnapshot, getBrowserTabs, savePageSnapshotToFile } from "./browser-helpers.js";
+import {
+    CaptureSnapshotOptions,
+    getPageSnapshot,
+    getBrowserTabs,
+    convertSnapshotToResponse,
+} from "./browser-helpers.js";
 
 export type ToolResponse = CallToolResult;
 
@@ -55,21 +60,14 @@ export async function createBrowserStateResponse(
     }
 
     if (options.isSnapshotNeeded !== false) {
-        if (options.inlineSnapshot) {
-            const snapshot = await getPageSnapshot(browser, options.snapshotOptions);
-            if (snapshot) {
-                sections.push("## Current Tab Snapshot");
-                sections.push("```" + snapshot.fenceLanguage + "\n" + snapshot.content + "\n```");
-            }
+        const snapshot = await getPageSnapshot(browser, options.snapshotOptions);
+        if (!snapshot) {
+            sections.push("## Current Tab Snapshot");
+            sections.push("No snapshot captured");
         } else {
-            const saved = await savePageSnapshotToFile(browser, options.snapshotOptions);
-            if (saved) {
-                sections.push("## Current Tab Snapshot");
-                sections.push(
-                    `Saved to: ${saved.filePath}\n` +
-                        `Note: some tags/attributes may be omitted and text may be truncated — see the comments at the top of the file for details.`,
-                );
-            }
+            const response = await convertSnapshotToResponse(snapshot, { forceSaveToFile: !options.inlineSnapshot });
+            sections.push("## Current Tab Snapshot");
+            sections.push(response);
         }
     }
 

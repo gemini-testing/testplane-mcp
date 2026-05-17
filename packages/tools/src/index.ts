@@ -17,6 +17,7 @@ import { attachToBrowser } from "./tools/attach-to-browser.js";
 import { closeBrowser } from "./tools/close-browser.js";
 import { inspectResult } from "./tools/inspect-result/index.js";
 import { testResults } from "./tools/test-results/index.js";
+import { timeTravelSnapshot } from "./tools/time-travel-snapshot/index.js";
 
 // This function just ensures that every item on a type level is a Tool<something>. AFAIK the only way to do this.
 const typeCheckedTools = <const T extends readonly unknown[]>(
@@ -42,6 +43,7 @@ export const tools = typeCheckedTools([
     closeBrowser,
     testResults,
     inspectResult,
+    timeTravelSnapshot,
 ]);
 
 export { launchBrowserWithOptions, ToolKind };

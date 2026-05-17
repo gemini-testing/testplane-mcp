@@ -26,6 +26,7 @@
   "license": "ISC",
   "dependencies": {
     "@testplane/testing-library": "^1.0.5",
+    "@rrweb/replay": "^2.0.0-alpha.18",
     "commander": "^14.0.3",
     "debug": "^4.3.4",
     "html-reporter": "^11.10.0-rc.2",
