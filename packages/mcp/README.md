@@ -169,6 +169,22 @@ Launch a new browser session with custom configuration options.
 
 > **Note:** Testplane MCP automatically downloads Chrome and Firefox. To launch additional browsers (for example, Safari, Edge, or mobile-specific builds), use the `gridUrl` parameter to point to your Selenium grid.
 
+### `save-state`
+Save the current browser state to a JSON file. The saved state can include cookies, localStorage, and sessionStorage.
+
+- **Parameters:**
+  - `path` (string, required): Path to the JSON file. Relative paths are resolved from the current working directory.
+  - `cookies` (boolean, optional): Whether to include cookies. Default: `true`.
+  - `localStorage` (boolean, optional): Whether to include localStorage. Default: `true`.
+  - `sessionStorage` (boolean, optional): Whether to include sessionStorage. Default: `true`.
+
+### `restore-state`
+Restore browser state from a JSON file. The tool restores whatever is available in the file.
+
+- **Parameters:**
+  - `path` (string, required): Path to the JSON state file. Relative paths are resolved from the current working directory.
+  - `refresh` (boolean, optional): Whether to reload the current page after restoring state. Default: `true`. When enabled, the page reloads so application code can immediately read restored cookies and storage.
+
 </details>
 
 <details>
