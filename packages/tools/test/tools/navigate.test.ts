@@ -47,6 +47,29 @@ describe(
             expect(text).toMatch(/The snapshot was saved to: .+\.testplane\/snapshots\/.+\.(yml|html)/);
         });
 
+        it("should ignore failed resource loads while navigating", async () => {
+            const flakyResourceServer = http.createServer((_req, res) => {
+                res.writeHead(200, { "Content-Type": "text/html" });
+                res.end(
+                    '<!doctype html><html><head><script src="http://127.0.0.1:9/failing-resource.js"></script></head><body>ok</body></html>',
+                );
+            });
+
+            await new Promise<void>(resolve => flakyResourceServer.listen(0, resolve));
+            const port = (flakyResourceServer.address() as AddressInfo).port;
+            const flakyUrl = `http://localhost:${port}/`;
+
+            try {
+                const result = await navigate.cb({ url: flakyUrl, timeout: 5000 }, browser);
+
+                expect(result.isError).toBe(false);
+                const text = getTextContent(result);
+                expect(text).toContain(`Successfully navigated to ${flakyUrl}`);
+            } finally {
+                await new Promise<void>(resolve => flakyResourceServer.close(() => resolve()));
+            }
+        });
+
         describe("timeout behavior", () => {
             it("should omit timeout from generated testplane code when not provided", async () => {
                 const result = await navigate.cb({ url: playgroundUrl }, browser);

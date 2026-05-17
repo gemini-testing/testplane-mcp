@@ -137,6 +137,9 @@ describe("daemon e2e", () => {
             const spawnResp = await runCli(["close-browser"], runCodeEnv, daemonCwd);
             expect(spawnResp.code).toBe(0);
 
+            const launchResp = await runCli(["launch"], runCodeEnv, callerCwd);
+            expect(launchResp.code).toBe(0);
+
             const runResp = await runCli(["run-code", "--file", "./script.js"], runCodeEnv, callerCwd);
             expect(runResp.code).toBe(0);
             expect(runResp.stdout).toContain('"caller-cwd"');
@@ -145,6 +148,12 @@ describe("daemon e2e", () => {
             await runCli(["close-browser"], runCodeEnv, callerCwd).catch(() => {});
             fs.rmSync(tmpDir, { recursive: true, force: true });
         }
+    });
+
+    it("does not auto-launch browser for non-navigate actions", async () => {
+        const r = await runCli(["--session-name", "no-auto-launch", "click", "#btn"], extraEnv);
+        expect(r.code).toBe(1);
+        expect(r.stdout).toContain("No active browser session");
     });
 
     it("navigates to the playground page", async () => {

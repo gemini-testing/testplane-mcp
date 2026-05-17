@@ -56,6 +56,20 @@ describe(
             expect(names).toEqual([...EXPECTED_TOOL_NAMES].sort());
         });
 
+        it("requires an active browser for non-navigate action tools", async () => {
+            const result = await client.callTool({
+                name: "click",
+                arguments: {
+                    selector: "#btn",
+                },
+            });
+            expect(result.isError).toBe(true);
+
+            const content = result.content as Array<{ type: string; text: string }>;
+            const text = content.map(c => c.text).join("\n");
+            expect(text).toContain("No active browser session");
+        });
+
         it("auto-launches the browser on first action tool call", async () => {
             const result = await client.callTool({ name: "navigate", arguments: { url: playgroundUrl } });
             expect(result.isError).toBe(false);
