@@ -119,6 +119,34 @@ describe("daemon e2e", () => {
         expect(r.stdout).toContain("No active browser session to close");
     });
 
+    it("resolves run-code --file relative to the current CLI invocation", async () => {
+        const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "testplane-cli-run-code-cwd-"));
+        const daemonCwd = path.join(tmpDir, "daemon-cwd");
+        const callerCwd = path.join(tmpDir, "caller-cwd");
+        const runCodeEnv = {
+            ...extraEnv,
+            TESTPLANE_CLI_SOCKET_OVERRIDE: path.join(tmpDir, "run-code-cwd.sock"),
+        };
+
+        fs.mkdirSync(daemonCwd);
+        fs.mkdirSync(callerCwd);
+        fs.writeFileSync(path.join(daemonCwd, "script.js"), '"daemon-cwd";');
+        fs.writeFileSync(path.join(callerCwd, "script.js"), '"caller-cwd";');
+
+        try {
+            const spawnResp = await runCli(["close-browser"], runCodeEnv, daemonCwd);
+            expect(spawnResp.code).toBe(0);
+
+            const runResp = await runCli(["run-code", "--file", "./script.js"], runCodeEnv, callerCwd);
+            expect(runResp.code).toBe(0);
+            expect(runResp.stdout).toContain('"caller-cwd"');
+            expect(runResp.stdout).not.toContain('"daemon-cwd"');
+        } finally {
+            await runCli(["close-browser"], runCodeEnv, callerCwd).catch(() => {});
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        }
+    });
+
     it("navigates to the playground page", async () => {
         const r = await runCli(["navigate", playgroundUrl], extraEnv);
         expect(r.code).toBe(0);

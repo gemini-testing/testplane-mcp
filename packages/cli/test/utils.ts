@@ -11,10 +11,11 @@ export interface CliResult {
     code: number;
 }
 
-export function runCli(args: string[], extraEnv: Record<string, string> = {}): Promise<CliResult> {
+export function runCli(args: string[], extraEnv: Record<string, string> = {}, cwd?: string): Promise<CliResult> {
     return new Promise((resolve, reject) => {
         const child = spawn(process.execPath, [CLI_JS, ...args], {
             env: { ...process.env, ...extraEnv },
+            cwd,
         });
         let stdout = "";
         let stderr = "";
