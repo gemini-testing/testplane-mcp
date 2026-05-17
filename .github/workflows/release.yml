@@ -10,6 +10,7 @@ concurrency:
     cancel-in-progress: true
 
 permissions:
+    id-token: write
     contents: write
     pull-requests: write
 
@@ -19,6 +20,7 @@ jobs:
         outputs:
             releases_created: ${{ steps.release.outputs.releases_created }}
             paths_released: ${{ steps.release.outputs.paths_released }}
+            cli_release_created: ${{ steps.release.outputs['packages/cli--release_created'] }}
             mcp_release_created: ${{ steps.release.outputs['packages/mcp--release_created'] }}
         steps:
             - uses: googleapis/release-please-action@v4
@@ -46,5 +48,22 @@ jobs:
             - run: npm run build --workspace @testplane/mcp
 
             - run: npm publish --workspace @testplane/mcp --access public
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    publish-cli:
+        needs: release-please
+        if: ${{ needs.release-please.outputs.cli_release_created == 'true' }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+                  registry-url: "https://registry.npmjs.org"
+                  cache: "npm"
+
+            - run: npm ci
+
+            - run: npm run build --workspace @testplane/cli
+
+            - run: npm publish --workspace @testplane/cli --access public

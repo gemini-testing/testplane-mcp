@@ -1,6 +1,10 @@
 {
     "bump-minor-pre-major": true,
     "packages": {
+        "packages/cli": {
+            "release-type": "node",
+            "package-name": "@testplane/cli"
+        },
         "packages/mcp": {
             "release-type": "node",
             "package-name": "@testplane/mcp"
