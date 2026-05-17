@@ -134,7 +134,7 @@ function getErrorLine(result: ReporterTestResult): string | null {
 
     const error = formatError(result.error) ?? getFailedImageInfo(result);
 
-    return error ?? (shouldMentionMissingError ? "No error message" : null);
+    return !error && shouldMentionMissingError ? "No error message" : error;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -259,11 +259,11 @@ function toAttachmentView(attachment: ReporterAttachment, includeBase64: boolean
 /** Picks fields from a test result and returns a view object. */
 export function toTestResultView(
     result: ReporterTestResult,
-    fields?: readonly DetailedTestResultField[],
+    fields: readonly DetailedTestResultField[],
     options: TestResultViewOptions = {},
 ): TestResultView {
     const view: TestResultView = {};
-    const outputFields = fields ?? DETAILED_TEST_RESULT_FIELDS;
+    const outputFields = fields && fields.length > 0 ? fields : DETAILED_TEST_RESULT_FIELDS;
     const includeBase64 = options.includeBase64 ?? false;
     const errorFormat = options.errorFormat ?? "full";
 

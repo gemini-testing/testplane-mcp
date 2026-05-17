@@ -14,17 +14,17 @@ function getInspectResultSelectionError(
     const resultsWithMatchingName = results.filter(result => result.fullName === args.name);
 
     if (!resultsWithMatchingName.length) {
-        return `No test result found with name "${args.name}". You can check what tests are available with the "test-results" tool.`;
+        return `Test with name "${args.name}" wasn't found in this report. You can check what tests are available with the "test-results" tool.`;
     }
 
     const resultsWithMatchingBrowser = resultsWithMatchingName.filter(result => result.browserId === args.browser);
     if (!resultsWithMatchingBrowser.length) {
         const availableBrowsers = [...new Set(resultsWithMatchingName.map(result => result.browserId))].sort();
 
-        return `No test result found with name "${args.name}" in browser "${args.browser}". Available browsers: ${availableBrowsers.join(", ")}.`;
+        return `Test with name "${args.name}" wasn't run in browser "${args.browser}", it was run only in: ${availableBrowsers.join(", ")}.`;
     }
 
-    const availableAttempts = [...new Set(resultsWithMatchingBrowser.map(result => result.attempt))].sort();
+    const availableAttempts = resultsWithMatchingBrowser.map(result => result.attempt).sort();
 
     return `No attempt ${args.attempt} found for test "${args.name}" in browser "${args.browser}". Available attempts: ${availableAttempts.join(", ")}.`;
 }
@@ -70,11 +70,11 @@ const inspectResultCb: StandaloneTool<typeof inspectResultSchema>["cb"] = async 
         const results = await readResultsFromReport(reportPath);
         const selectedResults = findTestResults(results, args);
         const views = selectedResults.map(result =>
-            toTestResultView(result, undefined, { includeBase64: args.includeBase64 }),
+            toTestResultView(result, [], { includeBase64: args.includeBase64 }),
         );
         const view = args.attempt === undefined ? views : views[0];
 
-        return createSimpleResponse(JSON.stringify(view, null, args.pretty ? 2 : undefined));
+        return createSimpleResponse(JSON.stringify(view, null, args.pretty ? 2 : 0));
     } catch (error) {
         console.error("Error inspecting test result from report:", error);
 

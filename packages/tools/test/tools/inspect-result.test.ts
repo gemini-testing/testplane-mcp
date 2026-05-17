@@ -126,8 +126,8 @@ describe("tools/inspect-result", () => {
             attachments: [],
         } as unknown as ReporterTestResult;
 
-        const withoutBase64 = JSON.stringify(toTestResultView(reporterResult));
-        const withBase64 = JSON.stringify(toTestResultView(reporterResult, undefined, { includeBase64: true }));
+        const withoutBase64 = JSON.stringify(toTestResultView(reporterResult, []));
+        const withBase64 = JSON.stringify(toTestResultView(reporterResult, [], { includeBase64: true }));
 
         expect(withoutBase64).not.toContain("secret-error-base64");
         expect(withoutBase64).not.toContain("secret-image-base64");
