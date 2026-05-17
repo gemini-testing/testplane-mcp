@@ -1,6 +1,6 @@
 {
   "name": "@testplane/cli",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "Daemon-backed CLI for Testplane browser-automation tools",
   "main": "build/cli.js",
   "type": "module",
