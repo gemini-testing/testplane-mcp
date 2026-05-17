@@ -2,6 +2,7 @@ import { ReporterTestResult } from "html-reporter/experimental/sdk";
 import { TimeTravelArchive } from "./rrweb-snapshots.js";
 import { TimeTravelSnapshotArgs } from "./schema.js";
 import { ReporterTestStep, SelectedSnapshotTime, SnapshotInputSelection } from "./types.js";
+import { formatTimestamp } from "../../utils/formatters.js";
 
 function formatOffset(offsetMs: number): string {
     return offsetMs >= 0 ? `+${offsetMs}ms` : `${offsetMs}ms`;
@@ -63,7 +64,7 @@ export function formatReportTestSteps(result: ReporterTestResult, snapshotStartT
 function formatSelectedTime(selection: SelectedSnapshotTime): string {
     const lines = [
         `Reason: ${selection.reason}`,
-        `Absolute timestamp: ${selection.absoluteTime} (${new Date(selection.absoluteTime).toISOString()})`,
+        `Absolute timestamp: ${selection.absoluteTime} (${formatTimestamp(selection.absoluteTime)})`,
         `Offset from first rrweb event: ${selection.offsetMs}ms`,
     ];
 
@@ -72,9 +73,7 @@ function formatSelectedTime(selection: SelectedSnapshotTime): string {
     }
 
     if (selection.wasClamped && selection.unclampedTime !== undefined) {
-        lines.push(
-            `Unclamped timestamp: ${selection.unclampedTime} (${new Date(selection.unclampedTime).toISOString()})`,
-        );
+        lines.push(`Unclamped timestamp: ${selection.unclampedTime} (${formatTimestamp(selection.unclampedTime)})`);
     }
 
     return lines.join("\n");
@@ -89,7 +88,7 @@ function formatSourceInfo(
         `Mode: ${input.mode}`,
         `Snapshot source: ${archive.source}`,
         `Events: ${archive.events.length}`,
-        `Snapshot range: ${archive.metadata.startTime} (${new Date(archive.metadata.startTime).toISOString()}) - ${archive.metadata.endTime} (${new Date(archive.metadata.endTime).toISOString()}); total ${archive.metadata.totalTime}ms`,
+        `Snapshot range: ${archive.metadata.startTime} (${formatTimestamp(archive.metadata.startTime)}) - ${archive.metadata.endTime} (${formatTimestamp(archive.metadata.endTime)}); total ${archive.metadata.totalTime}ms`,
     ];
 
     if (input.result) {
