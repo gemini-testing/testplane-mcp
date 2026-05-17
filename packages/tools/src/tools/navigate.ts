@@ -4,7 +4,7 @@ import { createBrowserStateResponse, createErrorResponse } from "../responses/in
 
 export const navigateSchema = {
     url: z.string().url("Invalid URL format").describe("The URL to navigate to"),
-    timeout: z.number().optional().describe("Maximum time to wait in milliseconds. Default: 30000"),
+    timeout: z.number().optional().default(30000).describe("Maximum time to wait in milliseconds. Default: 30000"),
 };
 
 const navigateCb: ActionTool<typeof navigateSchema>["cb"] = async (args, browser) => {

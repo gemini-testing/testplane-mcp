@@ -137,6 +137,9 @@ describe("daemon e2e", () => {
             const spawnResp = await runCli(["close-browser"], runCodeEnv, daemonCwd);
             expect(spawnResp.code).toBe(0);
 
+            const launchResp = await runCli(["launch"], runCodeEnv, callerCwd);
+            expect(launchResp.code).toBe(0);
+
             const runResp = await runCli(["run-code", "--file", "./script.js"], runCodeEnv, callerCwd);
             expect(runResp.code).toBe(0);
             expect(runResp.stdout).toContain('"caller-cwd"');
