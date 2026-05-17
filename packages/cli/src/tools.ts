@@ -1,4 +1,5 @@
 import { Command } from "commander";
+import path from "node:path";
 import type { ZodTypeAny } from "zod";
 
 import { tools } from "@testplane/tools";
@@ -23,6 +24,17 @@ interface ToolToRegister {
 }
 
 let nextRequestId = 1;
+
+function prepareCliArgs(toolName: string, args: Record<string, unknown>): Record<string, unknown> {
+    if (toolName !== "run-code" || typeof args.file !== "string" || path.isAbsolute(args.file)) {
+        return args;
+    }
+
+    return {
+        ...args,
+        file: path.resolve(process.cwd(), args.file),
+    };
+}
 
 function registerTool(program: Command, tool: ToolToRegister, getSessionName: () => string): void {
     const cmd = program.command(tool.name).description(tool.description);
@@ -75,13 +87,15 @@ function registerTool(program: Command, tool: ToolToRegister, getSessionName: ()
                 args[positionalNames[i]] = value;
             }
 
-            debug("Invoking: tool=%s args=%o", tool.name, args);
+            const requestArgs = prepareCliArgs(tool.name, args);
+
+            debug("Invoking: tool=%s args=%o", tool.name, requestArgs);
             const res = await sendRequest({
                 id: nextRequestId++,
                 kind: "call",
                 tool: tool.name,
                 sessionName: getSessionName(),
-                args,
+                args: requestArgs,
             });
 
             renderAndExit(res);
